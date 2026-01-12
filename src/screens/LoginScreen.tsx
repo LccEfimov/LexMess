@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {saveLocalAccount} from '../storage/localAccountStorage';
+import {i18n} from '../i18n';
 
 interface Props {
   navigation: any;
@@ -39,7 +40,7 @@ export const LoginScreen: React.FC<Props> = ({navigation, route, onAuthed}) => {
   const doLogin = async () => {
     const l = (login || '').trim();
     if (!l || !password) {
-      setError('Введите логин и пароль');
+      setError(i18n.t('auth.login.errors.missing'));
       return;
     }
 
@@ -70,12 +71,12 @@ export const LoginScreen: React.FC<Props> = ({navigation, route, onAuthed}) => {
         if (m && m[1]) {
           const sec = Math.max(0, parseInt(m[1], 10) || 0);
           const min = Math.max(1, Math.ceil(sec / 60));
-          setError(`Слишком много попыток. Повторите через ${min} мин.`);
+          setError(i18n.t('auth.login.errors.tooManyAttemptsWithMinutes', {minutes: min}));
         } else {
-          setError('Слишком много попыток. Подождите и попробуйте снова.');
+          setError(i18n.t('auth.login.errors.tooManyAttempts'));
         }
       } else {
-        setError((e && e.message) || 'Ошибка входа');
+        setError((e && e.message) || i18n.t('auth.login.errors.loginFailed'));
       }
     } finally {
       setBusy(false);
@@ -87,27 +88,27 @@ export const LoginScreen: React.FC<Props> = ({navigation, route, onAuthed}) => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <Text style={styles.title}>Вход</Text>
-        <Text style={styles.subtitle}>Введите логин и пароль</Text>
+        <Text style={styles.title}>{i18n.t('auth.login.title')}</Text>
+        <Text style={styles.subtitle}>{i18n.t('auth.login.subtitle')}</Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Логин</Text>
+        <Text style={styles.label}>{i18n.t('auth.login.loginLabel')}</Text>
         <TextInput
           value={login}
           onChangeText={setLogin}
-          placeholder="например: piton_01"
+          placeholder={i18n.t('auth.login.loginPlaceholder')}
           placeholderTextColor={t.colors.placeholder}
           autoCapitalize="none"
           autoCorrect={false}
           style={styles.input}
         />
 
-        <Text style={[styles.label, {marginTop: 12}]}>Пароль</Text>
+        <Text style={[styles.label, {marginTop: 12}]}>{i18n.t('auth.login.passwordLabel')}</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
-          placeholder="пароль"
+          placeholder={i18n.t('auth.login.passwordPlaceholder')}
           placeholderTextColor={t.colors.placeholder}
           secureTextEntry
           autoCapitalize="none"
@@ -124,20 +125,20 @@ export const LoginScreen: React.FC<Props> = ({navigation, route, onAuthed}) => {
           {busy ? (
             <ActivityIndicator />
           ) : (
-            <Text style={styles.btnText}>Войти</Text>
+            <Text style={styles.btnText}>{i18n.t('auth.login.submit')}</Text>
           )}
         </Pressable>
 
         <Pressable
           style={({pressed}) => [styles.linkBtn, pressed && styles.btnPressed]}
           onPress={() => navigation.navigate('RecoveryReset', {prefillLogin: login})}>
-          <Text style={styles.linkText}>Забыли пароль?</Text>
+          <Text style={styles.linkText}>{i18n.t('auth.login.forgotPassword')}</Text>
         </Pressable>
 
         <Pressable
           style={({pressed}) => [styles.linkBtn, pressed && styles.btnPressed]}
           onPress={() => navigation.goBack()}>
-          <Text style={styles.linkText}>Назад</Text>
+          <Text style={styles.linkText}>{i18n.t('auth.login.back')}</Text>
         </Pressable>
       </View>
     </KeyboardAvoidingView>

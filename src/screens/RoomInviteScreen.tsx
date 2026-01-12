@@ -6,6 +6,7 @@ import {useLexmessApi} from '../hooks/useLexmessApi';
 import type {Theme} from '../theme/themes';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
+import {i18n} from '../i18n';
 
 type Props = {
   navigation: any;
@@ -38,7 +39,6 @@ export const RoomInviteScreen: React.FC<Props> = ({navigation, route}) => {
     };
   }, [api, roomId]);
 
-
   const handleRefresh = async () => {
     try {
       if (!roomId) return;
@@ -56,9 +56,11 @@ export const RoomInviteScreen: React.FC<Props> = ({navigation, route}) => {
     }
     try {
       const messageLines = [
-        title ? `Комната: ${title}` : undefined,
-        roomId ? `ID комнаты: ${roomId}` : undefined,
-        liveInviteCode ? `Инвайт-код: ${liveInviteCode}` : undefined,
+        title ? i18n.t('roomInvite.share.room', {title}) : undefined,
+        roomId ? i18n.t('roomInvite.share.roomId', {roomId}) : undefined,
+        liveInviteCode
+          ? i18n.t('roomInvite.share.inviteCode', {inviteCode: liveInviteCode})
+          : undefined,
       ].filter(Boolean);
       await Share.share({
         message: messageLines.join('\n'),
@@ -77,30 +79,32 @@ export const RoomInviteScreen: React.FC<Props> = ({navigation, route}) => {
 
   return (
     <View style={styles.root}>
-      <AppHeader title="Комната создана" onBack={() => navigation.goBack()} right={null} />
+      <AppHeader title={i18n.t('roomInvite.title')} onBack={() => navigation.goBack()} right={null} />
 
       <Card style={styles.card}>
-        <Text style={[styles.label, styles.cardItem]}>Комната</Text>
+        <Text style={[styles.label, styles.cardItem]}>{i18n.t('roomInvite.labels.room')}</Text>
         <Text style={[styles.value, styles.cardItem]}>
-          {title || roomId || 'Новая комната'}
+          {title || roomId || i18n.t('roomInvite.fallbackRoomTitle')}
         </Text>
 
-        <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>ID комнаты</Text>
+        <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>
+          {i18n.t('roomInvite.labels.roomId')}
+        </Text>
         <Text style={[styles.value, styles.cardItem]}>{roomId}</Text>
 
-        <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>Инвайт-код</Text>
+        <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>
+          {i18n.t('roomInvite.labels.inviteCode')}
+        </Text>
         {liveInviteCode ? (
           <Text style={styles.inviteValue}>{liveInviteCode}</Text>
         ) : (
-          <Text style={styles.valueMuted}>
-            Для этой комнаты код не установлен
-          </Text>
+          <Text style={styles.valueMuted}>{i18n.t('roomInvite.noInviteCode')}</Text>
         )}
       </Card>
 
       {roomId && (
         <Button
-          title="Обновить код"
+          title={i18n.t('roomInvite.actions.refreshCode')}
           variant="ghost"
           style={styles.secondaryButton}
           onPress={handleRefresh}
@@ -109,14 +113,18 @@ export const RoomInviteScreen: React.FC<Props> = ({navigation, route}) => {
 
       {liveInviteCode && (
         <Button
-          title="Поделиться кодом"
+          title={i18n.t('roomInvite.actions.shareCode')}
           variant="ghost"
           style={styles.secondaryButton}
           onPress={handleShare}
         />
       )}
 
-      <Button title="Перейти в чат" style={styles.primaryButton} onPress={handleGoChat} />
+      <Button
+        title={i18n.t('roomInvite.actions.goToChat')}
+        style={styles.primaryButton}
+        onPress={handleGoChat}
+      />
     </View>
   );
 };
