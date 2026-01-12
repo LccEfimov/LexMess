@@ -1,4 +1,4 @@
-import {useCallback, useMemo} from 'react';
+import {useCallback} from 'react';
 import {getAccessToken, saveAccessToken, clearAccessToken} from '../storage/authTokenStorage';
 import {API_BASE_URL} from '../config/networkConfig';
 
@@ -607,73 +607,9 @@ const authChangePassword = useCallback(
     });
 
     if (res && res.access_token) {
-      return useMemo(
-    () => ({
-      authRegister,
-      authLogin,
-      authRecoveryAck,
-      authRecoveryReset,
-      authChangePassword,
-      authLogoutAll,
-      authRecoveryRotate,
-      registerAccount,
-      getAccount,
-      getMe,
-      fetchPrekeys,
-      getProfile,
-      updateProfile,
-      createRoom,
-      joinRoom,
-      joinRoomByCode,
-      getRoom,
-      listRooms,
-      inviteToRoom,
-      leaveRoom,
-      kickRoomMember,
-      setRoomMemberRole,
-      ensureDirectRoom,
-      walletMe,
-      walletTx,
-      walletSend,
-      withdrawMin,
-      withdrawRequest,
-      withdrawList,
-      registerPushToken,
-    }),
-    [
-      authRegister,
-      authLogin,
-      authRecoveryAck,
-      authRecoveryReset,
-      authChangePassword,
-      authLogoutAll,
-      authRecoveryRotate,
-      registerAccount,
-      getAccount,
-      getMe,
-      fetchPrekeys,
-      getProfile,
-      updateProfile,
-      createRoom,
-      joinRoom,
-      joinRoomByCode,
-      getRoom,
-      listRooms,
-      inviteToRoom,
-      leaveRoom,
-      kickRoomMember,
-      setRoomMemberRole,
-      ensureDirectRoom,
-      walletMe,
-      walletTx,
-      walletSend,
-      withdrawMin,
-      withdrawRequest,
-      withdrawList,
-      registerPushToken,
-    ],
-  );
-}
+      await saveAccessToken(res.access_token);
+      return {accessToken: res.access_token};
+    }
 
     return {accessToken: null};
   },
@@ -709,14 +645,14 @@ const authRecoveryRotate = useCallback(
   [requestJson],
 );
 
-return {
+  return {
     authRegister,
     authLogin,
     authRecoveryAck,
     authRecoveryReset,
-  authChangePassword,
-  authLogoutAll,
-  authRecoveryRotate,
+    authChangePassword,
+    authLogoutAll,
+    authRecoveryRotate,
     registerAccount,
     getAccount,
     getMe,
