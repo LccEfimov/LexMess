@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {useTheme} from '../theme/ThemeContext';
 import {THEME_OPTIONS, normalizeThemeMode, type Theme, type ThemeMode} from '../theme/themes';
+import {i18n} from '../i18n';
 
 type Props = {
   value: ThemeMode | string | null | undefined;
@@ -14,9 +15,16 @@ export const ThemePicker: React.FC<Props> = ({value, onChange, compact}) => {
   const styles = useMemo(() => makeStyles(t, !!compact), [t, compact]);
 
   const current = useMemo(() => normalizeThemeMode(value), [value]);
+  const locale = i18n.getLocale();
   const options = useMemo(
-    () => [{id: 'system' as const, title: 'Системная'}, ...THEME_OPTIONS],
-    [],
+    () => [
+      {id: 'system' as const, title: i18n.t('theme.system')},
+      ...THEME_OPTIONS.map(option => ({
+        ...option,
+        title: i18n.t(`theme.${option.id}`) || option.title,
+      })),
+    ],
+    [locale],
   );
 
   return (

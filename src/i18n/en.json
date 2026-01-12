@@ -1,0 +1,260 @@
+{
+  "app": {
+    "error": {
+      "title": "Interface error",
+      "body": "Restart the app. If the error repeats, check the API and logs."
+    },
+    "messages": {
+      "event": "[Event]",
+      "text": "Text message",
+      "image": "[Image]",
+      "video": "[Video]",
+      "audio": "[Audio]",
+      "voice": "[Voice message]",
+      "file": "[File]",
+      "youPrefix": "You: {message}"
+    },
+    "participant": {
+      "me": "Me",
+      "peer1": "Contact 1",
+      "peer2": "Contact 2"
+    },
+    "room": {
+      "fallbackTitle": "Room"
+    },
+    "errors": {
+      "noRoomId": "Server did not return room_id",
+      "noRecoveryKey": "Server did not return recovery key"
+    },
+    "call": {
+      "group": "Group",
+      "selective": "Selective"
+    }
+  },
+  "tabs": {
+    "chats": "Chats",
+    "rooms": "Rooms",
+    "wallet": "Wallet",
+    "profile": "Profile"
+  },
+  "authStart": {
+    "subtitle": "Login is unique. Display name can be anything.",
+    "login": "Sign in",
+    "register": "Register",
+    "hint": "Hint: login uses Latin letters, numbers, . and _"
+  },
+  "register": {
+    "title": "Register",
+    "subtitle": "Choose a login, password, and interface theme",
+    "theme": "Theme",
+    "loginLabel": "Login",
+    "loginPlaceholder": "e.g. piton_01",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "password",
+    "passwordRepeatLabel": "Repeat password",
+    "passwordRepeatPlaceholder": "repeat",
+    "create": "Create account",
+    "creating": "Creating...",
+    "back": "Back",
+    "errors": {
+      "missing": "Enter login and password",
+      "passwordLength": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords do not match",
+      "registerFailed": "Registration error"
+    }
+  },
+  "roomsList": {
+    "title": {
+      "chats": "Chats",
+      "public": "Public",
+      "my": "My rooms",
+      "open": "Open"
+    },
+    "header": {
+      "rooms": "Rooms",
+      "settings": "Settings"
+    },
+    "search": {
+      "chats": "Search chats",
+      "rooms": "Search rooms"
+    },
+    "badge": {
+      "my": "MINE",
+      "open": "OPEN",
+      "private": "PRIV",
+      "public": "PUB"
+    },
+    "noMessages": "No messages",
+    "actions": {
+      "join": "Join",
+      "open": "Open",
+      "leave": "Leave"
+    },
+    "alerts": {
+      "joinErrorTitle": "Error",
+      "joinErrorBody": "Failed to join the room.",
+      "leaveErrorTitle": "Error",
+      "leaveErrorBody": "Failed to leave the room.",
+      "leaveConfirmTitle": "Leave the room?",
+      "leaveConfirmBody": "You will lose quick access to the room. You can join again by invitation.",
+      "leaveConfirmCancel": "Cancel",
+      "leaveConfirmLeave": "Leave"
+    },
+    "pinHint": "Long press to pin/unpin",
+    "empty": {
+      "chatsTitle": "No chats yet",
+      "chatsSubtitle": "Open a room or start a dialog — the history will appear here.",
+      "roomsTitle": "No rooms yet",
+      "roomsSubtitle": "Create a room or join by code — it will appear in the list."
+    }
+  },
+  "chat": {
+    "voiceMessage": "Voice message",
+    "file": "File",
+    "open": "Open",
+    "retry": "Retry",
+    "recipients": {
+      "all": "To all",
+      "selected": "Selective",
+      "selectedCount": "Selective ({count})",
+      "title": "Select recipients",
+      "done": "Done"
+    },
+    "menu": {
+      "title": "Navigation",
+      "main": "Main screen",
+      "room": "About room",
+      "settings": "Settings",
+      "close": "Close menu"
+    },
+    "empty": {
+      "title": "No messages yet",
+      "subtitle": "Send the first message to start the conversation."
+    },
+    "attachments": {
+      "title": "Attachments and calls",
+      "file": "File",
+      "photo": "Photo",
+      "video": "Video",
+      "voiceAll": "Voice to all",
+      "voiceStopAll": "Stop voice to all",
+      "voiceSelective": "Voice selective",
+      "videoAll": "Video to all",
+      "videoSelective": "Video selective",
+      "audioAll": "Audio to all",
+      "audioSelective": "Audio selective",
+      "close": "Close"
+    },
+    "inputPlaceholder": "Message...",
+    "actions": {
+      "title": "Actions",
+      "retrySend": "Retry send",
+      "copyText": "Copy text",
+      "openFile": "Open file",
+      "share": "Share",
+      "cancel": "Cancel"
+    },
+    "shareFallback": "Message"
+  },
+  "settings": {
+    "title": "Profile",
+    "theme": "Theme",
+    "language": "Language",
+    "security": "Security",
+    "navigation": "Navigation",
+    "labels": {
+      "nickname": "Nickname (login)",
+      "displayName": "Display name",
+      "about": "About"
+    },
+    "placeholders": {
+      "login": "login",
+      "displayName": "e.g. Alex",
+      "about": "a few words"
+    },
+    "pinStatus": {
+      "label": "PIN:",
+      "enabled": "enabled",
+      "disabled": "disabled"
+    },
+    "pin": {
+      "set": "Set PIN",
+      "change": "Change PIN",
+      "disable": "Disable",
+      "showRecovery": "Show recovery key",
+      "modalSet": "Set PIN",
+      "modalChange": "New PIN",
+      "modalRepeat": "Repeat PIN",
+      "errorDigits": "PIN must be 4 digits",
+      "errorMismatch": "PINs do not match",
+      "doneTitle": "Done",
+      "setSuccess": "PIN set",
+      "setFailed": "Failed to set PIN",
+      "disableTitle": "Disable PIN",
+      "disableBody": "Disable PIN protection for login and actions?",
+      "disableConfirm": "Disable",
+      "disableSuccess": "PIN disabled",
+      "disableFailed": "Failed to disable PIN",
+      "requireChange": "Change PIN",
+      "requireDisable": "Disable PIN"
+    },
+    "buttons": {
+      "main": "Main",
+      "wallet": "Wallet",
+      "diagnostics": "Diagnostics",
+      "save": "Save",
+      "saving": "...",
+      "back": "Back",
+      "logout": "Log out"
+    },
+    "alerts": {
+      "savedTitle": "Saved",
+      "savedBody": "Settings updated",
+      "saveFailed": "Failed to save",
+      "nicknameRequired": "Nickname cannot be empty",
+      "securityError": "Security error",
+      "logoutAllTitle": "Sign out everywhere",
+      "logoutAllBody": "End all active sessions?",
+      "logoutAllConfirm": "Sign out everywhere",
+      "logoutAllSuccess": "All sessions ended",
+      "logoutAllFailed": "Failed to complete",
+      "recoveryTitle": "Recovery key",
+      "recoveryMissing": "Key not found (it is shown once after registration).",
+      "recoveryLoadFailed": "Failed to load the key"
+    },
+    "password": {
+      "changeTitle": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "repeat": "Repeat new password",
+      "change": "Change",
+      "fillAll": "Fill in all fields",
+      "mismatch": "New passwords do not match",
+      "changed": "Password changed",
+      "changeFailed": "Failed to change password"
+    },
+    "recovery": {
+      "title": "New recovery key",
+      "subtitle": "Generating requires confirming the current password.",
+      "generate": "Generate",
+      "current": "Current password",
+      "missing": "Enter the current password",
+      "failed": "Failed to generate key"
+    }
+  },
+  "theme": {
+    "system": "System",
+    "lexmess_dark": "LexMess (dark)",
+    "lexmess_light": "LexMess (light)",
+    "telegram_dark": "Telegram (dark)",
+    "telegram_light": "Telegram (light)",
+    "whatsapp_dark": "WhatsApp (dark)",
+    "whatsapp_light": "WhatsApp (light)"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "done": "Done",
+    "next": "Next",
+    "error": "Error"
+  }
+}

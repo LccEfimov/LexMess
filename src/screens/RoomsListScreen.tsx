@@ -16,14 +16,17 @@ import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import type {RoomItem} from './RoomsScreen';
+import {i18n} from '../i18n';
 
 type Props = {
   title: string;
   rooms: RoomItem[];
+  listKind?: 'chats' | 'rooms';
   onBack?: (() => void) | null;
   onOpenRoom: (roomId: string, roomTitle?: string) => void;
   onOpenSettings: () => void;
   onOpenMain?: () => void;
+  onNewDirect?: () => void;
   refreshing?: boolean;
   onRefresh?: () => void;
   pinnedByRoom?: Record<string, number>;
@@ -66,6 +69,7 @@ function formatTs(ts?: number | null): string {
 export const RoomsListScreen: React.FC<Props> = ({
   title,
   rooms,
+  listKind = 'rooms',
   onBack,
   onOpenRoom,
   onOpenSettings,
@@ -78,6 +82,7 @@ export const RoomsListScreen: React.FC<Props> = ({
 }) => {
   const t = useTheme();
   const styles = useMemo(() => makeStyles(t), [t]);
+  const locale = i18n.getLocale();
 
   const [search, setSearch] = useState('');
   const normalized = useMemo(() => search.trim().toLowerCase(), [search]);
@@ -97,12 +102,12 @@ export const RoomsListScreen: React.FC<Props> = ({
   }, []);
 
   const visibleRooms = useMemo(() => {
-    const list = Array.isArray(visibleRooms) ? visibleRooms : [];
-    if (title === 'Чаты') {
+    const list = Array.isArray(rooms) ? rooms : [];
+    if (listKind === 'chats') {
       return list.filter(it => isDirectRoom(it));
     }
     return list.filter(it => !isDirectRoom(it));
-  }, [rooms, title, isDirectRoom]);
+  }, [rooms, listKind, isDirectRoom]);
 
 const filtered = useMemo(() => {
     const list = Array.isArray(visibleRooms) ? visibleRooms : [];
@@ -144,15 +149,15 @@ const filtered = useMemo(() => {
       <View style={styles.headerRight}>
         {onOpenMain ? (
           <Pressable style={styles.headerBtn} onPress={onOpenMain}>
-            <Text style={styles.headerBtnText}>Комнаты</Text>
+            <Text style={styles.headerBtnText}>{i18n.t('roomsList.header.rooms')}</Text>
           </Pressable>
         ) : null}
         <Pressable style={styles.headerBtn} onPress={onOpenSettings}>
-          <Text style={styles.headerBtnText}>Настройки</Text>
+          <Text style={styles.headerBtnText}>{i18n.t('roomsList.header.settings')}</Text>
         </Pressable>
       </View>
     );
-  }, [onOpenMain, onOpenSettings, styles]);
+  }, [locale, onOpenMain, onOpenSettings, styles]);
 
   return (
     <View style={styles.root}>
@@ -163,7 +168,11 @@ const filtered = useMemo(() => {
           style={styles.searchInput}
           value={search}
           onChangeText={setSearch}
-          placeholder={title.toLowerCase().includes('чат') ? 'Поиск по чатам' : 'Поиск по комнатам'}
+          placeholder={
+            listKind === 'chats'
+              ? i18n.t('roomsList.search.chats')
+              : i18n.t('roomsList.search.rooms')
+          }
           placeholderTextColor={t.colors.placeholder}
         />
         {search ? (
@@ -189,12 +198,12 @@ const filtered = useMemo(() => {
 
           const badgeText =
             item.type === 'my'
-              ? 'МОЯ'
+              ? i18n.t('roomsList.badge.my')
               : item.type === 'open'
-              ? 'ОТКР'
+              ? i18n.t('roomsList.badge.open')
               : item.isPrivate
-              ? 'ПРИВ'
-              : 'ПУБЛ';
+              ? i18n.t('roomsList.badge.private')
+              : i18n.t('roomsList.badge.public');
 
           return (
             <Pressable
@@ -220,7 +229,7 @@ const filtered = useMemo(() => {
                     </Text>
                   ) : (
                     <Text style={styles.subtitleEmpty} numberOfLines={1}>
-                      Нет сообщений
+                      {i18n.t('roomsList.noMessages')}
                     </Text>
                   )}
                 </View>
@@ -251,9 +260,9 @@ const filtered = useMemo(() => {
               await onJoinRoom(item.id);
             }
             onOpenRoom(item.id, item.title);
-          } catch (e) {
-            console.warn('joinRoom failed', e);
-            Alert.alert('Ошибка', 'Не удалось войти в комнату.');
+            } catch (e) {
+              console.warn('joinRoom failed', e);
+            Alert.alert(i18n.t('roomsList.alerts.joinErrorTitle'), i18n.t('roomsList.alerts.joinErrorBody'));
           }
         };
         doJoin();
@@ -266,12 +275,12 @@ const filtered = useMemo(() => {
           return;
         }
         Alert.alert(
-          'Выйти из комнаты?',
-          'Вы потеряете быстрый доступ к комнате. Можно будет войти снова по приглашению.',
+          i18n.t('roomsList.alerts.leaveConfirmTitle'),
+          i18n.t('roomsList.alerts.leaveConfirmBody'),
           [
-            {text: 'Отмена', style: 'cancel'},
+            {text: i18n.t('roomsList.alerts.leaveConfirmCancel'), style: 'cancel'},
             {
-              text: 'Выйти',
+              text: i18n.t('roomsList.alerts.leaveConfirmLeave'),
               style: 'destructive',
               onPress: () => {
                 const doLeave = async () => {
@@ -281,7 +290,7 @@ const filtered = useMemo(() => {
                     }
                   } catch (e) {
                     console.warn('leaveRoom failed', e);
-                    Alert.alert('Ошибка', 'Не удалось выйти из комнаты.');
+                    Alert.alert(i18n.t('roomsList.alerts.leaveErrorTitle'), i18n.t('roomsList.alerts.leaveErrorBody'));
                   }
                 };
                 doLeave();
@@ -292,7 +301,11 @@ const filtered = useMemo(() => {
       }
     }}>
     <Text style={styles.actionBtnText}>
-      {item.type === 'public' ? 'Вступить' : item.role === 'owner' ? 'Открыть' : 'Выйти'}
+      {item.type === 'public'
+        ? i18n.t('roomsList.actions.join')
+        : item.role === 'owner'
+        ? i18n.t('roomsList.actions.open')
+        : i18n.t('roomsList.actions.leave')}
     </Text>
   </TouchableOpacity>
 ) : (
@@ -301,17 +314,23 @@ const filtered = useMemo(() => {
               </View>
 
               <Text style={styles.hintLine} numberOfLines={1}>
-                {onTogglePin ? 'Долгое нажатие: закрепить/открепить' : ''}
+                {onTogglePin ? i18n.t('roomsList.pinHint') : ''}
               </Text>
             </Pressable>
           );
         }}
         ListEmptyComponent={() => (
           <EmptyState
-            title={title === 'Чаты' ? 'Пока нет чатов' : 'Пока нет комнат'}
-            subtitle={title === 'Чаты'
-              ? 'Откройте комнату или начните диалог — здесь появится история.'
-              : 'Создайте комнату или войдите по коду — она появится в списке.'}
+            title={
+              listKind === 'chats'
+                ? i18n.t('roomsList.empty.chatsTitle')
+                : i18n.t('roomsList.empty.roomsTitle')
+            }
+            subtitle={
+              listKind === 'chats'
+                ? i18n.t('roomsList.empty.chatsSubtitle')
+                : i18n.t('roomsList.empty.roomsSubtitle')
+            }
           />
         )}
         />
