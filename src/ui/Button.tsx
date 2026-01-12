@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {StyleProp, StyleSheet, Text, TouchableOpacity, ViewStyle} from 'react-native';
+import {ActivityIndicator, StyleProp, StyleSheet, Text, TouchableOpacity, ViewStyle} from 'react-native';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {uiRadii, uiSpacing, uiTypography} from './constants';
@@ -10,6 +10,7 @@ export const Button: React.FC<{
   title: string;
   onPress: () => void;
   disabled?: boolean;
+  loading?: boolean;
   style?: StyleProp<ViewStyle>;
   /** legacy */
   small?: boolean;
@@ -19,9 +20,10 @@ export const Button: React.FC<{
   danger?: boolean;
   /** new */
   variant?: ButtonVariant;
-}> = ({title, onPress, disabled, style, small, secondary, danger, variant}) => {
+}> = ({title, onPress, disabled, loading, style, small, secondary, danger, variant}) => {
   const t = useTheme();
 
+  const isDisabled = !!disabled || !!loading;
   const v: ButtonVariant = useMemo(() => {
     if (variant) return variant;
     if (danger) return 'danger';
@@ -29,11 +31,18 @@ export const Button: React.FC<{
     return 'primary';
   }, [danger, secondary, variant]);
 
-  const styles = useMemo(() => makeButtonStyles(t, v, !!disabled, !!small), [t, v, disabled, small]);
+  const {styles, textColor} = useMemo(
+    () => makeButtonStyles(t, v, isDisabled, !!small),
+    [t, v, isDisabled, small],
+  );
 
   return (
-    <TouchableOpacity disabled={disabled} onPress={onPress} style={[styles.btn, style]}>
-      <Text style={styles.text}>{title}</Text>
+    <TouchableOpacity disabled={isDisabled} onPress={onPress} style={[styles.btn, style]}>
+      {loading ? (
+        <ActivityIndicator color={textColor} />
+      ) : (
+        <Text style={styles.text}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 };
@@ -66,12 +75,15 @@ function makeButtonStyles(t: Theme, variant: ButtonVariant, disabled: boolean, s
     text = '#ffffff';
   }
 
-  return StyleSheet.create({
-    btn: {...base, backgroundColor: bg, borderColor: border},
-    text: {
-      ...(small ? t.typography[uiTypography.buttonSmall] : t.typography[uiTypography.buttonRegular]),
-      color: text,
-      fontWeight: '800',
-    },
-  });
+  return {
+    textColor: text,
+    styles: StyleSheet.create({
+      btn: {...base, backgroundColor: bg, borderColor: border},
+      text: {
+        ...(small ? t.typography[uiTypography.buttonSmall] : t.typography[uiTypography.buttonRegular]),
+        color: text,
+        fontWeight: '800',
+      },
+    }),
+  };
 }

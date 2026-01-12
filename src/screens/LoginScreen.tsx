@@ -6,13 +6,13 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {saveLocalAccount} from '../storage/localAccountStorage';
 import {i18n} from '../i18n';
+import {Button} from '../ui/Button';
 import {Input} from '../ui/Input';
 
 interface Props {
@@ -117,25 +117,21 @@ export const LoginScreen: React.FC<Props> = ({navigation, route, onAuthed}) => {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Pressable
-          disabled={busy}
-          style={({pressed}) => [styles.btn, (pressed || busy) && styles.btnPressed]}
-          onPress={doLogin}>
-          {busy ? (
-            <ActivityIndicator />
-          ) : (
-            <Text style={styles.btnText}>{i18n.t('auth.login.submit')}</Text>
-          )}
-        </Pressable>
+        <Button
+          title={i18n.t('auth.login.submit')}
+          onPress={doLogin}
+          loading={busy}
+          style={styles.loginButton}
+        />
 
         <Pressable
-          style={({pressed}) => [styles.linkBtn, pressed && styles.btnPressed]}
+          style={({pressed}) => [styles.linkBtn, pressed && styles.linkPressed]}
           onPress={() => navigation.navigate('RecoveryReset', {prefillLogin: login})}>
           <Text style={styles.linkText}>{i18n.t('auth.login.forgotPassword')}</Text>
         </Pressable>
 
         <Pressable
-          style={({pressed}) => [styles.linkBtn, pressed && styles.btnPressed]}
+          style={({pressed}) => [styles.linkBtn, pressed && styles.linkPressed]}
           onPress={() => navigation.goBack()}>
           <Text style={styles.linkText}>{i18n.t('auth.login.back')}</Text>
         </Pressable>
@@ -183,27 +179,18 @@ const makeStyles = (t: Theme) =>
     color: t.colors.danger,
     ...t.typography.caption,
   },
-  btn: {
+  loginButton: {
     marginTop: t.spacing.md,
     minHeight: t.spacing.xl * 2,
-    borderRadius: t.radii.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: t.colors.primary,
-  },
-  btnPressed: {
-    opacity: 0.85,
-  },
-  btnText: {
-    color: t.colors.onPrimary,
-    ...t.typography.body,
-    fontWeight: '800',
   },
   linkBtn: {
     marginTop: t.spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: t.spacing.sm,
+  },
+  linkPressed: {
+    opacity: 0.85,
   },
   linkText: {
     color: t.colors.text,
