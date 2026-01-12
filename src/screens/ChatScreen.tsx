@@ -5,7 +5,6 @@ import {
   View,
   Text,
   FlatList,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Modal,
@@ -22,6 +21,7 @@ import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {i18n} from '../i18n';
+import {Input} from '../ui/Input';
 
 const makeAttachButtonStyles = (t: Theme) =>
   StyleSheet.create({
@@ -953,12 +953,12 @@ export const ChatScreen: React.FC<Props> = ({
           <Text style={styles.modeText}>{recipientsLabel}</Text>
         </TouchableOpacity>
 
-        <TextInput
+        <Input
+          containerStyle={styles.inputContainer}
           style={styles.input}
           value={text}
           onChangeText={setText}
           placeholder={i18n.t('chat.inputPlaceholder')}
-          placeholderTextColor={t.colors.placeholder}
         />
 
         <TouchableOpacity style={styles.attachButton} onPress={openAttachments}>
@@ -1220,13 +1220,13 @@ const makeStyles = (t: Theme) =>
     color: t.colors.text,
   },
   input: {
-    flex: 1,
     borderRadius: 999,
-    backgroundColor: t.colors.card,
-    paddingHorizontal: 12,
     paddingVertical: 6,
-    color: t.colors.text,
+  },
+  inputContainer: {
+    flex: 1,
     marginRight: 6,
+    marginBottom: 0,
   },
   attachButton: {
     padding: 6,

@@ -6,13 +6,13 @@ import {
   Pressable,
   TouchableOpacity,
   StyleSheet,
-  TextInput,
   RefreshControl,
   Alert,
 } from 'react-native';
 
 import {EmptyState} from '../components/EmptyState';
 import {AppHeader} from '../components/AppHeader';
+import {Input} from '../ui/Input';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import type {RoomItem} from '../types/rooms';
@@ -132,7 +132,8 @@ export const RoomsListScreen: React.FC<Props> = ({
       <AppHeader title={title} onBack={onBack ?? null} right={right} />
 
       <View style={styles.searchWrap}>
-        <TextInput
+        <Input
+          containerStyle={styles.searchInputContainer}
           style={styles.searchInput}
           value={search}
           onChangeText={setSearch}
@@ -141,7 +142,6 @@ export const RoomsListScreen: React.FC<Props> = ({
               ? i18n.t('roomsList.search.chats')
               : i18n.t('roomsList.search.rooms')
           }
-          placeholderTextColor={t.colors.placeholder}
         />
         {search ? (
           <Pressable style={styles.searchClear} onPress={clearSearch} accessibilityRole="button">
@@ -329,15 +329,12 @@ const makeStyles = (t: Theme) =>
       marginHorizontal: 14,
       marginTop: 12,
       marginBottom: 4,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      borderRadius: 14,
-      backgroundColor: t.colors.bgElevated,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
       position: 'relative',
     },
-    searchInput: {...t.typography.bodyRegular, color: t.colors.text, paddingRight: 28},
+    searchInputContainer: {
+      marginBottom: 0,
+    },
+    searchInput: {...t.typography.bodyRegular, paddingRight: 28},
     searchClear: {
       position: 'absolute',
       right: 10,

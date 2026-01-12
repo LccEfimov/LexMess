@@ -1,10 +1,11 @@
 import React, {useEffect, useState, useMemo, useCallback} from 'react';
-import {View, Text, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {loadLocalAccount} from '../storage/localAccountStorage';
 import {i18n} from '../i18n';
+import {Button} from '../ui';
 
 type Props = {
   nickname: string;
@@ -79,15 +80,22 @@ export const ProfileScreen: React.FC<Props> = ({
         </View>
 
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.btn} onPress={onOpenSettings}>
-            <Text style={styles.btnText}>{i18n.t('profile.actions.settings')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnSecondary} onPress={onOpenDiagnostics}>
-            <Text style={styles.btnText}>{i18n.t('profile.actions.diagnostics')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnDanger} onPress={onLogoutPress}>
-            <Text style={styles.btnText}>{i18n.t('profile.actions.logout')}</Text>
-          </TouchableOpacity>
+          <Button
+            title={i18n.t('profile.actions.settings')}
+            onPress={onOpenSettings}
+            style={styles.actionButton}
+          />
+          <Button
+            title={i18n.t('profile.actions.diagnostics')}
+            onPress={onOpenDiagnostics}
+            style={styles.actionButton}
+            secondary
+          />
+          <Button
+            title={i18n.t('profile.actions.logout')}
+            onPress={onLogoutPress}
+            danger
+          />
         </View>
 
         <View style={{height: 24}} />
@@ -115,29 +123,5 @@ const makeStyles = (t: Theme) =>
   valueMono: {color: t.colors.text, fontSize: 12, fontWeight: '700', marginTop: 4, letterSpacing: 0.4},
   hint: {color: t.colors.textMuted, fontSize: 11, marginTop: 8, lineHeight: 15},
   actions: {marginTop: 4},
-  btn: {
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: t.colors.primary,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  btnSecondary: {
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: t.colors.ghostBorder,
-    alignItems: 'center',
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: t.colors.ghostBorder,
-  },
-  btnDanger: {
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: t.colors.dangerBg,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: t.colors.dangerBorderStrong,
-  },
-  btnText: {color: t.colors.text, fontSize: 13, fontWeight: '800'},
+  actionButton: {marginBottom: 10},
 });

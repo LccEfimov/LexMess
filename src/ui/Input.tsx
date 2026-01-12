@@ -9,14 +9,14 @@ export const Input: React.FC<
     label?: string;
     containerStyle?: StyleProp<ViewStyle>;
   }
-> = ({label, style, containerStyle, ...props}) => {
+> = ({label, style, containerStyle, placeholderTextColor, ...props}) => {
   const t = useTheme();
   return (
     <View style={[{marginBottom: t.spacing.md}, containerStyle]}>
       {label ? <Label>{label}</Label> : null}
       <TextInput
         {...props}
-        placeholderTextColor={t.colors.placeholder}
+        placeholderTextColor={placeholderTextColor ?? t.colors.placeholder}
         style={[
           {
             backgroundColor: t.colors.inputBg,
