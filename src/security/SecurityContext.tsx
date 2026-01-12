@@ -285,7 +285,7 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
             {pinError ? <Text style={styles.error}>{pinError}</Text> : null}
 
             <View style={styles.row}>
-              <TouchableOpacity style={[styles.btn, styles.btnGhost]} onPress={() => closePrompt(false)}>
+              <TouchableOpacity style={[styles.btn, styles.btnGhost, styles.btnSpacer]} onPress={() => closePrompt(false)}>
                 <Text style={styles.btnGhostText}>Отмена</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.btn, styles.btnPrimary]} onPress={onPinSubmit}>
@@ -345,8 +345,10 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    gap: 10,
     justifyContent: 'flex-end',
+  },
+  btnSpacer: {
+    marginRight: 10,
   },
   btn: {
     paddingHorizontal: 14,
