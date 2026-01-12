@@ -390,6 +390,23 @@
       "failed": "Failed to generate key"
     }
   },
+  "security": {
+    "pin": {
+      "invalidLength": "PIN must be 4–8 digits.",
+      "temporarilyLockedUntil": "PIN is temporarily locked until {time}.",
+      "notSet": "PIN is not set.",
+      "confirmTitle": "Confirm action",
+      "promptSubtitle": "Enter PIN",
+      "invalidEntry": "Enter PIN (4–8 digits).",
+      "tooManyAttemptsLocked": "Too many attempts. Locked until {time}.",
+      "invalid": "Invalid PIN.",
+      "verifyFailed": "Failed to verify PIN.",
+      "lockedUntil": "PIN locked until {time}.",
+      "inputPlaceholder": "PIN (4–8 digits)",
+      "cancel": "Cancel",
+      "ok": "OK"
+    }
+  },
   "createRoom": {
     "title": "Create room",
     "nameLabel": "Name",

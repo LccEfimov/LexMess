@@ -3,6 +3,7 @@ import {Modal, Text, TextInput, TouchableOpacity, View, StyleSheet} from 'react-
 
 import {loadAppSettings, saveAppSettings, loadSecurityState, setPinHashSalt, clearPin as clearPinStorage, recordPinFailure, resetPinFailures, setSecurityBiometricsEnabled} from '../storage/sqliteStorage';
 import {DEFAULT_PIN_KDF, generateSaltHex, hashPin, hashPinLegacy, isValidPin, normalizePin, type PinKdfParams} from './pin';
+import {i18n} from '../i18n';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 
@@ -117,7 +118,7 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
 
   const setPin = useCallback(async (pin: string) => {
     if (!isValidPin(pin)) {
-      throw new Error('PIN должен быть 4–8 цифр.');
+      throw new Error(i18n.t('security.pin.invalidLength'));
     }
     const salt = generateSaltHex(32);
     const kdfParams = DEFAULT_PIN_KDF;
@@ -151,11 +152,11 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
     const lockedUntil = Number(sec.pinLockedUntil || 0);
     if (lockedUntil && lockedUntil > now) {
       setPinLockedUntil(lockedUntil);
-      setPinError(`PIN временно заблокирован до ${new Date(lockedUntil * 1000).toLocaleTimeString()}.`);
+      setPinError(i18n.t('security.pin.temporarilyLockedUntil', {time: new Date(lockedUntil * 1000).toLocaleTimeString()}));
       return false;
     }
     if (!sec.pinHash || !sec.pinSalt) {
-      setPinError('PIN не установлен.');
+      setPinError(i18n.t('security.pin.notSet'));
       return false;
     }
 
@@ -188,7 +189,7 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
       const sec = await loadSecurityState();
       const enabled = !!sec.biometricsEnabled;
       if (enabled) {
-        const ok = await tryBiometrics('Подтвердите операцию');
+        const ok = await tryBiometrics(i18n.t('security.pin.confirmTitle'));
         if (ok) {
           lastUnlockAtRef.current = now;
           return true;
@@ -209,7 +210,7 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
   const onPinSubmit = useCallback(async () => {
     const p = normalizePin(pinInput);
     if (!isValidPin(p)) {
-      setPinError('Введите PIN (4–8 цифр).');
+      setPinError(i18n.t('security.pin.invalidEntry'));
       return;
     }
 
@@ -219,12 +220,12 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
       const lockedUntil = Number(sec.pinLockedUntil || 0);
       if (lockedUntil && lockedUntil > now) {
         setPinLockedUntil(lockedUntil);
-        setPinError(`PIN временно заблокирован до ${new Date(lockedUntil * 1000).toLocaleTimeString()}.`);
+        setPinError(i18n.t('security.pin.temporarilyLockedUntil', {time: new Date(lockedUntil * 1000).toLocaleTimeString()}));
         return;
       }
 
       if (!sec.pinHash || !sec.pinSalt) {
-        setPinError('PIN не установлен.');
+        setPinError(i18n.t('security.pin.notSet'));
         return;
       }
       const kdfParams: PinKdfParams | null =
@@ -256,12 +257,12 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
       const r = await recordPinFailure(5, 300);
       if (r.lockedUntil && r.lockedUntil > now) {
         setPinLockedUntil(r.lockedUntil);
-        setPinError(`Слишком много попыток. Заблокировано до ${new Date(r.lockedUntil * 1000).toLocaleTimeString()}.`);
+        setPinError(i18n.t('security.pin.tooManyAttemptsLocked', {time: new Date(r.lockedUntil * 1000).toLocaleTimeString()}));
       } else {
-        setPinError('Неверный PIN.');
+        setPinError(i18n.t('security.pin.invalid'));
       }
     } catch {
-      setPinError('Не удалось проверить PIN.');
+      setPinError(i18n.t('security.pin.verifyFailed'));
     }
   }, [pinInput, closePrompt]);
 
@@ -285,19 +286,19 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
       <Modal visible={pinPromptVisible} animationType="fade" transparent>
         <View style={styles.overlay}>
           <View style={styles.card}>
-            <Text style={styles.title}>Подтвердите операцию</Text>
-            <Text style={styles.subtitle}>{pinPromptReason || 'Введите PIN'}</Text>
+            <Text style={styles.title}>{i18n.t('security.pin.confirmTitle')}</Text>
+            <Text style={styles.subtitle}>{pinPromptReason || i18n.t('security.pin.promptSubtitle')}</Text>
 
             {!!pinLockedUntil ? (
               <Text style={styles.error}>
-                PIN заблокирован до {new Date(pinLockedUntil * 1000).toLocaleTimeString()}.
+                {i18n.t('security.pin.lockedUntil', {time: new Date(pinLockedUntil * 1000).toLocaleTimeString()})}
               </Text>
             ) : null}
 
             <TextInput
               value={pinInput}
               onChangeText={(v) => setPinInput(v.replace(/[^0-9]/g, '').slice(0, 8))}
-              placeholder="PIN (4–8 цифр)"
+              placeholder={i18n.t('security.pin.inputPlaceholder')}
               keyboardType="number-pad"
               secureTextEntry
               style={styles.input}
@@ -309,10 +310,10 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
 
             <View style={styles.row}>
               <TouchableOpacity style={[styles.btn, styles.btnGhost, styles.btnSpacer]} onPress={() => closePrompt(false)}>
-                <Text style={styles.btnGhostText}>Отмена</Text>
+                <Text style={styles.btnGhostText}>{i18n.t('security.pin.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.btn, styles.btnPrimary]} onPress={onPinSubmit}>
-                <Text style={styles.btnPrimaryText}>OK</Text>
+                <Text style={styles.btnPrimaryText}>{i18n.t('security.pin.ok')}</Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -619,6 +619,23 @@
       "failed": "Не удалось сгенерировать ключ"
     }
   },
+  "security": {
+    "pin": {
+      "invalidLength": "PIN должен быть 4–8 цифр.",
+      "temporarilyLockedUntil": "PIN временно заблокирован до {time}.",
+      "notSet": "PIN не установлен.",
+      "confirmTitle": "Подтвердите операцию",
+      "promptSubtitle": "Введите PIN",
+      "invalidEntry": "Введите PIN (4–8 цифр).",
+      "tooManyAttemptsLocked": "Слишком много попыток. Заблокировано до {time}.",
+      "invalid": "Неверный PIN.",
+      "verifyFailed": "Не удалось проверить PIN.",
+      "lockedUntil": "PIN заблокирован до {time}.",
+      "inputPlaceholder": "PIN (4–8 цифр)",
+      "cancel": "Отмена",
+      "ok": "OK"
+    }
+  },
   "createRoom": {
     "title": "Создать комнату",
     "nameLabel": "Название",
