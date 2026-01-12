@@ -73,6 +73,9 @@ interface Props {
   participants: Participant[];
   pendingCount?: number;
   onRetryPending?: () => void | Promise<void>;
+  onLoadOlder?: () => void | Promise<void>;
+  hasOlderMessages?: boolean;
+  loadingOlder?: boolean;
   onSendText: (text: string, toAll: boolean) => void;
   onSendMedia: (
     kind: 'file' | 'image' | 'video' | 'audio',
@@ -84,6 +87,7 @@ interface Props {
   onOpenSettings: () => void;
   onStartCall: (opts: {isVideo: boolean; toAll: boolean}) => void;
   onOpenParticipants?: () => void;
+  onOpenRoomDetails?: () => void;
 }
 
 type ChatMessageItemProps = {
@@ -269,6 +273,9 @@ export const ChatScreen: React.FC<Props> = ({
   participants,
   pendingCount,
   onRetryPending,
+  onLoadOlder,
+  hasOlderMessages = true,
+  loadingOlder,
   onSendText,
   onSendMedia,
   onOpenAttachments,
@@ -734,6 +741,8 @@ export const ChatScreen: React.FC<Props> = ({
     ? i18n.t('chat.recipients.selectedCount', {count: selectedRecipientIds.length})
     : i18n.t('chat.recipients.selected');
 
+  const showLoadOlder = !!onLoadOlder && hasOlderMessages;
+
   return (
     <KeyboardAvoidingView
       style={styles.root}
@@ -859,6 +868,25 @@ export const ChatScreen: React.FC<Props> = ({
         maxToRenderPerBatch={8}
         windowSize={7}
         removeClippedSubviews
+        ListFooterComponent={
+          showLoadOlder ? (
+            <View style={styles.loadOlderWrap}>
+              <TouchableOpacity
+                style={[styles.loadOlderButton, loadingOlder ? styles.loadOlderButtonDisabled : null]}
+                onPress={() => {
+                  if (onLoadOlder) {
+                    onLoadOlder();
+                  }
+                }}
+                disabled={!!loadingOlder}
+              >
+                <Text style={styles.loadOlderText}>
+                  {loadingOlder ? 'Загрузка…' : 'Показать предыдущие'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
           <View style={styles.emptyWrap}>
             <Text style={styles.emptyTitle}>{i18n.t('chat.empty.title')}</Text>
@@ -974,6 +1002,26 @@ const makeStyles = (t: Theme) =>
   root: {
     flex: 1,
     backgroundColor: t.colors.bg,
+  },
+  loadOlderWrap: {
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  loadOlderButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: t.colors.border,
+    backgroundColor: t.colors.card,
+  },
+  loadOlderButtonDisabled: {
+    opacity: 0.6,
+  },
+  loadOlderText: {
+    fontSize: 12,
+    color: t.colors.text,
+    fontWeight: '600',
   },
     retryInline: {
       marginLeft: 10,

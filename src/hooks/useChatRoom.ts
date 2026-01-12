@@ -32,6 +32,7 @@ type ChatMessage = {
   contentType: string;
   localPath?: string | null;
   deliveryStatus?: string | null;
+  ts?: number;
 };
 
 export type ChatRoomError = {
@@ -77,6 +78,11 @@ function clampStatus(next: string): string {
 export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [lastError, setLastError] = useState<ChatRoomError | null>(null);
+  const [minLoadedTs, setMinLoadedTs] = useState<number | null>(null);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [hasOlder, setHasOlder] = useState(true);
+  const minLoadedTsRef = useRef<number | null>(null);
+  const loadingOlderRef = useRef(false);
   const lastReadAckTsRef = useRef(0);
   const historyAlertedRef = useRef(false);
   const setErrorOnce = useCallback((error: ChatRoomError) => {
@@ -108,6 +114,15 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
   // append (top) for inverted FlatList or latest-first UI
   const appendMessage = useCallback((msg: ChatMessage) => {
     setMessages(prev => [msg, ...prev]);
+    if (typeof msg.ts === 'number') {
+      setMinLoadedTs(prev => {
+        if (prev === null || msg.ts! < prev) {
+          minLoadedTsRef.current = msg.ts!;
+          return msg.ts!;
+        }
+        return prev;
+      });
+    }
   }, []);
 
   const updateMessageStateStatus = useCallback((id: string, nextStatus: string) => {
@@ -128,8 +143,9 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
     let cancelled = false;
 
     async function load() {
+      const historyLimit = 200;
       try {
-        const rows = await getMessagesForRoom(roomId, 200);
+        const rows = await getMessagesForRoom(roomId, historyLimit);
         if (cancelled) return;
 
         const sorted = [...rows].sort((a, b) => {
@@ -146,9 +162,17 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
           contentType: row.contentType || 'text',
           localPath: row.localPath || null,
           deliveryStatus: row.deliveryStatus || (row.outgoing ? 'local' : 'delivered'),
+          ts: row.ts || 0,
         }));
 
         setMessages(mapped);
+        const nextMinTs =
+          rows.length > 0
+            ? rows.reduce((min, row) => Math.min(min, Number(row.ts || 0)), Number(rows[0]?.ts || 0))
+            : null;
+        minLoadedTsRef.current = nextMinTs;
+        setMinLoadedTs(nextMinTs);
+        setHasOlder(rows.length >= historyLimit);
       } catch (e) {
         logger.warn('useChatRoom: load history failed', e);
         if (!historyAlertedRef.current) {
@@ -166,6 +190,55 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
     return () => {
       cancelled = true;
     };
+  }, [roomId]);
+
+  const loadOlder = useCallback(async () => {
+    if (loadingOlderRef.current) {
+      return;
+    }
+    const beforeTs = minLoadedTsRef.current;
+    if (!beforeTs || beforeTs <= 0) {
+      return;
+    }
+
+    loadingOlderRef.current = true;
+    setLoadingOlder(true);
+    const historyLimit = 200;
+
+    try {
+      const rows = await getMessagesForRoom(roomId, historyLimit, {beforeTs});
+      if (!rows || rows.length === 0) {
+        setHasOlder(false);
+        return;
+      }
+
+      const mapped: ChatMessage[] = rows.map(row => ({
+        id: String(row.id ?? `${row.ts}_${row.senderId}`),
+        sender: row.senderId,
+        body: row.body || '',
+        outgoing: !!row.outgoing,
+        contentType: row.contentType || 'text',
+        localPath: row.localPath || null,
+        deliveryStatus: row.deliveryStatus || (row.outgoing ? 'local' : 'delivered'),
+        ts: row.ts || 0,
+      }));
+
+      setMessages(prev => {
+        const existingIds = new Set(prev.map(m => m.id));
+        const deduped = mapped.filter(m => !existingIds.has(m.id));
+        return [...prev, ...deduped];
+      });
+
+      const nextMinTs = rows.reduce((min, row) => Math.min(min, Number(row.ts || 0)), beforeTs);
+      minLoadedTsRef.current = nextMinTs;
+      setMinLoadedTs(nextMinTs);
+      setHasOlder(rows.length >= historyLimit);
+    } catch (e) {
+      logger.warn('useChatRoom: loadOlder failed', e);
+    } finally {
+      loadingOlderRef.current = false;
+      setLoadingOlder(false);
+    }
   }, [roomId]);
 
   // WS connection per room
@@ -366,6 +439,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         contentType: 'text',
         localPath: null,
         deliveryStatus: 'local',
+        ts: now,
       });
 
       try {
@@ -453,6 +527,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         contentType,
         localPath: filePath,
         deliveryStatus: 'local',
+        ts: now,
       });
 
       try {
@@ -560,6 +635,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
             outgoing: false,
             contentType: 'text',
             localPath: null,
+            ts: tsIncoming,
           });
 
           // mark read locally + send WS read
@@ -613,6 +689,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
           outgoing: false,
           contentType,
           localPath,
+          ts: tsIncoming,
         });
 
         await sendReadAckIfNeeded(tsIncoming);
@@ -663,6 +740,10 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
     sendText,
     sendMedia,
     retryPending,
+    loadOlder,
+    loadingOlder,
+    hasOlder,
+    minLoadedTs,
     pendingCount,
     lastError,
     clearLastError,

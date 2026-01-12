@@ -783,17 +783,27 @@ export async function insertSystemMessage(roomId: string, text: string): Promise
 export async function getMessagesForRoom(
   roomId: string,
   limit = 200,
+  options?: {beforeTs?: number},
 ): Promise<MessageRecord[]> {
   const db = await getDatabase();
+  const beforeTs = Number(options?.beforeTs || 0);
+  const filters: string[] = ['room_id = ?'];
+  const params: Array<string | number> = [roomId];
+  if (beforeTs > 0) {
+    filters.push('ts < ?');
+    params.push(beforeTs);
+  }
+  params.push(limit);
+
   const res = await db.executeSql(
     `SELECT id, room_id, sender_id, ts, outgoing, content_type, local_path, body,
             delivery_status, e2e_epoch, send_attempts, last_send_ts, last_error,
             body_cipher_b64, body_nonce_b64
        FROM messages
-      WHERE room_id = ?
+      WHERE ${filters.join(' AND ')}
       ORDER BY ts DESC
       LIMIT ?`,
-    [roomId, limit],
+    params,
   );
 
   const rows: MessageRecord[] = [];

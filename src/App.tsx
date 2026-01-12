@@ -945,7 +945,18 @@ const handleLeaveRoom = useCallback(
                 {({route, navigation}) => {
                   const {roomId, roomTitle} = route.params as {roomId: string; roomTitle?: string};
 
-                  const {messages, sendText, sendMedia, retryPending, pendingCount, lastError, clearLastError} = useChatRoom(
+                  const {
+                    messages,
+                    sendText,
+                    sendMedia,
+                    retryPending,
+                    loadOlder,
+                    loadingOlder,
+                    hasOlder,
+                    pendingCount,
+                    lastError,
+                    clearLastError,
+                  } = useChatRoom(
                     roomId,
                     nickname || 'me',
                     cryptoEngine,
@@ -971,6 +982,15 @@ const handleLeaveRoom = useCallback(
                           logger.warn('retryPending error', e);
                         }
                       }}
+                      onLoadOlder={async () => {
+                        try {
+                          await loadOlder();
+                        } catch (e) {
+                          logger.warn('loadOlder error', e);
+                        }
+                      }}
+                      loadingOlder={loadingOlder}
+                      hasOlderMessages={hasOlder}
                       onBack={() => navigation.goBack()}
                       onOpenAttachments={() => {}}
                       onOpenMain={() => navigation.navigate('Rooms')}
@@ -1176,7 +1196,18 @@ const handleLeaveRoom = useCallback(
                 {({route, navigation}) => {
                   const {roomId, roomTitle} = route.params as {roomId: string; roomTitle?: string};
 
-                  const {messages, sendText, sendMedia, retryPending, pendingCount, lastError, clearLastError} = useChatRoom(
+                  const {
+                    messages,
+                    sendText,
+                    sendMedia,
+                    retryPending,
+                    loadOlder,
+                    loadingOlder,
+                    hasOlder,
+                    pendingCount,
+                    lastError,
+                    clearLastError,
+                  } = useChatRoom(
                     roomId,
                     nickname || 'me',
                     cryptoEngine,
@@ -1202,6 +1233,15 @@ const handleLeaveRoom = useCallback(
                           logger.warn('retryPending error', e);
                         }
                       }}
+                      onLoadOlder={async () => {
+                        try {
+                          await loadOlder();
+                        } catch (e) {
+                          logger.warn('loadOlder error', e);
+                        }
+                      }}
+                      loadingOlder={loadingOlder}
+                      hasOlderMessages={hasOlder}
                       onBack={() => navigation.goBack()}
                       onOpenAttachments={() => {}}
                       onOpenMain={() => navigation.navigate('Rooms')}
