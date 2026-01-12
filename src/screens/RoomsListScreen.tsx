@@ -50,6 +50,9 @@ export const RoomsListScreen: React.FC<Props> = ({
   onRefresh,
   pinnedByRoom,
   onTogglePin,
+  onJoinRoom,
+  onLeaveRoom,
+  busyByRoom,
 }) => {
   const t = useTheme();
   const styles = useMemo(() => makeStyles(t), [t]);
