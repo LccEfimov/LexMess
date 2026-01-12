@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {ScreenContainer} from '../ui/ScreenContainer';
-import {Button, ErrorText, Input, Label, SectionTitle, Spacer} from '../ui/kit';
+import {Button, ErrorText, Input, Label, SectionTitle, Spacer} from '../ui';
 import {AppHeader} from '../components/AppHeader';
 
 type Props = {

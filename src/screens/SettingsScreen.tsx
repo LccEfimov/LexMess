@@ -13,7 +13,7 @@ import {useSecurity} from '../security/SecurityContext';
 import {useTheme} from '../theme/ThemeContext';
 import {normalizeThemeMode, type Theme, type ThemeMode} from '../theme/themes';
 import {loadPendingRecovery} from '../storage/pendingRecoveryStorage';
-import {Button, Divider, ErrorText, Input, Label, Row, SectionTitle, Spacer} from '../ui/kit';
+import {Button, Divider, ErrorText, Input, Label, Row, SectionTitle, Spacer} from '../ui';
 import {ScreenContainer} from '../ui/ScreenContainer';
 import {ThemePicker} from '../components/ThemePicker';
 
