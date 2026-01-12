@@ -1,5 +1,5 @@
 import {useEffect, useState, useCallback, useRef} from 'react';
-import {Alert, AppState} from 'react-native';
+import {AppState} from 'react-native';
 import {Buffer} from 'buffer';
 import RNFS from 'react-native-fs';
 import {importMediaFromUriToLocalFile} from '../storage/mediaStorage';
@@ -32,6 +32,12 @@ type ChatMessage = {
   contentType: string;
   localPath?: string | null;
   deliveryStatus?: string | null;
+};
+
+export type ChatRoomError = {
+  title: string;
+  message: string;
+  kind: 'history' | 'sendText' | 'sendMedia' | 'fileTooLarge';
 };
 
 function safeNow(): number {
@@ -70,8 +76,15 @@ function clampStatus(next: string): string {
  */
 export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [lastError, setLastError] = useState<ChatRoomError | null>(null);
   const lastReadAckTsRef = useRef(0);
   const historyAlertedRef = useRef(false);
+  const setErrorOnce = useCallback((error: ChatRoomError) => {
+    setLastError(error);
+  }, []);
+  const clearLastError = useCallback(() => {
+    setLastError(null);
+  }, []);
 
   const sendReadAckIfNeeded = useCallback(
     async (ts: number) => {
@@ -140,7 +153,11 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         logger.warn('useChatRoom: load history failed', e);
         if (!historyAlertedRef.current) {
           historyAlertedRef.current = true;
-          Alert.alert('Ошибка', 'Не удалось загрузить историю сообщений.');
+          setErrorOnce({
+            title: 'Ошибка',
+            message: 'Не удалось загрузить историю сообщений.',
+            kind: 'history',
+          });
         }
       }
     }
@@ -370,7 +387,11 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         updateMessageStateStatus(clientMsgId, ok ? 'sent' : 'queued');
       } catch (e) {
         logger.warn('useChatRoom: sendText crypto/stego error', e);
-        Alert.alert('Ошибка', 'Не удалось отправить сообщение. Попробуйте ещё раз.');
+        setErrorOnce({
+          title: 'Ошибка',
+          message: 'Не удалось отправить сообщение. Попробуйте ещё раз.',
+          kind: 'sendText',
+        });
         if (outgoingId > 0) {
           await bumpOutgoingSendAttempt(outgoingId, 'local', 'crypto_or_stego_failed');
         }
@@ -442,7 +463,11 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
             await bumpOutgoingSendAttempt(outgoingId, 'failed', 'file_too_large');
           }
           updateMessageStateStatus(clientMsgId, 'failed');
-          Alert.alert('Ошибка', 'Файл слишком большой. Максимальный размер 20 МБ.');
+          setErrorOnce({
+            title: 'Ошибка',
+            message: 'Файл слишком большой. Максимальный размер 20 МБ.',
+            kind: 'fileTooLarge',
+          });
           return;
         }
 
@@ -478,7 +503,11 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         updateMessageStateStatus(clientMsgId, ok ? 'sent' : 'queued');
       } catch (e) {
         logger.warn('useChatRoom: sendMedia error', e);
-        Alert.alert('Ошибка', 'Не удалось отправить файл. Попробуйте ещё раз.');
+        setErrorOnce({
+          title: 'Ошибка',
+          message: 'Не удалось отправить файл. Попробуйте ещё раз.',
+          kind: 'sendMedia',
+        });
         if (outgoingId > 0) {
           await bumpOutgoingSendAttempt(outgoingId, 'local', 'crypto_or_stego_failed');
         }
@@ -635,5 +664,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
     sendMedia,
     retryPending,
     pendingCount,
+    lastError,
+    clearLastError,
   };
 }
