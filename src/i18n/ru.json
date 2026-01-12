@@ -192,6 +192,118 @@
     },
     "shareFallback": "Сообщение"
   },
+  "chatRoom": {
+    "errors": {
+      "historyLoadFailed": "Не удалось загрузить историю сообщений.",
+      "sendTextFailed": "Не удалось отправить сообщение. Попробуйте ещё раз.",
+      "fileTooLarge": "Файл слишком большой. Максимальный размер 20 МБ.",
+      "sendMediaFailed": "Не удалось отправить файл. Попробуйте ещё раз."
+    }
+  },
+  "wallet": {
+    "title": "Кошелёк",
+    "subtitle": "EIN",
+    "tabs": {
+      "overview": "Обзор",
+      "send": "Перевод",
+      "withdraw": "Вывод",
+      "history": "История"
+    },
+    "loading": "Загрузка…",
+    "labels": {
+      "address": "Адрес",
+      "balance": "Баланс",
+      "toAddress": "Кому (адрес)",
+      "amount": "Сумма",
+      "memoOptional": "Комментарий (необязательно)",
+      "withdrawDestination": "Куда (адрес/реквизиты)"
+    },
+    "placeholders": {
+      "address": "EIN…",
+      "sendAmount": "например, 25",
+      "memo": "memo",
+      "withdrawDestination": "например, EIN… или реквизиты",
+      "withdrawAmount": "например, 100"
+    },
+    "actions": {
+      "retry": "Повторить",
+      "refresh": "Обновить",
+      "close": "Закрыть",
+      "createSend": "Создать перевод",
+      "createWithdraw": "Создать заявку на вывод",
+      "sending": "Отправка…",
+      "creating": "Создание…",
+      "confirm": "Подтвердить",
+      "loadMore": "Загрузить ещё",
+      "noMore": "Больше нет"
+    },
+    "hints": {
+      "transactionsNotice": "Переводы и вывод — заявки. Проведение транзакций выполняется сервером/валидаторами."
+    },
+    "qr": {
+      "title": "QR адреса",
+      "button": "QR",
+      "unavailable": "QR недоступен в этой сборке",
+      "emptyValue": "-"
+    },
+    "balanceValue": "{amount} EIN",
+    "send": {
+      "title": "Перевод EIN",
+      "confirmTitle": "Подтвердить перевод",
+      "confirmTo": "Кому:",
+      "confirmAmount": "Сумма: {amount} EIN",
+      "confirmMemo": "Memo: {memo}"
+    },
+    "withdraw": {
+      "title": "Вывод EIN",
+      "minHint": "Минимальная сумма вывода: {amount} EIN",
+      "confirmTitle": "Подтвердить вывод",
+      "confirmDestination": "Куда:",
+      "confirmAmount": "Сумма: {amount} EIN",
+      "requestsTitle": "Мои заявки",
+      "empty": "Пока нет заявок.",
+      "itemTitle": "Вывод • {amount} EIN",
+      "statusLabel": "Статус: {status}",
+      "errorLabel": "Причина: {error}",
+      "adminCommentLabel": "Комментарий: {comment}",
+      "txLabel": "Tx: {tx}"
+    },
+    "history": {
+      "title": "История",
+      "empty": "Пока нет операций.",
+      "itemTitle": "{kind} • {amount} EIN",
+      "statusLabel": "Статус: {status}"
+    },
+    "errors": {
+      "loadFailed": "Не удалось загрузить кошелёк",
+      "missingRecipient": "Укажите адрес получателя.",
+      "invalidAmount": "Введите сумму (целое число > 0).",
+      "sendFailed": "Не удалось создать перевод",
+      "withdrawMissingDestination": "Укажите адрес/реквизиты вывода.",
+      "withdrawInvalidAmount": "Введите сумму (целое число > 0).",
+      "withdrawMin": "Минимальная сумма вывода: {amount} EIN.",
+      "withdrawFailed": "Не удалось создать заявку на вывод",
+      "operationCancelled": "Операция отменена."
+    },
+    "info": {
+      "duplicatePrefix": "Повтор запроса. ",
+      "sendCreated": "Заявка на перевод создана.",
+      "sendCreatedWithId": "Заявка на перевод создана (#{id}).",
+      "withdrawCreated": "Заявка на вывод создана.",
+      "withdrawCreatedWithId": "Заявка на вывод создана (#{id})."
+    },
+    "status": {
+      "pending": "Ожидает",
+      "approved": "Одобрено",
+      "paid": "Выплачено",
+      "rejected": "Отклонено",
+      "unknown": "—"
+    },
+    "security": {
+      "sendAuthTitle": "Перевод EIN",
+      "withdrawAuthTitle": "Вывод EIN"
+    }
+  },
   "settings": {
     "title": "Профиль",
     "theme": "Тема",

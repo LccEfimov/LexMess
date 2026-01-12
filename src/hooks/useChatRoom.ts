@@ -21,6 +21,7 @@ import {
   sendRoomRead,
 } from '../net/wsClient';
 import {logger} from '../utils/logger';
+import {i18n} from '../i18n';
 
 const MAX_MEDIA_BYTES = 20 * 1024 * 1024;
 
@@ -178,8 +179,8 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         if (!historyAlertedRef.current) {
           historyAlertedRef.current = true;
           setErrorOnce({
-            title: 'Ошибка',
-            message: 'Не удалось загрузить историю сообщений.',
+            title: i18n.t('common.error'),
+            message: i18n.t('chatRoom.errors.historyLoadFailed'),
             kind: 'history',
           });
         }
@@ -462,8 +463,8 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
       } catch (e) {
         logger.warn('useChatRoom: sendText crypto/stego error', e);
         setErrorOnce({
-          title: 'Ошибка',
-          message: 'Не удалось отправить сообщение. Попробуйте ещё раз.',
+          title: i18n.t('common.error'),
+          message: i18n.t('chatRoom.errors.sendTextFailed'),
           kind: 'sendText',
         });
         if (outgoingId > 0) {
@@ -539,8 +540,8 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
           }
           updateMessageStateStatus(clientMsgId, 'failed');
           setErrorOnce({
-            title: 'Ошибка',
-            message: 'Файл слишком большой. Максимальный размер 20 МБ.',
+            title: i18n.t('common.error'),
+            message: i18n.t('chatRoom.errors.fileTooLarge'),
             kind: 'fileTooLarge',
           });
           return;
@@ -579,8 +580,8 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
       } catch (e) {
         logger.warn('useChatRoom: sendMedia error', e);
         setErrorOnce({
-          title: 'Ошибка',
-          message: 'Не удалось отправить файл. Попробуйте ещё раз.',
+          title: i18n.t('common.error'),
+          message: i18n.t('chatRoom.errors.sendMediaFailed'),
           kind: 'sendMedia',
         });
         if (outgoingId > 0) {
