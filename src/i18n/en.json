@@ -131,6 +131,19 @@
       "filteredSubtitle": "No rooms match your filter."
     }
   },
+  "joinByCode": {
+    "title": "Join by code",
+    "label": "Invite code",
+    "placeholder": "e.g. EIN-1234",
+    "busy": "Joining...",
+    "submit": "Join",
+    "note": "You can get the code from the room creator.",
+    "missingUserId": "User ID is required. Please sign in again.",
+    "serverNoRoomId": "Server did not return a room ID",
+    "errorTitle": "Error",
+    "systemMessage": "You joined the room using an invite code",
+    "error": "Failed to join by code"
+  },
   "chat": {
     "voiceMessage": "Voice message",
     "file": "File",

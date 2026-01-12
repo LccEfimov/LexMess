@@ -16,6 +16,7 @@ import type {Theme} from '../theme/themes';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
+import {i18n} from '../i18n';
 
 type Props = {
   navigation: any;
@@ -39,7 +40,7 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
 
     const userId: string | undefined = (route as any)?.params?.userId;
     if (!userId) {
-      setError('Нужен userId. Выполните вход заново.');
+      setError(i18n.t('joinByCode.missingUserId'));
       return;
     }
 
@@ -51,19 +52,19 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
       const roomId = res?.room_id || res?.roomId || res?.id;
 
       if (!roomId) {
-        Alert.alert('Ошибка', 'Сервер не вернул идентификатор комнаты');
+        Alert.alert(i18n.t('joinByCode.errorTitle'), i18n.t('joinByCode.serverNoRoomId'));
         return;
       }
 
       try {
-        await insertSystemMessage(roomId, 'Вы вошли в комнату по коду приглашения');
+        await insertSystemMessage(roomId, i18n.t('joinByCode.systemMessage'));
       } catch (e) {
         // ignore
       }
 
       navigation.replace('Chat', {roomId, roomTitle: res?.title || res?.room_title || res?.roomTitle || roomId});
     } catch (e: any) {
-      const msg = String(e?.message || e || 'Не удалось войти по коду');
+      const msg = String(e?.message || e || i18n.t('joinByCode.error'));
       setError(msg);
     } finally {
       setBusy(false);
@@ -72,18 +73,18 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
 
   return (
     <View style={styles.root}>
-      <AppHeader title="Войти по коду" onBack={() => navigation.goBack()} right={null} />
+      <AppHeader title={i18n.t('joinByCode.title')} onBack={() => navigation.goBack()} right={null} />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboard}>
         <Card style={styles.card}>
-          <Text style={[styles.label, styles.cardItem]}>Код приглашения</Text>
+          <Text style={[styles.label, styles.cardItem]}>{i18n.t('joinByCode.label')}</Text>
           <TextInput
             style={[styles.input, styles.cardItem]}
             value={code}
             onChangeText={(v) => setCode(v.toUpperCase())}
-            placeholder="Например: EIN-1234"
+            placeholder={i18n.t('joinByCode.placeholder')}
             placeholderTextColor={t.colors.placeholder}
             autoCapitalize="characters"
             autoCorrect={false}
@@ -93,14 +94,14 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
           {error ? <Text style={[styles.errorText, styles.cardItem]}>{error}</Text> : null}
 
           <Button
-            title={busy ? 'Входим...' : 'Войти'}
+            title={busy ? i18n.t('joinByCode.busy') : i18n.t('joinByCode.submit')}
             onPress={handleJoin}
             disabled={!canSubmit}
             style={styles.cardItem}
           />
 
           <Text style={styles.note}>
-            Код можно получить у создателя комнаты.
+            {i18n.t('joinByCode.note')}
           </Text>
         </Card>
       </KeyboardAvoidingView>
