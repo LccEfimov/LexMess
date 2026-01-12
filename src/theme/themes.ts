@@ -27,6 +27,8 @@ export type ThemeColors = {
 
   border: string;
 
+  overlayDark: string;
+
   primary: string;
   primarySoft: string;
   onPrimary: string;
@@ -39,6 +41,9 @@ export type ThemeColors = {
   dangerBorder: string;
   dangerBorderStrong: string;
   success: string;
+
+  infoBg: string;
+  infoBorder: string;
 
   inputBg: string;
   inputBorder: string;
@@ -107,7 +112,9 @@ export const THEME_OPTIONS: Array<{id: ThemeName; title: string}> = [
   {id: 'whatsapp_light', title: 'WhatsApp (светлая)'},
 ];
 
-function makeColors(base: Omit<ThemeColors, 'textSecondary' | 'accent' | 'accentText'>): ThemeColors {
+function makeColors(
+  base: Omit<ThemeColors, 'textSecondary' | 'accent' | 'accentText'>
+): ThemeColors {
   return {
     ...base,
     textSecondary: base.textMuted,
@@ -128,15 +135,20 @@ const LEXMESS_DARK: ThemeColors = makeColors({
 
   border: '#20263f',
 
+  overlayDark: 'rgba(0,0,0,0.6)',
+
   primary: '#2b5cff',
   primarySoft: 'rgba(43,92,255,0.18)',
   onPrimary: '#ffffff',
 
   danger: '#ff4d6d',
-  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBg: 'rgba(255,59,48,0.18)',
   dangerBorder: 'rgba(255,59,48,0.25)',
   dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#33d17a',
+
+  infoBg: 'rgba(43,92,255,0.18)',
+  infoBorder: 'rgba(43,92,255,0.35)',
 
   inputBg: 'rgba(255,255,255,0.06)',
   inputBorder: 'rgba(255,255,255,0.10)',
@@ -163,15 +175,20 @@ const LEXMESS_LIGHT: ThemeColors = makeColors({
 
   border: '#d7def5',
 
+  overlayDark: 'rgba(0,0,0,0.45)',
+
   primary: '#2455ff',
   primarySoft: 'rgba(36,85,255,0.14)',
   onPrimary: '#ffffff',
 
   danger: '#d71a44',
-  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBg: 'rgba(255,59,48,0.16)',
   dangerBorder: 'rgba(255,59,48,0.25)',
   dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#178a4b',
+
+  infoBg: 'rgba(36,85,255,0.16)',
+  infoBorder: 'rgba(36,85,255,0.32)',
 
   inputBg: '#ffffff',
   inputBorder: '#d7def5',
@@ -199,15 +216,20 @@ const TELEGRAM_DARK: ThemeColors = makeColors({
 
   border: 'rgba(255,255,255,0.10)',
 
+  overlayDark: 'rgba(0,0,0,0.6)',
+
   primary: '#2aabee',
   primarySoft: 'rgba(42,171,238,0.18)',
   onPrimary: '#062030',
 
   danger: '#ff4d6d',
-  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBg: 'rgba(255,59,48,0.18)',
   dangerBorder: 'rgba(255,59,48,0.25)',
   dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#33d17a',
+
+  infoBg: 'rgba(42,171,238,0.18)',
+  infoBorder: 'rgba(42,171,238,0.35)',
 
   inputBg: 'rgba(255,255,255,0.06)',
   inputBorder: 'rgba(255,255,255,0.10)',
@@ -234,15 +256,20 @@ const TELEGRAM_LIGHT: ThemeColors = makeColors({
 
   border: 'rgba(0,0,0,0.10)',
 
+  overlayDark: 'rgba(0,0,0,0.45)',
+
   primary: '#2aabee',
   primarySoft: 'rgba(42,171,238,0.14)',
   onPrimary: '#ffffff',
 
   danger: '#d71a44',
-  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBg: 'rgba(255,59,48,0.16)',
   dangerBorder: 'rgba(255,59,48,0.25)',
   dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#178a4b',
+
+  infoBg: 'rgba(42,171,238,0.16)',
+  infoBorder: 'rgba(42,171,238,0.32)',
 
   inputBg: '#ffffff',
   inputBorder: 'rgba(0,0,0,0.12)',
@@ -270,15 +297,20 @@ const WHATSAPP_DARK: ThemeColors = makeColors({
 
   border: '#1f2c34',
 
+  overlayDark: 'rgba(0,0,0,0.6)',
+
   primary: '#00a884',
   primarySoft: 'rgba(0,168,132,0.18)',
   onPrimary: '#05251f',
 
   danger: '#ff4d6d',
-  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBg: 'rgba(255,59,48,0.18)',
   dangerBorder: 'rgba(255,59,48,0.25)',
   dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#33d17a',
+
+  infoBg: 'rgba(0,168,132,0.18)',
+  infoBorder: 'rgba(0,168,132,0.35)',
 
   inputBg: 'rgba(255,255,255,0.06)',
   inputBorder: 'rgba(255,255,255,0.10)',
@@ -305,15 +337,20 @@ const WHATSAPP_LIGHT: ThemeColors = makeColors({
 
   border: 'rgba(0,0,0,0.10)',
 
+  overlayDark: 'rgba(0,0,0,0.45)',
+
   primary: '#00a884',
   primarySoft: 'rgba(0,168,132,0.14)',
   onPrimary: '#ffffff',
 
   danger: '#d71a44',
-  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBg: 'rgba(255,59,48,0.16)',
   dangerBorder: 'rgba(255,59,48,0.25)',
   dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#178a4b',
+
+  infoBg: 'rgba(0,168,132,0.16)',
+  infoBorder: 'rgba(0,168,132,0.32)',
 
   inputBg: '#ffffff',
   inputBorder: 'rgba(0,0,0,0.12)',

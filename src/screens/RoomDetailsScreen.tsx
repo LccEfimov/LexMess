@@ -356,8 +356,8 @@ const makeStyles = (t: Theme) =>
     dangerBtn: {
       borderRadius: 14,
       borderWidth: 1,
-      borderColor: 'rgba(255,59,48,0.35)',
-      backgroundColor: 'rgba(255,59,48,0.10)',
+      borderColor: t.colors.dangerBorderStrong,
+      backgroundColor: t.colors.dangerBg,
       paddingVertical: 12,
       alignItems: 'center',
       justifyContent: 'center',
