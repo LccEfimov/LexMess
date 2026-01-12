@@ -13,6 +13,7 @@ export type ThemeName =
   | 'telegram_light'
   | 'whatsapp_dark'
   | 'whatsapp_light';
+export type ThemeMode = ThemeName | 'system';
 
 export type ThemeColors = {
   bg: string;
@@ -81,6 +82,17 @@ export function normalizeThemeName(name: ThemeName | string | null | undefined):
     default:
       return 'lexmess_dark';
   }
+}
+
+export function normalizeThemeMode(name: ThemeMode | string | null | undefined): ThemeMode {
+  const v = String(name || '').trim();
+  if (v === 'system') return 'system';
+  return normalizeThemeName(v);
+}
+
+export function resolveThemeName(mode: ThemeMode, scheme: ThemeVariant | null | undefined): ThemeName {
+  if (mode !== 'system') return normalizeThemeName(mode);
+  return scheme === 'light' ? 'lexmess_light' : 'lexmess_dark';
 }
 
 export const THEME_OPTIONS: Array<{id: ThemeName; title: string}> = [

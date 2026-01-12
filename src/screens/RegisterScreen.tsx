@@ -3,7 +3,7 @@ import {useLexmessApi} from '../hooks/useLexmessApi';
 import {saveLocalAccount} from '../storage/localAccountStorage';
 import {saveThemePreference} from '../storage/themePreferenceStorage';
 import {useSetThemeName, useTheme, useThemeName} from '../theme/ThemeContext';
-import {normalizeThemeName, type Theme, type ThemeName} from '../theme/themes';
+import {normalizeThemeMode, type Theme, type ThemeMode} from '../theme/themes';
 
 import {
   View,
@@ -45,8 +45,8 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
   const [error, setError] = useState<string | null>(null);
 
   const onPickTheme = useCallback(
-    async (next: ThemeName) => {
-      const id = normalizeThemeName(next);
+    async (next: ThemeMode) => {
+      const id = normalizeThemeMode(next);
       try {
         setThemeName(id);
       } catch {
@@ -94,7 +94,7 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
 
       // фолбэк: сохраним тему, выбранную на регистрации
       try {
-        await saveThemePreference(normalizeThemeName(themeName));
+        await saveThemePreference(normalizeThemeMode(themeName));
       } catch {
         // ignore
       }

@@ -1,6 +1,6 @@
 
 import React, {useState, useMemo, useEffect, useCallback, useRef} from 'react';
-import {BackHandler, Text, Image} from 'react-native';
+import {BackHandler, Text, Image, useColorScheme} from 'react-native';
 import {NavigationContainer, NavigationContainerRef} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -9,8 +9,8 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {ThemeProvider} from './theme/ThemeContext';
 import {SecurityProvider} from './security/SecurityContext';
-import {getTheme, normalizeThemeName} from './theme/themes';
-import type {ThemeName} from './theme/themes';
+import {getTheme, normalizeThemeMode, resolveThemeName} from './theme/themes';
+import type {ThemeMode} from './theme/themes';
 import {makeNavigationTheme} from './theme/navigationTheme';
 
 import {PreloaderScreen} from './screens/PreloaderScreen';
@@ -49,7 +49,6 @@ import {getAccessToken, clearAccessToken} from './storage/authTokenStorage';
 import {loadLocalAccount} from './storage/localAccountStorage';
 import {loadPendingRecovery, clearPendingRecovery, type PendingRecovery} from './storage/pendingRecoveryStorage';
 import {getPermissionsGateShown, setPermissionsGateShown} from './storage/permissionsGateStorage';
-import {loadThemePreference, saveThemePreference} from './storage/themePreferenceStorage';
 import {checkRequiredRuntimePermissions} from './permissions/androidPermissions';
 import {
   ensureSchema,
@@ -116,14 +115,19 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
   const [permissionsGate, setPermissionsGate] = useState(false);
   const [permissionsChecked, setPermissionsChecked] = useState(false);
   const [nickname, setNickname] = useState<string>('');
-  const [theme, setTheme] = useState<ThemeName>('dark');
+  const [theme, setTheme] = useState<ThemeMode>('system');
   const [language, setLanguage] = useState<string>('ru');
   const [mute, setMute] = useState(false);
   const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
   const [profileAbout, setProfileAbout] = useState<string | null>(null);
   const [roomBusyById, setRoomBusyById] = useState<Record<string, boolean>>({});
 
-  const themeObj = useMemo(() => getTheme(theme), [theme]);
+  const systemScheme = useColorScheme();
+  const resolvedThemeName = useMemo(
+    () => resolveThemeName(theme, systemScheme),
+    [theme, systemScheme],
+  );
+  const themeObj = useMemo(() => getTheme(resolvedThemeName), [resolvedThemeName]);
   const navTheme = useMemo(() => makeNavigationTheme(themeObj), [themeObj]);
 
   const myUserId = useMemo(
@@ -148,13 +152,13 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
 
         // 1) Быстрая UI-настройка (например выбранная тема на экране регистрации)
         const prefTheme = await loadThemePreference();
+        const stored = await loadAppSettings();
         if (prefTheme) {
           setTheme(prefTheme);
+        } else if (stored?.theme) {
+          setTheme(normalizeThemeMode(stored.theme));
         }
-
-        const stored = await loadAppSettings();
         if (stored) {
-          setTheme(normalizeThemeName(stored.theme));
           setLanguage(stored.lang);
         }
 
@@ -766,14 +770,14 @@ const handleLeaveRoom = useCallback(
         try {
           await saveAppSettings({
             nickname: l || nickname || 'me',
-            theme: normalizeThemeName(theme),
+            theme: normalizeThemeMode(theme),
             lang: String(language || 'ru'),
             lockMethod: 'none',
             chatsMode: 'persistent',
           });
         } catch {}
         try {
-          await saveThemePreference(normalizeThemeName(theme));
+          await saveThemePreference(normalizeThemeMode(theme));
         } catch {}
       })();
     } catch {
@@ -1389,7 +1393,7 @@ const handleLeaveRoom = useCallback(
                   onBack={() => navigation.goBack()}
                   onApply={async opts => {
                     setNickname(opts.nickname);
-                    setTheme(normalizeThemeName(opts.theme));
+                    setTheme(normalizeThemeMode(opts.theme));
                     setLanguage(opts.language);
                     if (typeof opts.displayName === 'string') {
                       setProfileDisplayName(opts.displayName);
@@ -1400,13 +1404,13 @@ const handleLeaveRoom = useCallback(
                     try {
                       await saveAppSettings({
                         nickname: opts.nickname,
-                        theme: normalizeThemeName(opts.theme),
+                        theme: normalizeThemeMode(opts.theme),
                         lang: opts.language,
                         lockMethod: 'none',
                         chatsMode: 'persistent',
                       });
                       try {
-                        await saveThemePreference(opts.theme);
+                        await saveThemePreference(normalizeThemeMode(opts.theme));
                       } catch {}
                     } catch (e) {
                       console.warn('saveAppSettings (settings) failed', e);
