@@ -15,7 +15,7 @@ import {EmptyState} from '../components/EmptyState';
 import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
-import type {RoomItem} from './RoomsScreen';
+import type {RoomItem} from '../types/rooms';
 import {i18n} from '../i18n';
 import {formatTs} from '../utils/dateTime';
 

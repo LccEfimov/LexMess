@@ -21,7 +21,7 @@ import {RecoveryKeyScreen} from './screens/RecoveryKeyScreen';
 import {RecoveryResetScreen} from './screens/RecoveryResetScreen';
 import {NewDirectChatScreen} from './screens/NewDirectChatScreen';
 import {PermissionsScreen} from './screens/PermissionsScreen';
-import {RoomsScreen, RoomItem} from './screens/RoomsScreen';
+import type {RoomItem} from './types/rooms';
 import {getMessagesForRoom, type MessageRecord} from './storage/sqliteStorage';
 import {RoomsListScreen} from './screens/RoomsListScreen';
 import {CreateRoomScreen} from './screens/CreateRoomScreen';
@@ -120,7 +120,6 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
   const [nickname, setNickname] = useState<string>('');
   const [theme, setTheme] = useState<ThemeMode>('system');
   const [language, setLanguage] = useState<string>('ru');
-  const [mute, setMute] = useState(false);
   const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
   const [profileAbout, setProfileAbout] = useState<string | null>(null);
   const [roomBusyById, setRoomBusyById] = useState<Record<string, boolean>>({});
@@ -301,6 +300,15 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
     }
     return Array.from(m.values());
   }, [myRooms, openRooms]);
+  const roomsList = useMemo(() => {
+    const m = new Map<string, RoomItem>();
+    for (const r of [...myRooms, ...openRooms, ...publicRooms]) {
+      if (r && r.id) {
+        m.set(r.id, r);
+      }
+    }
+    return Array.from(m.values());
+  }, [myRooms, openRooms, publicRooms]);
   const [roomsLoading, setRoomsLoading] = useState(false);
   const roomsLoadLock = useRef(false);
   const lastRoomsLoadAt = useRef(0);
@@ -1058,103 +1066,19 @@ const handleLeaveRoom = useCallback(
                   },
                 }}>
                 {({navigation}) => (
-                  <RoomsScreen
-                    publicRooms={publicRooms}
-                    myRooms={myRooms}
-                    openRooms={openRooms}
-                    onOpenRoom={(roomId: string, roomTitle?: string) => {
-                  markRoomRead(roomId).catch(e => logger.warn('markRoomRead error', e));
-                  navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
-                }}
-                    onShowMorePublic={() => navigation.navigate('PublicRoomsList')}
-                    onShowMoreMy={() => navigation.navigate('MyRoomsList')}
-                    onShowMoreOpen={() => navigation.navigate('OpenRoomsList')}
-                    onSettings={() => navigation.navigate('Settings')}
-                    onCreateRoom={() => navigation.navigate('CreateRoom', {ownerId: nickname || 'me'})}
-                    onJoinByCode={() => navigation.navigate('JoinByCode', {userId: nickname || 'me'})}
-                    refreshing={roomsLoading}
-                    onRefresh={() => {
-                      loadRooms().catch(e => logger.warn('loadRooms error', e));
-                    }}
-                    onJoinRoom={handleJoinRoom}
-                    onLeaveRoom={handleLeaveRoom}
-                    busyByRoom={roomBusyById}
-                    mute={mute}
-                    onToggleMute={() => setMute(prev => !prev)}
-                    onExitApp={exitApp}
-                  />
-                )}
-              </RoomsStack.Screen>
-
-              <RoomsStack.Screen name="PublicRoomsList">
-                {({navigation}) => (
                   <RoomsListScreen
-                    title={i18n.t('roomsList.title.public')}
-                    rooms={publicRooms}
-                    onJoinRoom={handleJoinRoom}
-                    onLeaveRoom={handleLeaveRoom}
-                    busyByRoom={roomBusyById}
-                    onBack={() => navigation.goBack()}
-
-                    onOpenRoom={(roomId: string, roomTitle?: string) => {
-                  markRoomRead(roomId).catch(e => logger.warn('markRoomRead error', e));
-                  navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
-                }}
-                    onOpenMain={() => navigation.navigate('Rooms')}
-                    onOpenSettings={() => navigation.navigate('Settings')}
-                    onNewDirect={() => navigation.navigate('NewDirectChat')}
-                    refreshing={roomsLoading}
-                    onRefresh={() => {
-                      loadRooms().catch(e => logger.warn('loadRooms error', e));
+                    title={i18n.t('roomsList.header.rooms')}
+                    listKind="rooms"
+                    rooms={roomsList}
+                    pinnedByRoom={pinnedByRoom}
+                    onTogglePin={(rid: string) => {
+                      toggleRoomPin(rid).catch(e => logger.warn('toggleRoomPin error', e));
                     }}
-                    onJoinRoom={handleJoinRoom}
-                    onLeaveRoom={handleLeaveRoom}
-                    busyByRoom={roomBusyById}
-                  />
-                )}
-              </RoomsStack.Screen>
-
-              <RoomsStack.Screen name="MyRoomsList">
-                {({navigation}) => (
-                  <RoomsListScreen
-                    title={i18n.t('roomsList.title.my')}
-                    rooms={myRooms}
-                    onJoinRoom={handleJoinRoom}
-                    onLeaveRoom={handleLeaveRoom}
-                    busyByRoom={roomBusyById}
-                    onBack={() => navigation.goBack()}
+                    onBack={null}
                     onOpenRoom={(roomId: string, roomTitle?: string) => {
-                  markRoomRead(roomId).catch(e => logger.warn('markRoomRead error', e));
-                  navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
-                }}
-                    onOpenMain={() => navigation.navigate('Rooms')}
-                    onOpenSettings={() => navigation.navigate('Settings')}
-                    onNewDirect={() => navigation.navigate('NewDirectChat')}
-                    refreshing={roomsLoading}
-                    onRefresh={() => {
-                      loadRooms().catch(e => logger.warn('loadRooms error', e));
+                      markRoomRead(roomId).catch(e => logger.warn('markRoomRead error', e));
+                      navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
                     }}
-                    onJoinRoom={handleJoinRoom}
-                    onLeaveRoom={handleLeaveRoom}
-                    busyByRoom={roomBusyById}
-                  />
-                )}
-              </RoomsStack.Screen>
-
-              <RoomsStack.Screen name="OpenRoomsList">
-                {({navigation}) => (
-                  <RoomsListScreen
-                    title={i18n.t('roomsList.title.open')}
-                    rooms={openRooms}
-                    onJoinRoom={handleJoinRoom}
-                    onLeaveRoom={handleLeaveRoom}
-                    busyByRoom={roomBusyById}
-                    onBack={() => navigation.goBack()}
-                    onOpenRoom={(roomId: string, roomTitle?: string) => {
-                  markRoomRead(roomId).catch(e => logger.warn('markRoomRead error', e));
-                  navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
-                }}
-                    onOpenMain={() => navigation.navigate('Rooms')}
                     onOpenSettings={() => navigation.navigate('Settings')}
                     onNewDirect={() => navigation.navigate('NewDirectChat')}
                     refreshing={roomsLoading}
