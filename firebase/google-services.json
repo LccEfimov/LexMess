@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "192654710792",
+    "project_id": "lexmess-4900a",
+    "storage_bucket": "lexmess-4900a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:192654710792:android:471a487ace979bfdcf99bd",
+        "android_client_info": {
+          "package_name": "com.lexmess"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEVHZ5UAAimadFR_ZegOxRbAqlgXF0D24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,45 @@
+  # Force Android SDK versions (min/target/compile/buildTools) in Gradle files.
+  # RN templates often store these in android/build.gradle (rootProject.ext).
+  python3 - <<'PY'
+import os
+import re
+from pathlib import Path
+
+MIN = int(os.environ.get("MIN_SDK", "31"))
+TARGET = int(os.environ.get("TARGET_SDK", "34"))
+BUILD_TOOLS = os.environ.get("ANDROID_BUILD_TOOLS", "")
+
+def patch_file(path: Path):
+    if not path.exists():
+        return
+    txt = path.read_text(encoding="utf-8")
+    orig = txt
+
+    # Ext assignments: minSdkVersion = 23
+    txt = re.sub(r'(?m)^(\\s*minSdkVersion\\s*=\\s*)(\\d+)\\b', lambda m: f"{m.group(1)}{MIN}", txt)
+    txt = re.sub(r'(?m)^(\\s*targetSdkVersion\\s*=\\s*)(\\d+)\\b', lambda m: f"{m.group(1)}{TARGET}", txt)
+    txt = re.sub(r'(?m)^(\\s*compileSdkVersion\\s*=\\s*)(\\d+)\\b', lambda m: f"{m.group(1)}{TARGET}", txt)
+
+    # Method-call style: minSdkVersion 23
+    txt = re.sub(r'(?m)^(\\s*minSdkVersion\\s+)(\\d+)\\b', lambda m: f"{m.group(1)}{MIN}", txt)
+    txt = re.sub(r'(?m)^(\\s*targetSdkVersion\\s+)(\\d+)\\b', lambda m: f"{m.group(1)}{TARGET}", txt)
+    txt = re.sub(r'(?m)^(\\s*compileSdkVersion\\s+)(\\d+)\\b', lambda m: f"{m.group(1)}{TARGET}", txt)
+
+    if BUILD_TOOLS:
+        txt = re.sub(r'(?m)^(\\s*buildToolsVersion\\s*=\\s*)"[0-9.]+"', lambda m: f'{m.group(1)}"{BUILD_TOOLS}"', txt)
+        txt = re.sub(r'(?m)^(\\s*buildToolsVersion\\s*)"[0-9.]+"', lambda m: f'{m.group(1)}"{BUILD_TOOLS}"', txt)
+
+    if txt != orig:
+        path.write_text(txt, encoding="utf-8")
+
+patch_file(Path("android/build.gradle"))
+patch_file(Path("android/app/build.gradle"))
+
+mp = Path("android/app/src/main/AndroidManifest.xml")
+if mp.exists():
+    mtxt = mp.read_text(encoding="utf-8")
+    mtxt2 = re.sub(r'android:minSdkVersion="\\d+"', f'android:minSdkVersion="{MIN}"', mtxt)
+    mtxt2 = re.sub(r'android:targetSdkVersion="\\d+"', f'android:targetSdkVersion="{TARGET}"', mtxt2)
+    if mtxt2 != mtxt:
+        mp.write_text(mtxt2, encoding="utf-8")
+PY

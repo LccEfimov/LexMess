@@ -1,0 +1,535 @@
+package __MODULE_PACKAGE__
+
+import android.util.Base64
+import com.facebook.react.bridge.*
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.security.MessageDigest
+import java.security.SecureRandom
+import java.util.zip.CRC32
+import java.util.zip.Deflater
+import java.util.zip.Inflater
+import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
+
+/**
+ * LexmessCore native module (Android).
+ *
+ * Это реализация, достаточная для полноценного функционирования мобильного клиента:
+ *  - encryptLcc/decryptLcc: AES-256-GCM, ключ = SHA-256(passphrase || roomId || peerId)
+ *  - embedContainerInPng/extractContainerFromPng: LSB-стего в пикселях (RGB), alpha всегда 255.
+ *    Для обратной совместимости при декодировании есть фоллбек на legacy chunk "lxMS".
+ */
+class LexmessCoreModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+
+  override fun getName(): String = "LexmessCore"
+
+  private val rng = SecureRandom()
+
+  @ReactMethod
+  fun encryptLcc(params: ReadableMap, promise: Promise) {
+    try {
+      val passphrase = params.getString("passphrase") ?: ""
+      val roomId = params.getString("roomId") ?: ""
+      val peerId = params.getString("peerId") ?: ""
+      val plaintextB64 = params.getString("plaintextBase64") ?: ""
+      val messageType = if (params.hasKey("messageType")) params.getInt("messageType") else 0
+
+      val plaintext = Base64.decode(plaintextB64, Base64.DEFAULT)
+      val key = deriveKey(passphrase, roomId, peerId)
+
+      val nonce = ByteArray(12)
+      rng.nextBytes(nonce)
+
+      val aad = buildAad(roomId, peerId, messageType)
+      val ciphertext = aesGcmEncrypt(key, nonce, plaintext, aad)
+
+      // payload: [v1][nonce(12)][cipher+tag]
+      val out = ByteArray(1 + 12 + ciphertext.size)
+      out[0] = 0x01
+      System.arraycopy(nonce, 0, out, 1, 12)
+      System.arraycopy(ciphertext, 0, out, 13, ciphertext.size)
+
+      val sessionId = Base64.encodeToString(key.copyOfRange(0, 8), Base64.NO_WRAP)
+      val messageBase64 = Base64.encodeToString(out, Base64.NO_WRAP)
+
+      val result = Arguments.createMap()
+      result.putString("sessionId", sessionId)
+      result.putString("messageBase64", messageBase64)
+      result.putInt("messageType", messageType)
+      promise.resolve(result)
+    } catch (e: Exception) {
+      promise.reject("LEXMESS_ENCRYPT_ERROR", e)
+    }
+  }
+
+  @ReactMethod
+  fun decryptLcc(params: ReadableMap, promise: Promise) {
+    try {
+      val passphrase = params.getString("passphrase") ?: ""
+      val roomId = params.getString("roomId") ?: ""
+      val peerId = params.getString("peerId") ?: ""
+      val messageB64 = params.getString("messageBase64") ?: ""
+      val messageType = if (params.hasKey("messageType")) params.getInt("messageType") else 0
+
+      val payload = Base64.decode(messageB64, Base64.DEFAULT)
+      if (payload.size < 1 + 12 + 16) {
+        throw IllegalArgumentException("bad payload")
+      }
+      val ver = payload[0].toInt() and 0xFF
+      if (ver != 0x01) {
+        throw IllegalArgumentException("unsupported version: $ver")
+      }
+      val nonce = payload.copyOfRange(1, 13)
+      val ciphertext = payload.copyOfRange(13, payload.size)
+
+      val key = deriveKey(passphrase, roomId, peerId)
+      val aad = buildAad(roomId, peerId, messageType)
+      val plaintext = aesGcmDecrypt(key, nonce, ciphertext, aad)
+
+      val plaintextB64 = Base64.encodeToString(plaintext, Base64.NO_WRAP)
+      promise.resolve(plaintextB64)
+    } catch (e: Exception) {
+      promise.reject("LEXMESS_DECRYPT_ERROR", e)
+    }
+  }
+
+  @ReactMethod
+  fun embedContainerInPng(params: ReadableMap, promise: Promise) {
+    try {
+      val containerB64 = params.getString("containerBase64") ?: ""
+      val container = Base64.decode(containerB64, Base64.DEFAULT)
+      val png = buildPngWithStego(container)
+      val pngB64 = Base64.encodeToString(png, Base64.NO_WRAP)
+      promise.resolve(pngB64)
+    } catch (e: Exception) {
+      promise.reject("LEXMESS_PNG_EMBED_ERROR", e)
+    }
+  }
+
+  @ReactMethod
+  fun extractContainerFromPng(params: ReadableMap, promise: Promise) {
+    try {
+      val pngB64 = params.getString("pngBase64") ?: ""
+      val png = Base64.decode(pngB64, Base64.DEFAULT)
+      val container = tryExtractContainerFromStego(png)
+        ?: extractChunkFromPng(png, "lxMS")
+        ?: throw IllegalArgumentException("no stego payload and chunk lxMS not found")
+      val containerB64 = Base64.encodeToString(container, Base64.NO_WRAP)
+      promise.resolve(containerB64)
+    } catch (e: Exception) {
+      promise.reject("LEXMESS_PNG_EXTRACT_ERROR", e)
+    }
+  }
+
+  private fun buildAad(roomId: String, peerId: String, messageType: Int): ByteArray {
+    val s = "lexmess|v1|$roomId|$peerId|$messageType"
+    return s.toByteArray(Charsets.UTF_8)
+  }
+
+  private fun deriveKey(passphrase: String, roomId: String, peerId: String): ByteArray {
+    val md = MessageDigest.getInstance("SHA-256")
+    md.update(passphrase.toByteArray(Charsets.UTF_8))
+    md.update(0)
+    md.update(roomId.toByteArray(Charsets.UTF_8))
+    md.update(0)
+    md.update(peerId.toByteArray(Charsets.UTF_8))
+    return md.digest()
+  }
+
+  private fun aesGcmEncrypt(key: ByteArray, nonce: ByteArray, plaintext: ByteArray, aad: ByteArray): ByteArray {
+    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    val keySpec = SecretKeySpec(key, "AES")
+    val gcm = GCMParameterSpec(128, nonce)
+    cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcm)
+    cipher.updateAAD(aad)
+    return cipher.doFinal(plaintext)
+  }
+
+  private fun aesGcmDecrypt(key: ByteArray, nonce: ByteArray, ciphertext: ByteArray, aad: ByteArray): ByteArray {
+    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    val keySpec = SecretKeySpec(key, "AES")
+    val gcm = GCMParameterSpec(128, nonce)
+    cipher.init(Cipher.DECRYPT_MODE, keySpec, gcm)
+    cipher.updateAAD(aad)
+    return cipher.doFinal(ciphertext)
+  }
+
+  // ---- PNG helpers (stego-in-pixels) ----
+
+  private val STEGO_MAGIC = "LXMSTEG2".toByteArray(Charsets.US_ASCII) // 8 bytes
+
+  /**
+   * Контейнер LXMSTEG2:
+   *  [8] magic
+   *  [4] len (BE)
+   *  [4] crc32(payload)
+   *  [N] payload
+   */
+  private fun buildPngWithStego(payload: ByteArray): ByteArray {
+    if (payload.isEmpty()) {
+      throw IllegalArgumentException("empty payload")
+    }
+
+    val crc = CRC32()
+    crc.update(payload)
+    val len = payload.size
+
+    val header = ByteArray(8 + 4 + 4)
+    System.arraycopy(STEGO_MAGIC, 0, header, 0, 8)
+    writeIntBE(header, 8, len)
+    writeIntBE(header, 12, crc.value.toInt())
+
+    val container = ByteArray(header.size + payload.size)
+    System.arraycopy(header, 0, container, 0, header.size)
+    System.arraycopy(payload, 0, container, header.size, payload.size)
+
+    val totalBits = container.size * 8
+
+    var width = 512
+    var height = Math.ceil(totalBits.toDouble() / (width.toDouble() * 3.0)).toInt()
+    if (height < 1) height = 1
+    if (height > 1024) {
+      width = 1024
+      height = Math.ceil(totalBits.toDouble() / (width.toDouble() * 3.0)).toInt()
+      if (height > 2048) {
+        throw IllegalArgumentException("payload too big for stego png")
+      }
+    }
+
+    // raw scanlines: each row starts with filter byte 0.
+    val rowStride = 1 + width * 4
+    val raw = ByteArray(height * rowStride)
+
+    val rand = ByteArray(4096)
+    var randOff = 0
+
+    fun nextRandByte(): Byte {
+      if (randOff >= rand.size) {
+        rng.nextBytes(rand)
+        randOff = 0
+      }
+      val v = rand[randOff]
+      randOff += 1
+      return v
+    }
+
+    var bitIndex = 0
+    for (y in 0 until height) {
+      val rowStart = y * rowStride
+      raw[rowStart] = 0
+      for (x in 0 until width) {
+        val p = rowStart + 1 + x * 4
+
+        // base random pixels
+        var r = nextRandByte().toInt() and 0xFF
+        var g = nextRandByte().toInt() and 0xFF
+        var b = nextRandByte().toInt() and 0xFF
+
+        // embed bits into LSB of RGB
+        if (bitIndex < totalBits) {
+          val bit = getBit(container, bitIndex)
+          r = (r and 0xFE) or bit
+          bitIndex += 1
+        }
+        if (bitIndex < totalBits) {
+          val bit = getBit(container, bitIndex)
+          g = (g and 0xFE) or bit
+          bitIndex += 1
+        }
+        if (bitIndex < totalBits) {
+          val bit = getBit(container, bitIndex)
+          b = (b and 0xFE) or bit
+          bitIndex += 1
+        }
+
+        raw[p + 0] = r.toByte()
+        raw[p + 1] = g.toByte()
+        raw[p + 2] = b.toByte()
+        raw[p + 3] = 0xFF.toByte()
+
+        if (bitIndex >= totalBits) {
+          // Fill remaining pixels random but keep alpha 255
+          // continue loops to complete raw buffer, already handled by nextRandByte.
+        }
+      }
+    }
+
+    if (bitIndex < totalBits) {
+      throw IllegalStateException("not enough capacity")
+    }
+
+    val out = ByteArrayOutputStream()
+    out.write(byteArrayOf(137.toByte(), 80, 78, 71, 13, 10, 26, 10))
+
+    val ihdr = ByteBuffer.allocate(13).order(ByteOrder.BIG_ENDIAN)
+    ihdr.putInt(width)
+    ihdr.putInt(height)
+    ihdr.put(8.toByte())
+    ihdr.put(6.toByte()) // RGBA
+    ihdr.put(0.toByte())
+    ihdr.put(0.toByte())
+    ihdr.put(0.toByte())
+    writeChunk(out, "IHDR", ihdr.array())
+
+    val idat = zlibCompress(raw)
+    writeChunk(out, "IDAT", idat)
+    writeChunk(out, "IEND", ByteArray(0))
+    return out.toByteArray()
+  }
+
+  private fun tryExtractContainerFromStego(png: ByteArray): ByteArray? {
+    val sig = byteArrayOf(137.toByte(), 80, 78, 71, 13, 10, 26, 10)
+    if (png.size < sig.size || !png.copyOfRange(0, sig.size).contentEquals(sig)) {
+      return null
+    }
+
+    var width = 0
+    var height = 0
+    val idatOut = ByteArrayOutputStream()
+
+    var off = 8
+    while (off + 8 <= png.size) {
+      val len = readIntBE(png, off)
+      val type = String(png, off + 4, 4, Charsets.US_ASCII)
+      val dataOff = off + 8
+      val dataEnd = dataOff + len
+      if (dataEnd + 4 > png.size) break
+
+      if (type == "IHDR" && len >= 8) {
+        width = readIntBE(png, dataOff)
+        height = readIntBE(png, dataOff + 4)
+      } else if (type == "IDAT" && len > 0) {
+        idatOut.write(png, dataOff, len)
+      }
+
+      off = dataEnd + 4
+      if (type == "IEND") break
+    }
+
+    if (width <= 0 || height <= 0) return null
+    val idat = idatOut.toByteArray()
+    if (idat.isEmpty()) return null
+
+    val raw = zlibDecompress(idat)
+    val rowStride = 1 + width * 4
+    if (raw.size < height * rowStride) {
+      // Some PNGs may include extra bytes, but not less.
+      return null
+    }
+
+    // Read header first (16 bytes).
+    val header = ByteArray(16)
+    var headerByte = 0
+    var headerBit = 7
+
+    var payloadLen: Int? = null
+    var wantCrc: Int? = null
+    var payload: ByteArray? = null
+    var payloadByte = 0
+    var payloadBit = 7
+
+    fun feedBit(bit: Int) {
+      if (payload == null) {
+        header[headerByte] = (header[headerByte].toInt() or (bit shl headerBit)).toByte()
+        if (headerBit == 0) {
+          headerByte += 1
+          headerBit = 7
+        } else {
+          headerBit -= 1
+        }
+
+        if (headerByte == 16) {
+          // magic check
+          for (i in 0 until 8) {
+            if (header[i] != STEGO_MAGIC[i]) {
+              throw IllegalArgumentException("no stego magic")
+            }
+          }
+          val len = readIntBE(header, 8)
+          if (len <= 0 || len > 1024 * 1024) {
+            throw IllegalArgumentException("bad stego len")
+          }
+          payloadLen = len
+          wantCrc = readIntBE(header, 12)
+          payload = ByteArray(len)
+        }
+        return
+      }
+
+      val out = payload!!
+      out[payloadByte] = (out[payloadByte].toInt() or (bit shl payloadBit)).toByte()
+      if (payloadBit == 0) {
+        payloadByte += 1
+        payloadBit = 7
+      } else {
+        payloadBit -= 1
+      }
+    }
+
+    try {
+      for (y in 0 until height) {
+        val rowStart = y * rowStride
+        // filter byte at raw[rowStart]
+        for (x in 0 until width) {
+          val p = rowStart + 1 + x * 4
+          val r = raw[p + 0].toInt() and 0xFF
+          val g = raw[p + 1].toInt() and 0xFF
+          val b = raw[p + 2].toInt() and 0xFF
+
+          feedBit(r and 1)
+          feedBit(g and 1)
+          feedBit(b and 1)
+
+          if (payload != null && payloadByte == payloadLen) {
+            val got = CRC32()
+            got.update(payload)
+            if (got.value.toInt() != wantCrc) {
+              throw IllegalArgumentException("stego crc mismatch")
+            }
+            return payload
+          }
+        }
+      }
+    } catch (e: Exception) {
+      return null
+    }
+
+    return null
+  }
+
+  private fun getBit(buf: ByteArray, bitIndex: Int): Int {
+    val byteIndex = bitIndex ushr 3
+    val bitInByte = 7 - (bitIndex and 7)
+    return (buf[byteIndex].toInt() ushr bitInByte) and 1
+  }
+
+  private fun writeIntBE(buf: ByteArray, off: Int, v: Int) {
+    buf[off + 0] = ((v ushr 24) and 0xFF).toByte()
+    buf[off + 1] = ((v ushr 16) and 0xFF).toByte()
+    buf[off + 2] = ((v ushr 8) and 0xFF).toByte()
+    buf[off + 3] = (v and 0xFF).toByte()
+  }
+
+  private fun zlibDecompress(data: ByteArray): ByteArray {
+    val inf = Inflater()
+    inf.setInput(data)
+    val out = ByteArrayOutputStream()
+    val buf = ByteArray(4096)
+    while (!inf.finished()) {
+      val n = inf.inflate(buf)
+      if (n == 0) {
+        if (inf.needsInput()) break
+      } else {
+        out.write(buf, 0, n)
+      }
+    }
+    inf.end()
+    return out.toByteArray()
+  }
+
+  // ---- Legacy: PNG helpers (chunk-based container) ----
+
+  private fun buildPngWithChunk(chunkType: String, chunkData: ByteArray): ByteArray {
+    if (chunkType.length != 4) {
+      throw IllegalArgumentException("chunkType must be 4 chars")
+    }
+
+    val out = ByteArrayOutputStream()
+    // PNG signature
+    out.write(byteArrayOf(137.toByte(), 80, 78, 71, 13, 10, 26, 10))
+
+    // IHDR: 1x1 RGBA
+    val ihdr = ByteBuffer.allocate(13).order(ByteOrder.BIG_ENDIAN)
+    ihdr.putInt(1) // width
+    ihdr.putInt(1) // height
+    ihdr.put(8.toByte()) // bit depth
+    ihdr.put(6.toByte()) // color type RGBA
+    ihdr.put(0.toByte()) // compression
+    ihdr.put(0.toByte()) // filter
+    ihdr.put(0.toByte()) // interlace
+    writeChunk(out, "IHDR", ihdr.array())
+
+    // IDAT: zlib-compressed scanline: [filter=0][RGBA]
+    val raw = byteArrayOf(0, 0, 0, 0, 255.toByte())
+    val idat = zlibCompress(raw)
+    writeChunk(out, "IDAT", idat)
+
+    // Custom chunk with container
+    writeChunk(out, chunkType, chunkData)
+
+    // IEND
+    writeChunk(out, "IEND", ByteArray(0))
+
+    return out.toByteArray()
+  }
+
+  private fun extractChunkFromPng(png: ByteArray, wantType: String): ByteArray? {
+    if (wantType.length != 4) return null
+    val sig = byteArrayOf(137.toByte(), 80, 78, 71, 13, 10, 26, 10)
+    if (png.size < sig.size || !png.copyOfRange(0, sig.size).contentEquals(sig)) {
+      throw IllegalArgumentException("not a png")
+    }
+
+    var off = 8
+    while (off + 8 <= png.size) {
+      val len = readIntBE(png, off)
+      val type = String(png, off + 4, 4, Charsets.US_ASCII)
+      val dataOff = off + 8
+      val dataEnd = dataOff + len
+      if (dataEnd + 4 > png.size) {
+        break
+      }
+      if (type == wantType) {
+        return png.copyOfRange(dataOff, dataEnd)
+      }
+      off = dataEnd + 4
+    }
+    return null
+  }
+
+  private fun readIntBE(b: ByteArray, off: Int): Int {
+    return ((b[off].toInt() and 0xFF) shl 24) or
+      ((b[off + 1].toInt() and 0xFF) shl 16) or
+      ((b[off + 2].toInt() and 0xFF) shl 8) or
+      (b[off + 3].toInt() and 0xFF)
+  }
+
+  private fun zlibCompress(data: ByteArray): ByteArray {
+    val def = Deflater(Deflater.DEFAULT_COMPRESSION)
+    def.setInput(data)
+    def.finish()
+    val out = ByteArrayOutputStream()
+    val buf = ByteArray(4096)
+    while (!def.finished()) {
+      val n = def.deflate(buf)
+      out.write(buf, 0, n)
+    }
+    def.end()
+    return out.toByteArray()
+  }
+
+  private fun writeChunk(out: ByteArrayOutputStream, type: String, data: ByteArray) {
+    val len = data.size
+    out.write(intToBE(len))
+    val typeBytes = type.toByteArray(Charsets.US_ASCII)
+    out.write(typeBytes)
+    out.write(data)
+
+    val crc = CRC32()
+    crc.update(typeBytes)
+    crc.update(data)
+    out.write(intToBE(crc.value.toInt()))
+  }
+
+  private fun intToBE(v: Int): ByteArray {
+    return byteArrayOf(
+      ((v ushr 24) and 0xFF).toByte(),
+      ((v ushr 16) and 0xFF).toByte(),
+      ((v ushr 8) and 0xFF).toByte(),
+      (v and 0xFF).toByte(),
+    )
+  }
+}
