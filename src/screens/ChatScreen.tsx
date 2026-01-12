@@ -89,6 +89,162 @@ interface Props {
   onOpenParticipants?: () => void;
 }
 
+type ChatMessageItemProps = {
+  item: ChatMessage;
+  styles: ReturnType<typeof makeStyles>;
+  onOpenMessageActions: (item: ChatMessage, fileUri?: string) => void;
+  onToggleVoice: (message: ChatMessage) => void;
+  formatMillis: (ms: number) => string;
+  playingVoiceId: string | null;
+  voicePosition: number;
+  voiceDuration: number;
+  onRetryPending?: () => void | Promise<void>;
+};
+
+const ChatMessageItem: React.FC<ChatMessageItemProps> = React.memo(
+  ({
+    item,
+    styles,
+    onOpenMessageActions,
+    onToggleVoice,
+    formatMillis,
+    playingVoiceId,
+    voicePosition,
+    voiceDuration,
+    onRetryPending,
+  }) => {
+    const isImage =
+      item.contentType === 'image' &&
+      item.localPath &&
+      typeof item.localPath === 'string';
+    const isAudio = item.contentType === 'audio' && item.localPath;
+    const isFile =
+      (item.contentType === 'file' || item.contentType === 'video') &&
+      item.localPath &&
+      typeof item.localPath === 'string';
+
+    let uri: string | undefined;
+    if (isImage && item.localPath) {
+      uri = item.localPath.startsWith('file://')
+        ? item.localPath
+        : `file://${item.localPath}`;
+    }
+
+    let fileUri: string | undefined;
+    if (isFile && item.localPath) {
+      fileUri = item.localPath.startsWith('file://')
+        ? item.localPath
+        : `file://${item.localPath}`;
+    }
+
+    const ts = Number((item as any).ts || 0);
+    const timeText = ts
+      ? new Date(ts).toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})
+      : '';
+
+    const status = String(item.deliveryStatus || '').toLowerCase();
+    const statusSymbol =
+      status === 'read'
+        ? '✓✓'
+        : status === 'delivered'
+        ? '✓✓'
+        : status === 'sent'
+        ? '✓'
+        : status === 'queued' || status === 'local'
+        ? '⏳'
+        : status === 'failed'
+        ? '!'
+        : status
+        ? '…'
+        : '';
+
+    if (item.contentType === 'system') {
+      return (
+        <View style={styles.systemRow}>
+          <Text style={styles.systemText}>{item.body}</Text>
+        </View>
+      );
+    }
+
+    const canRetry =
+      !!onRetryPending &&
+      item.outgoing &&
+      (status === 'queued' || status === 'failed' || status === 'local');
+
+    return (
+      <Pressable
+        onLongPress={() => {
+          try {
+            onOpenMessageActions(item, fileUri);
+          } catch (e) {
+            console.warn('ChatScreen: openMessageActions failed', e);
+          }
+        }}
+        style={[
+          styles.bubble,
+          item.outgoing ? styles.bubbleOutgoing : styles.bubbleIncoming,
+        ]}>
+        <Text style={styles.sender}>{item.sender}</Text>
+        {isImage && uri ? (
+          <Image source={{uri}} style={styles.imageThumb} resizeMode="cover" />
+        ) : isAudio ? (
+          <View style={styles.audioRow}>
+            <TouchableOpacity
+              style={styles.audioButton}
+              onPress={() => onToggleVoice(item)}>
+              <Text style={styles.audioButtonText}>
+                {playingVoiceId === item.id ? '⏸' : '▶'}
+              </Text>
+            </TouchableOpacity>
+            <Text style={styles.audioLabel}>
+              Голосовое сообщение
+              {playingVoiceId === item.id
+                ? `  ${formatMillis(voicePosition)} / ${formatMillis(voiceDuration)}`
+                : ''}
+            </Text>
+          </View>
+        ) : isFile && fileUri ? (
+          <View style={styles.fileRow}>
+            <Text style={styles.fileName}>{item.body || 'Файл'}</Text>
+            <TouchableOpacity
+              style={styles.fileOpenBtn}
+              onPress={() => {
+                try {
+                  Linking.openURL(fileUri);
+                } catch (e) {
+                  console.warn('ChatScreen: open file failed', e);
+                }
+              }}>
+              <Text style={styles.fileOpenText}>Открыть</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Text style={styles.body}>{item.body}</Text>
+        )}
+
+        <View style={styles.metaRow}>
+          {!!timeText && <Text style={styles.metaTime}>{timeText}</Text>}
+          {item.outgoing && status === 'failed' && onRetryPending ? (
+            <TouchableOpacity style={styles.retryInline} onPress={onRetryPending}>
+              <Text style={styles.retryInlineText}>Повторить</Text>
+            </TouchableOpacity>
+          ) : null}
+          {item.outgoing && !!statusSymbol && (
+            <Text
+              style={[
+                styles.deliveryStatus,
+                status === 'read' ? styles.deliveryStatusRead : null,
+                canRetry ? styles.deliveryStatusRetry : null,
+              ]}>
+              {statusSymbol}
+            </Text>
+          )}
+        </View>
+      </Pressable>
+    );
+  },
+);
+
 
 function dedupMessages(list: any[]) {
   const map = new Map<string, any>();
@@ -354,7 +510,7 @@ export const ChatScreen: React.FC<Props> = ({
 
 
 
-  const formatMillis = (ms: number) => {
+  const formatMillis = useCallback((ms: number) => {
     if (!ms || ms <= 0) {
       return '0:00';
     }
@@ -363,7 +519,7 @@ export const ChatScreen: React.FC<Props> = ({
     const s = totalSeconds % 60;
     const sStr = s < 10 ? `0${s}` : String(s);
     return `${m}:${sStr}`;
-  };
+  }, []);
 
   
   const copyToClipboard = useCallback(async (text: string) => {
@@ -451,7 +607,7 @@ export const ChatScreen: React.FC<Props> = ({
     [copyToClipboard, onRetryPending],
   );
 
-const handleToggleVoice = async (msg: ChatMessage) => {
+  const handleToggleVoice = useCallback(async (msg: ChatMessage) => {
     const recorder = recorderRef.current;
     if (!recorder || !msg.localPath) {
       return;
@@ -528,142 +684,33 @@ const handleToggleVoice = async (msg: ChatMessage) => {
       setVoicePosition(0);
       setVoiceDuration(0);
     }
-  };
+  }, [playingVoiceId]);
 
-  
-const renderMessage = ({item}: {item: ChatMessage}) => {
-    const isImage =
-      item.contentType === 'image' &&
-      item.localPath &&
-      typeof item.localPath === 'string';
-    const isAudio = item.contentType === 'audio' && item.localPath;
-    const isFile =
-      (item.contentType === 'file' || item.contentType === 'video') &&
-      item.localPath &&
-      typeof item.localPath === 'string';
-
-    let uri: string | undefined;
-    if (isImage && item.localPath) {
-      uri = item.localPath.startsWith('file://')
-        ? item.localPath
-        : `file://${item.localPath}`;
-    }
-
-    let fileUri: string | undefined;
-    if (isFile && item.localPath) {
-      fileUri = item.localPath.startsWith('file://')
-        ? item.localPath
-        : `file://${item.localPath}`;
-    }
-
-    const ts = Number((item as any).ts || 0);
-    const timeText = ts
-      ? new Date(ts).toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})
-      : '';
-
-    const status = String(item.deliveryStatus || '').toLowerCase();
-    const statusSymbol =
-      status === 'read'
-        ? '✓✓'
-        : status === 'delivered'
-        ? '✓✓'
-        : status === 'sent'
-        ? '✓'
-        : status === 'queued' || status === 'local'
-        ? '⏳'
-        : status === 'failed'
-        ? '!'
-        : status
-        ? '…'
-        : '';
-
-    if (item.contentType === 'system') {
-      return (
-        <View style={styles.systemRow}>
-          <Text style={styles.systemText}>{item.body}</Text>
-        </View>
-      );
-    }
-
-    const canRetry =
-      !!onRetryPending &&
-      item.outgoing &&
-      (status === 'queued' || status === 'failed' || status === 'local');
-
-    return (
-      <Pressable
-        onLongPress={() => {
-          try {
-            // open contextual actions for message
-            // fileUri is in closure
-            openMessageActions(item as any, fileUri);
-          } catch (e) {
-            console.warn('ChatScreen: openMessageActions failed', e);
-          }
-        }}
-        style={[
-          styles.bubble,
-          item.outgoing ? styles.bubbleOutgoing : styles.bubbleIncoming,
-        ]}>
-        <Text style={styles.sender}>{item.sender}</Text>
-        {isImage && uri ? (
-          <Image source={{uri}} style={styles.imageThumb} resizeMode="cover" />
-        ) : isAudio ? (
-          <View style={styles.audioRow}>
-            <TouchableOpacity
-              style={styles.audioButton}
-              onPress={() => handleToggleVoice(item)}>
-              <Text style={styles.audioButtonText}>
-                {playingVoiceId === item.id ? '⏸' : '▶'}
-              </Text>
-            </TouchableOpacity>
-            <Text style={styles.audioLabel}>
-              Голосовое сообщение
-              {playingVoiceId === item.id
-                ? `  ${formatMillis(voicePosition)} / ${formatMillis(voiceDuration)}`
-                : ''}
-            </Text>
-          </View>
-        ) : isFile && fileUri ? (
-          <View style={styles.fileRow}>
-            <Text style={styles.fileName}>{item.body || 'Файл'}</Text>
-            <TouchableOpacity
-              style={styles.fileOpenBtn}
-              onPress={() => {
-                try {
-                  Linking.openURL(fileUri);
-                } catch (e) {
-                  console.warn('ChatScreen: open file failed', e);
-                }
-              }}>
-              <Text style={styles.fileOpenText}>Открыть</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <Text style={styles.body}>{item.body}</Text>
-        )}
-
-        <View style={styles.metaRow}>
-          {!!timeText && <Text style={styles.metaTime}>{timeText}</Text>}
-          {item.outgoing && status === 'failed' && onRetryPending ? (
-            <TouchableOpacity style={styles.retryInline} onPress={onRetryPending}>
-              <Text style={styles.retryInlineText}>Повторить</Text>
-            </TouchableOpacity>
-          ) : null}
-          {item.outgoing && !!statusSymbol && (
-            <Text
-              style={[
-                styles.deliveryStatus,
-                status === 'read' ? styles.deliveryStatusRead : null,
-                canRetry ? styles.deliveryStatusRetry : null,
-              ]}>
-              {statusSymbol}
-            </Text>
-          )}
-        </View>
-      </Pressable>
-    );
-  };
+  const renderMessage = useCallback(
+    ({item}: {item: ChatMessage}) => (
+      <ChatMessageItem
+        item={item}
+        styles={styles}
+        onOpenMessageActions={openMessageActions}
+        onToggleVoice={handleToggleVoice}
+        formatMillis={formatMillis}
+        playingVoiceId={playingVoiceId}
+        voicePosition={voicePosition}
+        voiceDuration={voiceDuration}
+        onRetryPending={onRetryPending}
+      />
+    ),
+    [
+      formatMillis,
+      handleToggleVoice,
+      onRetryPending,
+      openMessageActions,
+      playingVoiceId,
+      styles,
+      voiceDuration,
+      voicePosition,
+    ],
+  );
 
 
 
@@ -794,6 +841,10 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
         data={messages}
         keyExtractor={m => m.id}
         renderItem={renderMessage}
+        initialNumToRender={12}
+        maxToRenderPerBatch={8}
+        windowSize={7}
+        removeClippedSubviews
         ListEmptyComponent={
           <View style={styles.emptyWrap}>
             <Text style={styles.emptyTitle}>Пока нет сообщений</Text>
