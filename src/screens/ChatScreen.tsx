@@ -17,12 +17,9 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import {
-  Pressable,SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
-import {
-  Pressable,AppHeader} from '../components/AppHeader';
-import {
-  Pressable,useTheme} from '../theme/ThemeContext';
+import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
+import {AppHeader} from '../components/AppHeader';
+import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {i18n} from '../i18n';
 
@@ -34,9 +31,9 @@ const makeAttachButtonStyles = (t: Theme) =>
       paddingVertical: 10,
       paddingHorizontal: 14,
       borderRadius: 12,
-      backgroundColor: t.card,
+      backgroundColor: t.colors.card,
       borderWidth: 1,
-      borderColor: t.border,
+      borderColor: t.colors.border,
     },
     attachCircle: {
       width: 28,
@@ -44,15 +41,14 @@ const makeAttachButtonStyles = (t: Theme) =>
       borderRadius: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.primarySoft,
+      backgroundColor: t.colors.primarySoft,
       marginRight: 10,
     },
-    attachCircleText: {color: t.primary, fontSize: 16, fontWeight: '700'},
-    attachItemLabel: {color: t.text, fontSize: 14, fontWeight: '600'},
+    attachCircleText: {color: t.colors.primary, fontSize: 16, fontWeight: '700'},
+    attachItemLabel: {color: t.colors.text, fontSize: 14, fontWeight: '600'},
   });
 import DocumentPicker from 'react-native-document-picker';
-import {
-  Pressable,launchImageLibrary} from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 
@@ -972,12 +968,12 @@ const makeStyles = (t: Theme) =>
       paddingVertical: 5,
       borderRadius: 999,
       borderWidth: 1,
-      borderColor: t.border,
-      backgroundColor: t.bgElevated,
+      borderColor: t.colors.border,
+      backgroundColor: t.colors.bgElevated,
     },
     retryInlineText: {
       ...t.typography.tiny,
-      color: t.text,
+      color: t.colors.text,
       fontWeight: '700',
     },
 
