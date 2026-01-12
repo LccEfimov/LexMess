@@ -428,6 +428,52 @@
       "createFailed": "Failed to create chat"
     }
   },
+  "roomMembers": {
+    "title": "Members",
+    "titleWithRoom": "Members • {roomTitle}",
+    "summary": {
+      "room": "Room: {roomId}",
+      "role": "Role: {role}",
+      "inviteCode": "Invite code: {inviteCode}",
+      "inviteCodeMissing": "Invite code is not set"
+    },
+    "roles": {
+      "owner": "Owner",
+      "moderator": "Moderator",
+      "member": "Member",
+      "meSuffix": " • that's you"
+    },
+    "actions": {
+      "share": "Share",
+      "makeModerator": "Make moderator",
+      "demoteModerator": "Remove moderator",
+      "kick": "Kick",
+      "leave": "Leave room"
+    },
+    "empty": {
+      "title": "No data",
+      "subtitle": "Members are not loaded."
+    },
+    "alerts": {
+      "errorTitle": "Error",
+      "loadFailed": "Failed to load members",
+      "changeRoleFailed": "Failed to change role",
+      "kickTitle": "Remove",
+      "kickBody": "Remove user {userId}?",
+      "cancel": "Cancel",
+      "kickConfirm": "Remove",
+      "kickFailed": "Failed to remove member",
+      "leaveTitle": "Leave room",
+      "leaveBody": "Are you sure?",
+      "leaveConfirm": "Leave",
+      "leaveFailed": "Failed to leave room"
+    },
+    "share": {
+      "roomTitle": "Room: {roomTitle}",
+      "roomId": "Room ID: {roomId}",
+      "inviteCode": "Invite code: {inviteCode}"
+    }
+  },
   "theme": {
     "system": "System",
     "lexmess_dark": "LexMess (dark)",

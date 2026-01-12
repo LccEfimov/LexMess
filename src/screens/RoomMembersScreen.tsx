@@ -14,6 +14,7 @@ import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {useLexmessApi} from '../hooks/useLexmessApi';
+import {i18n} from '../i18n';
 
 type MemberRole = 'owner' | 'moderator' | 'member';
 
@@ -50,6 +51,10 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
 
   const canManage = myRole === 'owner';
   const canKick = myRole === 'owner' || myRole === 'moderator';
+
+  const roleLabel = useCallback((role: MemberRole) => {
+    return i18n.t(`roomMembers.roles.${role}`);
+  }, []);
 
   const load = useCallback(async () => {
     if (!roomId) return;
@@ -90,7 +95,10 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
 
       setMembers(list);
     } catch (e: any) {
-      Alert.alert('Ошибка', String(e?.message || e || 'Не удалось загрузить участников'));
+      Alert.alert(
+        i18n.t('roomMembers.alerts.errorTitle'),
+        String(e?.message || e || i18n.t('roomMembers.alerts.loadFailed')),
+      );
     } finally {
       setLoading(false);
     }
@@ -103,9 +111,9 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
   const shareInvite = useCallback(async () => {
     try {
       const msgLines = [
-        roomTitle ? `Комната: ${roomTitle}` : undefined,
-        roomId ? `ID комнаты: ${roomId}` : undefined,
-        inviteCode ? `Инвайт-код: ${inviteCode}` : undefined,
+        roomTitle ? i18n.t('roomMembers.share.roomTitle', {roomTitle}) : undefined,
+        roomId ? i18n.t('roomMembers.share.roomId', {roomId}) : undefined,
+        inviteCode ? i18n.t('roomMembers.share.inviteCode', {inviteCode}) : undefined,
       ].filter(Boolean);
       await Share.share({message: msgLines.join('\n')});
     } catch {}
@@ -119,7 +127,10 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
         await api.setRoomMemberRole({roomId, targetUserId, role: nextRole});
         await load();
       } catch (e: any) {
-        Alert.alert('Ошибка', String(e?.message || e || 'Не удалось изменить роль'));
+        Alert.alert(
+          i18n.t('roomMembers.alerts.errorTitle'),
+          String(e?.message || e || i18n.t('roomMembers.alerts.changeRoleFailed')),
+        );
       }
     },
     [api, roomId, canManage, load],
@@ -128,36 +139,46 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
   const kick = useCallback(
     async (targetUserId: string) => {
       if (!canKick) return;
-      Alert.alert('Исключить', `Исключить пользователя ${targetUserId}?`, [
-        {text: 'Отмена', style: 'cancel'},
+      Alert.alert(
+        i18n.t('roomMembers.alerts.kickTitle'),
+        i18n.t('roomMembers.alerts.kickBody', {userId: targetUserId}),
+        [
+          {text: i18n.t('roomMembers.alerts.cancel'), style: 'cancel'},
         {
-          text: 'Исключить',
+          text: i18n.t('roomMembers.alerts.kickConfirm'),
           style: 'destructive',
           onPress: async () => {
             try {
               await api.kickRoomMember({roomId, targetUserId});
               await load();
             } catch (e: any) {
-              Alert.alert('Ошибка', String(e?.message || e || 'Не удалось исключить'));
+              Alert.alert(
+                i18n.t('roomMembers.alerts.errorTitle'),
+                String(e?.message || e || i18n.t('roomMembers.alerts.kickFailed')),
+              );
             }
           },
         },
-      ]);
+        ],
+      );
     },
     [api, roomId, canKick, load],
   );
 
   const leave = useCallback(async () => {
-    Alert.alert('Покинуть комнату', 'Вы уверены?', [
-      {text: 'Отмена', style: 'cancel'},
+    Alert.alert(i18n.t('roomMembers.alerts.leaveTitle'), i18n.t('roomMembers.alerts.leaveBody'), [
+      {text: i18n.t('roomMembers.alerts.cancel'), style: 'cancel'},
       {
-        text: 'Покинуть',
+        text: i18n.t('roomMembers.alerts.leaveConfirm'),
         style: 'destructive',
         onPress: async () => {
           try {
             await api.leaveRoom({roomId});
           } catch (e: any) {
-            Alert.alert('Ошибка', String(e?.message || e || 'Не удалось выйти'));
+            Alert.alert(
+              i18n.t('roomMembers.alerts.errorTitle'),
+              String(e?.message || e || i18n.t('roomMembers.alerts.leaveFailed')),
+            );
             return;
           }
 
@@ -180,26 +201,34 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
   return (
     <View style={styles.root}>
       <AppHeader
-        title={roomTitle ? `Участники • ${roomTitle}` : 'Участники'}
+        title={
+          roomTitle
+            ? i18n.t('roomMembers.titleWithRoom', {roomTitle})
+            : i18n.t('roomMembers.title')
+        }
         onBack={() => navigation.goBack()}
         right={
           inviteCode ? (
             <TouchableOpacity style={styles.headerBtn} onPress={shareInvite}>
-              <Text style={styles.headerBtnText}>Поделиться</Text>
+              <Text style={styles.headerBtnText}>{i18n.t('roomMembers.actions.share')}</Text>
             </TouchableOpacity>
           ) : null
         }
       />
 
       <View style={styles.summaryCard}>
-        <Text style={styles.summaryText}>Комната: {roomId}</Text>
         <Text style={styles.summaryText}>
-          Роль: {myRole === 'owner' ? 'Владелец' : myRole === 'moderator' ? 'Модератор' : 'Участник'}
+          {i18n.t('roomMembers.summary.room', {roomId})}
+        </Text>
+        <Text style={styles.summaryText}>
+          {i18n.t('roomMembers.summary.role', {role: roleLabel(myRole)})}
         </Text>
         {inviteCode ? (
-          <Text style={styles.summaryCode}>Инвайт-код: {inviteCode}</Text>
+          <Text style={styles.summaryCode}>
+            {i18n.t('roomMembers.summary.inviteCode', {inviteCode})}
+          </Text>
         ) : (
-          <Text style={styles.summaryMuted}>Инвайт-код не установлен</Text>
+          <Text style={styles.summaryMuted}>{i18n.t('roomMembers.summary.inviteCodeMissing')}</Text>
         )}
       </View>
 
@@ -224,8 +253,8 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
                   {item.userId}
                 </Text>
                 <Text style={styles.memberRole}>
-                  {isOwner ? 'Владелец' : isMod ? 'Модератор' : 'Участник'}
-                  {me ? ' • это вы' : ''}
+                  {isOwner ? roleLabel('owner') : isMod ? roleLabel('moderator') : roleLabel('member')}
+                  {me ? i18n.t('roomMembers.roles.meSuffix') : ''}
                 </Text>
               </View>
 
@@ -235,7 +264,9 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
                     style={[styles.smallBtn, canKickThis ? styles.actionsItem : null]}
                     onPress={() => toggleModerator(item.userId, item.role)}>
                     <Text style={styles.smallBtnText}>
-                      {isMod ? 'Снять модера' : 'Сделать модером'}
+                      {isMod
+                        ? i18n.t('roomMembers.actions.demoteModerator')
+                        : i18n.t('roomMembers.actions.makeModerator')}
                     </Text>
                   </TouchableOpacity>
                 ) : null}
@@ -244,7 +275,9 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
                   <TouchableOpacity
                     style={styles.smallBtnDanger}
                     onPress={() => kick(item.userId)}>
-                    <Text style={styles.smallBtnDangerText}>Кик</Text>
+                    <Text style={styles.smallBtnDangerText}>
+                      {i18n.t('roomMembers.actions.kick')}
+                    </Text>
                   </TouchableOpacity>
                 ) : null}
               </View>
@@ -253,15 +286,15 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
         }}
         ListEmptyComponent={() => (
           <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>Нет данных</Text>
-            <Text style={styles.emptyText}>Участники не загружены.</Text>
+            <Text style={styles.emptyTitle}>{i18n.t('roomMembers.empty.title')}</Text>
+            <Text style={styles.emptyText}>{i18n.t('roomMembers.empty.subtitle')}</Text>
           </View>
         )}
       />
 
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.leaveBtn} onPress={leave}>
-          <Text style={styles.leaveBtnText}>Покинуть комнату</Text>
+          <Text style={styles.leaveBtnText}>{i18n.t('roomMembers.actions.leave')}</Text>
         </TouchableOpacity>
       </View>
     </View>

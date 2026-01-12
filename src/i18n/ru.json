@@ -657,6 +657,52 @@
       "createFailed": "Не удалось создать чат"
     }
   },
+  "roomMembers": {
+    "title": "Участники",
+    "titleWithRoom": "Участники • {roomTitle}",
+    "summary": {
+      "room": "Комната: {roomId}",
+      "role": "Роль: {role}",
+      "inviteCode": "Инвайт-код: {inviteCode}",
+      "inviteCodeMissing": "Инвайт-код не установлен"
+    },
+    "roles": {
+      "owner": "Владелец",
+      "moderator": "Модератор",
+      "member": "Участник",
+      "meSuffix": " • это вы"
+    },
+    "actions": {
+      "share": "Поделиться",
+      "makeModerator": "Сделать модером",
+      "demoteModerator": "Снять модера",
+      "kick": "Кик",
+      "leave": "Покинуть комнату"
+    },
+    "empty": {
+      "title": "Нет данных",
+      "subtitle": "Участники не загружены."
+    },
+    "alerts": {
+      "errorTitle": "Ошибка",
+      "loadFailed": "Не удалось загрузить участников",
+      "changeRoleFailed": "Не удалось изменить роль",
+      "kickTitle": "Исключить",
+      "kickBody": "Исключить пользователя {userId}?",
+      "cancel": "Отмена",
+      "kickConfirm": "Исключить",
+      "kickFailed": "Не удалось исключить",
+      "leaveTitle": "Покинуть комнату",
+      "leaveBody": "Вы уверены?",
+      "leaveConfirm": "Покинуть",
+      "leaveFailed": "Не удалось выйти"
+    },
+    "share": {
+      "roomTitle": "Комната: {roomTitle}",
+      "roomId": "ID комнаты: {roomId}",
+      "inviteCode": "Инвайт-код: {inviteCode}"
+    }
+  },
   "theme": {
     "system": "Системная",
     "lexmess_dark": "LexMess (тёмная)",
