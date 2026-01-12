@@ -69,7 +69,7 @@ export function useCryptoEngine(roomConfig) {
 
   /**
    * Шифрование произвольного бинарного файла (фото/видео/аудио/документы) → *.lcc
-   * fileBytes — Uint8Array / Buffer.
+   * filePath — путь к локальному файлу.
    *
    * messageType:
    *   1 — произвольный файл
@@ -77,16 +77,17 @@ export function useCryptoEngine(roomConfig) {
    *   3 — видео
    */
   const encryptFile = useCallback(
-    async (fileBytes, peerId = 'peer', messageType = 1, roomIdOverride) => {
-      const buf =
-        fileBytes instanceof Buffer ? fileBytes : Buffer.from(fileBytes);
+    async (filePath, peerId = 'peer', messageType = 1, roomIdOverride) => {
+      if (!filePath) {
+        throw new Error('filePath is required for encryptFile');
+      }
 
       const res = await LexmessCore.encryptLcc({
         dbName: DB_NAME,
         passphrase: await getDevicePassphrase(),
         roomId: roomIdOverride || roomConfig.roomId,
         peerId,
-        plaintextBase64: buf.toString('base64'),
+        filePath: String(filePath),
         messageType,
       });
 

@@ -68,6 +68,16 @@ function clampStatus(next: string): string {
   return 'local';
 }
 
+async function getFileSizeBytes(filePath: string, fallbackSize?: number): Promise<number> {
+  const fallback = Number(fallbackSize || 0);
+  try {
+    const stat = await RNFS.stat(filePath);
+    const statSize = Number(stat?.size || 0);
+    if (statSize > 0) return statSize;
+  } catch {}
+  return fallback;
+}
+
 /**
  * Хук управления чатом:
  *  - поднимает историю сообщений из SQLite;
@@ -335,16 +345,12 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
             continue;
           }
 
-          const stat = await RNFS.stat(localPath);
-          const sizeBytes = Number(stat?.size || 0);
+          const sizeBytes = await getFileSizeBytes(localPath);
           if (sizeBytes > MAX_MEDIA_BYTES) {
             await bumpOutgoingSendAttempt(idNum, 'failed', 'file_too_large');
             updateMessageStateStatus(String(idNum), 'failed');
             continue;
           }
-
-          const base64Data = await RNFS.readFile(localPath, 'base64');
-          const fileBytes = Buffer.from(base64Data, 'base64');
 
           let messageType = 1;
           if (contentType === 'audio') messageType = 2;
@@ -357,7 +363,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
             return fromPath || 'bin';
           })();
 
-          const {lcc} = await cryptoEngine.encryptFile(fileBytes, 'peer', messageType, roomId);
+          const {lcc} = await cryptoEngine.encryptFile(localPath, 'peer', messageType, roomId);
           const containerBytes = await stegoEngine.embedLccIntoContainer(lcc);
           const containerBase64 = Buffer.from(containerBytes).toString('base64');
 
@@ -538,8 +544,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
       });
 
       try {
-        const stat = await RNFS.stat(filePath);
-        const sizeBytes = Number(stat?.size || 0);
+        const sizeBytes = await getFileSizeBytes(filePath, fileInfo?.size);
         if (sizeBytes > MAX_MEDIA_BYTES) {
           if (outgoingId > 0) {
             await bumpOutgoingSendAttempt(outgoingId, 'failed', 'file_too_large');
@@ -553,9 +558,6 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
           return;
         }
 
-        const base64Data = await RNFS.readFile(filePath, 'base64');
-        const fileBytes = Buffer.from(base64Data, 'base64');
-
         let messageType = 1;
         if (kind === 'audio') messageType = 2;
         else if (kind === 'video') messageType = 3;
@@ -565,7 +567,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
           (filePath ? filePath.split('.').pop()?.toLowerCase() : null) ||
           'bin';
 
-        const {lcc} = await cryptoEngine.encryptFile(fileBytes, 'peer', messageType, roomId);
+        const {lcc} = await cryptoEngine.encryptFile(filePath, 'peer', messageType, roomId);
         const containerBytes = await stegoEngine.embedLccIntoContainer(lcc);
         const containerBase64 = Buffer.from(containerBytes).toString('base64');
 

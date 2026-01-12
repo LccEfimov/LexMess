@@ -14,7 +14,8 @@ export type EncryptParams = {
   passphrase: string;
   roomId: string;
   peerId: string;
-  plaintextBase64: string;
+  plaintextBase64?: string;
+  filePath?: string;
   messageType?: number;
 };
 
