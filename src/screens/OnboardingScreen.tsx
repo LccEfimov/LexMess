@@ -1,11 +1,12 @@
 
 import React, {useMemo, useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
 import {i18n} from '../i18n';
+import {Input} from '../ui/Input';
 
 type ThemeName = 'light' | 'dark';
 
@@ -38,49 +39,49 @@ export const OnboardingScreen: React.FC<Props> = ({onDone}) => {
         {/* Шаг 1 — выбор языка */}
         <Text style={styles.label}>{i18n.t('onboarding.language.label')}</Text>
         <View style={styles.row}>
-          <TouchableOpacity
-            style={[styles.chip, language === 'ru' && styles.chipActive]}
-            onPress={() => setLanguage('ru')}>
-            <Text style={[styles.chipText, language === 'ru' && styles.chipTextActive]}>
-              {i18n.t('onboarding.language.ru')}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.chip, language === 'en' && styles.chipActive]}
-            onPress={() => setLanguage('en')}>
-            <Text style={[styles.chipText, language === 'en' && styles.chipTextActive]}>
-              {i18n.t('onboarding.language.en')}
-            </Text>
-          </TouchableOpacity>
+          <Button
+            title={i18n.t('onboarding.language.ru')}
+            variant={language === 'ru' ? 'primary' : 'ghost'}
+            onPress={() => setLanguage('ru')}
+            small
+            style={styles.chip}
+          />
+          <Button
+            title={i18n.t('onboarding.language.en')}
+            variant={language === 'en' ? 'primary' : 'ghost'}
+            onPress={() => setLanguage('en')}
+            small
+            style={styles.chip}
+          />
         </View>
 
         {/* Шаг 2 — никнейм */}
-        <Text style={styles.label}>{i18n.t('onboarding.nickname.label')}</Text>
-        <TextInput
-          style={styles.input}
+        <Input
+          label={i18n.t('onboarding.nickname.label')}
           value={nickname}
           onChangeText={setNickname}
           placeholder={i18n.t('onboarding.nickname.placeholder')}
-          placeholderTextColor={t.colors.placeholder}
+          style={styles.input}
+          containerStyle={styles.inputContainer}
         />
 
         {/* Шаг 3 — тема */}
         <Text style={styles.label}>{i18n.t('onboarding.theme.label')}</Text>
         <View style={styles.row}>
-          <TouchableOpacity
-            style={[styles.chip, theme === 'light' && styles.chipActive]}
-            onPress={() => setTheme('light')}>
-            <Text style={[styles.chipText, theme === 'light' && styles.chipTextActive]}>
-              {i18n.t('onboarding.theme.light')}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.chip, theme === 'dark' && styles.chipActive]}
-            onPress={() => setTheme('dark')}>
-            <Text style={[styles.chipText, theme === 'dark' && styles.chipTextActive]}>
-              {i18n.t('onboarding.theme.dark')}
-            </Text>
-          </TouchableOpacity>
+          <Button
+            title={i18n.t('onboarding.theme.light')}
+            variant={theme === 'light' ? 'primary' : 'ghost'}
+            onPress={() => setTheme('light')}
+            small
+            style={styles.chip}
+          />
+          <Button
+            title={i18n.t('onboarding.theme.dark')}
+            variant={theme === 'dark' ? 'primary' : 'ghost'}
+            onPress={() => setTheme('dark')}
+            small
+            style={styles.chip}
+          />
         </View>
 
         {/* Кнопки — как в ТЗ: "Перейти к чатам" и "Ещё настройки" */}
@@ -121,11 +122,9 @@ const makeStyles = (t: Theme) =>
     },
     title: {
       ...t.typography.title,
-      fontSize: 32,
       color: t.colors.text,
-      fontWeight: '700',
       textAlign: 'center',
-      marginBottom: 4,
+      marginBottom: t.spacing.xs,
     },
     subtitle: {
       ...t.typography.bodyRegular,
@@ -139,15 +138,10 @@ const makeStyles = (t: Theme) =>
       marginBottom: t.spacing.xs,
     },
     input: {
-      borderRadius: t.radii.md,
-      borderWidth: 1,
-      borderColor: t.colors.inputBorder,
-      paddingHorizontal: t.spacing.md,
-      paddingVertical: t.spacing.sm,
-      color: t.colors.text,
-      marginBottom: t.spacing.lg,
-      backgroundColor: t.colors.inputBg,
       ...t.typography.bodyRegular,
+    },
+    inputContainer: {
+      marginBottom: t.spacing.lg,
     },
     row: {
       flexDirection: 'row',
@@ -156,24 +150,8 @@ const makeStyles = (t: Theme) =>
     },
     chip: {
       flex: 1,
-      paddingVertical: t.spacing.sm,
       borderRadius: t.radii.pill,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      alignItems: 'center',
       marginRight: t.spacing.xs,
-    },
-    chipActive: {
-      backgroundColor: t.colors.primary,
-      borderColor: t.colors.primary,
-    },
-    chipText: {
-      ...t.typography.bodyRegular,
-      color: t.colors.text,
-    },
-    chipTextActive: {
-      color: t.colors.onPrimary,
-      fontWeight: '600',
     },
     buttonsRow: {
       marginTop: t.spacing.sm,

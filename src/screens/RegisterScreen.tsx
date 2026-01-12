@@ -5,18 +5,12 @@ import {saveThemePreference} from '../storage/themePreferenceStorage';
 import {useSetThemeName, useTheme, useThemeName} from '../theme/ThemeContext';
 import {normalizeThemeMode, type Theme, type ThemeMode} from '../theme/themes';
 
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import {View, Text, StyleSheet, KeyboardAvoidingView, Platform} from 'react-native';
 import {ThemePicker} from '../components/ThemePicker';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
 import {i18n} from '../i18n';
+import {Input} from '../ui/Input';
 
 interface Props {
   navigation: any;
@@ -126,43 +120,39 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
 
         <View style={[styles.spacer, styles.cardItem]} />
 
-        <Text style={[styles.label, styles.cardItem]}>{i18n.t('register.loginLabel')}</Text>
-        <TextInput
+        <Input
+          label={i18n.t('register.loginLabel')}
           value={login}
           onChangeText={setLogin}
           placeholder={i18n.t('register.loginPlaceholder')}
-          placeholderTextColor={t.colors.placeholder}
           autoCapitalize="none"
           autoCorrect={false}
-          style={[styles.input, styles.cardItem]}
+          style={styles.input}
+          containerStyle={styles.cardItem}
         />
 
-        <Text style={[styles.label, styles.cardItem, {marginTop: 12}]}>
-          {i18n.t('register.passwordLabel')}
-        </Text>
-        <TextInput
+        <Input
+          label={i18n.t('register.passwordLabel')}
           value={password}
           onChangeText={setPassword}
           placeholder={i18n.t('register.passwordPlaceholder')}
-          placeholderTextColor={t.colors.placeholder}
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
-          style={[styles.input, styles.cardItem]}
+          style={styles.input}
+          containerStyle={[styles.cardItem, styles.inputSpacing]}
         />
 
-        <Text style={[styles.label, styles.cardItem, {marginTop: 12}]}>
-          {i18n.t('register.passwordRepeatLabel')}
-        </Text>
-        <TextInput
+        <Input
+          label={i18n.t('register.passwordRepeatLabel')}
           value={password2}
           onChangeText={setPassword2}
           placeholder={i18n.t('register.passwordRepeatPlaceholder')}
-          placeholderTextColor={t.colors.placeholder}
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
-          style={[styles.input, styles.cardItem]}
+          style={styles.input}
+          containerStyle={[styles.cardItem, styles.inputSpacing]}
         />
 
         {error ? <Text style={[styles.error, styles.cardItem]}>{error}</Text> : null}
@@ -189,46 +179,43 @@ const makeStyles = (t: Theme) =>
     container: {
       flex: 1,
       backgroundColor: t.colors.bg,
-      paddingHorizontal: 22,
-      paddingTop: 48,
+      paddingHorizontal: t.spacing.xl,
+      paddingTop: t.spacing.xl * 2,
     },
     header: {
-      marginBottom: 20,
+      marginBottom: t.spacing.lg,
     },
     title: {
-      fontSize: 28,
-      fontWeight: '800',
+      ...t.typography.title,
       color: t.colors.text,
     },
     subtitle: {
-      marginTop: 8,
-      fontSize: 13,
+      marginTop: t.spacing.sm,
+      ...t.typography.caption,
       color: t.colors.textMuted,
     },
     card: {},
     cardItem: {
-      marginBottom: 12,
+      marginBottom: t.spacing.md,
     },
     spacer: {
-      height: 14,
+      height: t.spacing.md,
     },
     label: {
-      fontSize: 12,
+      ...t.typography.caption,
       color: t.colors.textMuted,
-      marginBottom: 6,
+      marginBottom: t.spacing.xs,
+    },
+    inputSpacing: {
+      marginTop: t.spacing.sm,
     },
     input: {
-      height: 46,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: t.colors.inputBorder,
-      paddingHorizontal: 12,
-      color: t.colors.text,
-      backgroundColor: t.colors.inputBg,
+      minHeight: t.spacing.xl * 2,
+      ...t.typography.bodyRegular,
     },
     error: {
-      marginTop: 10,
+      marginTop: t.spacing.sm,
       color: t.colors.danger,
-      fontSize: 12,
+      ...t.typography.caption,
     },
   });

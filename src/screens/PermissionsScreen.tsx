@@ -5,7 +5,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
   Platform,
   Linking,
@@ -19,6 +18,7 @@ import {
   type RuntimePermissionCheck,
 } from '../permissions/androidPermissions';
 import {i18n} from '../i18n';
+import {Button} from '../ui/Button';
 
 interface Props {
   onDone: () => void;
@@ -88,30 +88,33 @@ export const PermissionsScreen: React.FC<Props> = ({onDone}) => {
         </ScrollView>
 
         <View style={styles.buttons}>
-          <TouchableOpacity
-            style={[styles.btn, busy ? styles.btnDisabled : null]}
+          <Button
+            title={busy ? i18n.t('permissions.actions.requesting') : i18n.t('permissions.actions.allowAll')}
             onPress={ask}
-            disabled={busy || !isAndroid}>
-            <Text style={styles.btnText}>
-              {busy ? i18n.t('permissions.actions.requesting') : i18n.t('permissions.actions.allowAll')}
-            </Text>
-          </TouchableOpacity>
+            disabled={busy || !isAndroid}
+            style={styles.primaryButton}
+          />
 
-          <TouchableOpacity style={[styles.btn, styles.btnGhost]} onPress={refresh}>
-            <Text style={[styles.btnText, styles.btnGhostText]}>
-              {i18n.t('permissions.actions.refresh')}
-            </Text>
-          </TouchableOpacity>
+          <Button
+            title={i18n.t('permissions.actions.refresh')}
+            variant="ghost"
+            onPress={refresh}
+            style={styles.secondaryButton}
+          />
 
-          <TouchableOpacity style={[styles.btn, styles.btnGhost]} onPress={openSettings}>
-            <Text style={[styles.btnText, styles.btnGhostText]}>
-              {i18n.t('permissions.actions.openSettings')}
-            </Text>
-          </TouchableOpacity>
+          <Button
+            title={i18n.t('permissions.actions.openSettings')}
+            variant="ghost"
+            onPress={openSettings}
+            style={styles.secondaryButton}
+          />
 
-          <TouchableOpacity style={styles.btnSkip} onPress={onDone}>
-            <Text style={styles.btnSkipText}>{i18n.t('permissions.actions.skip')}</Text>
-          </TouchableOpacity>
+          <Button
+            title={i18n.t('permissions.actions.skip')}
+            variant="ghost"
+            onPress={onDone}
+            style={styles.skipButton}
+          />
         </View>
       </View>
     </View>
@@ -137,15 +140,12 @@ const makeStyles = (t: Theme) =>
   },
   title: {
     ...t.typography.title,
-    fontSize: 26,
-    fontWeight: '800',
     color: t.colors.text,
     marginBottom: t.spacing.sm,
   },
   subtitle: {
     ...t.typography.bodyRegular,
     color: t.colors.textMuted,
-    lineHeight: 20,
     marginBottom: t.spacing.md,
   },
   list: {
@@ -163,8 +163,8 @@ const makeStyles = (t: Theme) =>
     borderBottomColor: t.colors.border,
   },
   bullet: {
-    width: 32,
-    fontSize: 16,
+    width: t.spacing.xl,
+    ...t.typography.body,
   },
   rowText: {
     flex: 1,
@@ -174,36 +174,14 @@ const makeStyles = (t: Theme) =>
   buttons: {
     marginTop: t.spacing.md,
   },
-  btn: {
-    backgroundColor: t.colors.primary,
-    borderRadius: t.radii.md,
-    paddingVertical: t.spacing.md,
-    paddingHorizontal: t.spacing.md,
-    alignItems: 'center',
+  primaryButton: {
     marginBottom: t.spacing.sm,
   },
-  btnDisabled: {
-    opacity: 0.65,
+  secondaryButton: {
+    marginBottom: t.spacing.sm,
   },
-  btnText: {
-    ...t.typography.body,
-    color: t.colors.onPrimary,
-    fontWeight: '800',
-  },
-  btnGhost: {
-    backgroundColor: t.colors.ghostBg,
-    borderWidth: 1,
-    borderColor: t.colors.border,
-  },
-  btnGhostText: {
-    color: t.colors.text,
-  },
-  btnSkip: {
-    paddingVertical: t.spacing.sm,
-    alignItems: 'center',
-  },
-  btnSkipText: {
-    color: t.colors.textMuted,
-    textDecorationLine: 'underline',
+  skipButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 0,
   },
 });

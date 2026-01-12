@@ -2,7 +2,6 @@ import React, {useMemo, useState} from 'react';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
@@ -17,6 +16,7 @@ import {useLexmessApi} from '../hooks/useLexmessApi';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
 import {i18n} from '../i18n';
+import {Input} from '../ui/Input';
 
 type Props = {
   navigation: any;
@@ -80,12 +80,12 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
         style={styles.keyboard}>
         <Card style={styles.card}>
           <Text style={[styles.label, styles.cardItem]}>{i18n.t('joinByCode.label')}</Text>
-          <TextInput
-            style={[styles.input, styles.cardItem]}
+          <Input
+            style={styles.input}
+            containerStyle={styles.cardItem}
             value={code}
             onChangeText={(v) => setCode(v.toUpperCase())}
             placeholder={i18n.t('joinByCode.placeholder')}
-            placeholderTextColor={t.colors.placeholder}
             autoCapitalize="characters"
             autoCorrect={false}
             maxLength={32}
@@ -122,13 +122,6 @@ const makeStyles = (t: Theme) =>
     label: {...t.typography.body, color: t.colors.textMuted},
     input: {
       marginTop: t.spacing.sm,
-      borderRadius: t.radii.md,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
-      paddingHorizontal: t.spacing.md,
-      paddingVertical: t.spacing.sm,
-      color: t.colors.text,
       ...t.typography.bodyRegular,
     },
     errorText: {
