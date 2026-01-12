@@ -3,6 +3,8 @@ import React, {useMemo, useState} from 'react';
 import {View, Text, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
+import {Button} from '../ui/Button';
+import {Card} from '../ui/Card';
 
 type ThemeName = 'light' | 'dark';
 
@@ -28,7 +30,7 @@ export const OnboardingScreen: React.FC<Props> = ({onDone}) => {
 
   return (
     <View style={styles.root}>
-      <View style={styles.card}>
+      <Card style={styles.card}>
         <Text style={styles.title}>LexMess</Text>
         <Text style={styles.subtitle}>Приватный мессенджер нового поколения</Text>
 
@@ -74,21 +76,21 @@ export const OnboardingScreen: React.FC<Props> = ({onDone}) => {
 
         {/* Кнопки — как в ТЗ: "Перейти к чатам" и "Ещё настройки" */}
         <View style={styles.buttonsRow}>
-          <TouchableOpacity
-            style={[styles.primaryButton, !canContinue && styles.buttonDisabled]}
+          <Button
+            title="Перейти к чатам"
             onPress={() => handleGo(false)}
-            disabled={!canContinue}>
-            <Text style={styles.primaryButtonText}>Перейти к чатам</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.secondaryButton, !canContinue && styles.buttonDisabled]}
+            disabled={!canContinue}
+            style={styles.primaryAction}
+          />
+          <Button
+            title="Ещё настройки"
+            variant="ghost"
             onPress={() => handleGo(true)}
-            disabled={!canContinue}>
-            <Text style={styles.secondaryButtonText}>Ещё настройки</Text>
-          </TouchableOpacity>
+            disabled={!canContinue}
+            style={styles.secondaryAction}
+          />
         </View>
-      </View>
+      </Card>
     </View>
   );
 };
@@ -105,13 +107,8 @@ const makeStyles = (t: Theme) =>
     },
     card: {
       width: '100%',
-      borderRadius: t.radii.xl,
       paddingHorizontal: t.spacing.lg,
       paddingVertical: t.spacing.xl,
-      backgroundColor: t.colors.card,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      ...t.shadows.card,
     },
     title: {
       ...t.typography.title,
@@ -175,35 +172,10 @@ const makeStyles = (t: Theme) =>
       justifyContent: 'space-between',
       gap: t.spacing.xs,
     },
-    primaryButton: {
+    primaryAction: {
       flex: 1.2,
-      borderRadius: t.radii.pill,
-      backgroundColor: t.colors.primary,
-      paddingVertical: t.spacing.md,
-      alignItems: 'center',
-      justifyContent: 'center',
     },
-    secondaryButton: {
+    secondaryAction: {
       flex: 1,
-      borderRadius: t.radii.pill,
-      borderWidth: 1,
-      borderColor: t.colors.primary,
-      paddingVertical: t.spacing.md,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'transparent',
-    },
-    primaryButtonText: {
-      ...t.typography.body,
-      color: t.colors.onPrimary,
-      fontWeight: '600',
-    },
-    secondaryButtonText: {
-      ...t.typography.bodyRegular,
-      color: t.colors.primary,
-      fontWeight: '500',
-    },
-    buttonDisabled: {
-      opacity: 0.4,
     },
   });

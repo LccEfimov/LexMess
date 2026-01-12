@@ -3,9 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -16,6 +14,8 @@ import {useTheme} from '../theme/ThemeContext';
 import {insertSystemMessage} from '../storage/sqliteStorage';
 import type {Theme} from '../theme/themes';
 import {useLexmessApi} from '../hooks/useLexmessApi';
+import {Button} from '../ui/Button';
+import {Card} from '../ui/Card';
 
 type Props = {
   navigation: any;
@@ -77,7 +77,7 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboard}>
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <Text style={styles.label}>Код приглашения</Text>
           <TextInput
             style={styles.input}
@@ -92,21 +92,16 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          <TouchableOpacity
+          <Button
+            title={busy ? 'Входим...' : 'Войти'}
+            onPress={handleJoin}
             disabled={!canSubmit}
-            style={[styles.primaryButton, !canSubmit ? styles.primaryButtonDisabled : null]}
-            onPress={handleJoin}>
-            {busy ? (
-              <ActivityIndicator color={t.colors.onPrimary} />
-            ) : (
-              <Text style={styles.primaryButtonText}>Войти</Text>
-            )}
-          </TouchableOpacity>
+          />
 
           <Text style={styles.note}>
             Код можно получить у создателя комнаты.
           </Text>
-        </View>
+        </Card>
       </KeyboardAvoidingView>
     </View>
   );
@@ -118,12 +113,7 @@ const makeStyles = (t: Theme) =>
     keyboard: {flex: 1, justifyContent: 'center'},
     card: {
       marginHorizontal: t.spacing.md,
-      borderRadius: t.radii.md,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.card,
-      padding: t.spacing.md,
-      ...t.shadows.card,
+      gap: t.spacing.md,
     },
     label: {...t.typography.body, color: t.colors.textMuted},
     input: {
@@ -142,22 +132,7 @@ const makeStyles = (t: Theme) =>
       color: t.colors.danger,
       ...t.typography.body,
     },
-    primaryButton: {
-      marginTop: t.spacing.lg,
-      borderRadius: t.radii.md,
-      backgroundColor: t.colors.primary,
-      paddingVertical: t.spacing.md,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    primaryButtonDisabled: {opacity: 0.6},
-    primaryButtonText: {
-      ...t.typography.body,
-      fontWeight: '700',
-      color: t.colors.onPrimary,
-    },
     note: {
-      marginTop: t.spacing.sm,
       ...t.typography.tiny,
       color: t.colors.textMuted,
     },

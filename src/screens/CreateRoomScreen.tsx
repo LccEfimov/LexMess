@@ -3,10 +3,8 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   Switch,
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -18,6 +16,8 @@ import {useTheme} from '../theme/ThemeContext';
 import {insertSystemMessage} from '../storage/sqliteStorage';
 import type {Theme} from '../theme/themes';
 import {useLexmessApi} from '../hooks/useLexmessApi';
+import {Button} from '../ui/Button';
+import {Card} from '../ui/Card';
 
 type Props = {
   navigation: any;
@@ -125,7 +125,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
         <ScrollView
           contentContainerStyle={styles.scrollPad}
           keyboardShouldPersistTaps="handled">
-          <View style={styles.card}>
+          <Card style={styles.card}>
             <Text style={styles.label}>Название</Text>
             <TextInput
               style={styles.input}
@@ -181,21 +181,16 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
 
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-            <TouchableOpacity
+            <Button
+              title={busy ? 'Создание...' : 'Создать'}
+              onPress={handleCreate}
               disabled={!canSubmit}
-              style={[styles.primaryButton, !canSubmit ? styles.primaryButtonDisabled : null]}
-              onPress={handleCreate}>
-              {busy ? (
-                <ActivityIndicator color={t.colors.onPrimary} />
-              ) : (
-                <Text style={styles.primaryButtonText}>Создать</Text>
-              )}
-            </TouchableOpacity>
+            />
 
             <Text style={styles.note}>
               После создания откроется экран с кодом приглашения.
             </Text>
-          </View>
+          </Card>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -208,12 +203,7 @@ const makeStyles = (t: Theme) =>
     scrollPad: {padding: t.spacing.md, paddingBottom: t.spacing.xl},
     keyboard: {flex: 1},
     card: {
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.card,
-      padding: t.spacing.md,
-      ...t.shadows.card,
+      gap: t.spacing.md,
     },
     label: {...t.typography.body, color: t.colors.textMuted},
     labelSpacing: {marginTop: t.spacing.md},
@@ -248,22 +238,7 @@ const makeStyles = (t: Theme) =>
       color: t.colors.danger,
       ...t.typography.body,
     },
-    primaryButton: {
-      marginTop: t.spacing.lg,
-      borderRadius: 14,
-      backgroundColor: t.colors.primary,
-      paddingVertical: t.spacing.md,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    primaryButtonDisabled: {opacity: 0.6},
-    primaryButtonText: {
-      ...t.typography.body,
-      fontWeight: '700',
-      color: t.colors.onPrimary,
-    },
     note: {
-      marginTop: t.spacing.sm,
       ...t.typography.tiny,
       color: t.colors.textMuted,
     },

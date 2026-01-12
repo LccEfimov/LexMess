@@ -1,7 +1,9 @@
 import React, {useMemo} from 'react';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
-import {View, Text, StyleSheet, Pressable} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
+import {Button} from '../ui/Button';
+import {Card} from '../ui/Card';
 
 interface Props {
   navigation: any;
@@ -21,19 +23,17 @@ export const AuthStartScreen: React.FC<Props> = ({navigation, initialLogin}) => 
         </Text>
       </View>
 
-      <View style={styles.card}>
-        <Pressable
-          style={({pressed}) => [styles.btn, pressed && styles.btnPressed]}
-          onPress={() => navigation.navigate('Login', {prefillLogin: initialLogin || ''})}>
-          <Text style={styles.btnText}>Войти</Text>
-        </Pressable>
-
-        <Pressable
-          style={({pressed}) => [styles.btnAlt, pressed && styles.btnPressed]}
-          onPress={() => navigation.navigate('Register', {prefillLogin: initialLogin || ''})}>
-          <Text style={styles.btnAltText}>Регистрация</Text>
-        </Pressable>
-      </View>
+      <Card style={styles.card}>
+        <Button
+          title="Войти"
+          onPress={() => navigation.navigate('Login', {prefillLogin: initialLogin || ''})}
+        />
+        <Button
+          title="Регистрация"
+          variant="ghost"
+          onPress={() => navigation.navigate('Register', {prefillLogin: initialLogin || ''})}
+        />
+      </Card>
 
       <Text style={styles.hint}>
         Подсказка: логин — латиница/цифры/._
@@ -66,41 +66,7 @@ const makeStyles = (t: Theme) =>
     lineHeight: 20,
   },
   card: {
-    borderWidth: 1,
-    borderColor: t.colors.border,
-    borderRadius: 16,
-    padding: 16,
-    backgroundColor: t.colors.card,
-  },
-  btn: {
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: t.colors.primary,
-  },
-  btnAlt: {
-    marginTop: 12,
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: t.colors.ghostBorder,
-    backgroundColor: t.colors.ghostBg,
-  },
-  btnPressed: {
-    opacity: 0.85,
-  },
-  btnText: {
-    color: t.colors.onPrimary,
-    fontWeight: '800',
-    fontSize: 16,
-  },
-  btnAltText: {
-    color: t.colors.text,
-    fontWeight: '800',
-    fontSize: 16,
+    gap: 12,
   },
   hint: {
     marginTop: 18,

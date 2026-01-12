@@ -1,9 +1,11 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Share} from 'react-native';
+import {View, Text, StyleSheet, Share} from 'react-native';
 import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import type {Theme} from '../theme/themes';
+import {Button} from '../ui/Button';
+import {Card} from '../ui/Card';
 
 type Props = {
   navigation: any;
@@ -77,7 +79,7 @@ export const RoomInviteScreen: React.FC<Props> = ({navigation, route}) => {
     <View style={styles.root}>
       <AppHeader title="Комната создана" onBack={() => navigation.goBack()} right={null} />
 
-      <View style={styles.card}>
+      <Card style={styles.card}>
         <Text style={styles.label}>Комната</Text>
         <Text style={styles.value}>
           {title || roomId || 'Новая комната'}
@@ -94,23 +96,27 @@ export const RoomInviteScreen: React.FC<Props> = ({navigation, route}) => {
             Для этой комнаты код не установлен
           </Text>
         )}
-      </View>
+      </Card>
 
       {roomId && (
-        <TouchableOpacity style={styles.tertiaryButton} onPress={handleRefresh}>
-          <Text style={styles.tertiaryButtonText}>Обновить код</Text>
-        </TouchableOpacity>
+        <Button
+          title="Обновить код"
+          variant="ghost"
+          style={styles.secondaryButton}
+          onPress={handleRefresh}
+        />
       )}
 
       {liveInviteCode && (
-        <TouchableOpacity style={styles.secondaryButton} onPress={handleShare}>
-          <Text style={styles.secondaryButtonText}>Поделиться кодом</Text>
-        </TouchableOpacity>
+        <Button
+          title="Поделиться кодом"
+          variant="ghost"
+          style={styles.secondaryButton}
+          onPress={handleShare}
+        />
       )}
 
-      <TouchableOpacity style={styles.primaryButton} onPress={handleGoChat}>
-        <Text style={styles.primaryButtonText}>Перейти в чат</Text>
-      </TouchableOpacity>
+      <Button title="Перейти в чат" style={styles.primaryButton} onPress={handleGoChat} />
     </View>
   );
 };
@@ -121,29 +127,9 @@ const makeStyles = (t: Theme) =>
     flex: 1,
     backgroundColor: t.colors.bg,
   },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  backText: {
-    fontSize: 18,
-    color: t.colors.text,
-  },
-  topTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-    color: t.colors.text,
-  },
   card: {
     marginTop: t.spacing.md,
-    borderRadius: t.radii.md,
-    backgroundColor: t.colors.card,
-    padding: t.spacing.md,
-    borderWidth: 1,
-    borderColor: t.colors.border,
+    gap: t.spacing.sm,
   },
   label: {
     fontSize: 12,
@@ -171,27 +157,8 @@ const makeStyles = (t: Theme) =>
   },
   primaryButton: {
     marginTop: t.spacing.xl,
-    borderRadius: t.radii.md,
-    backgroundColor: t.colors.primary,
-    paddingVertical: t.spacing.sm,
-    alignItems: 'center',
-  },
-  primaryButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: t.colors.onPrimary,
   },
   secondaryButton: {
     marginTop: t.spacing.lg,
-    borderRadius: t.radii.md,
-    borderWidth: 1,
-    borderColor: t.colors.primary,
-    paddingVertical: t.spacing.sm,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    fontSize: 14,
-    color: t.colors.primary,
-    fontWeight: '500',
   },
 });

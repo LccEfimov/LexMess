@@ -10,12 +10,12 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  Pressable,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import {ThemePicker} from '../components/ThemePicker';
+import {Button} from '../ui/Button';
+import {Card} from '../ui/Card';
 
 interface Props {
   navigation: any;
@@ -117,7 +117,7 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
         <Text style={styles.subtitle}>Выберите логин, пароль и тему интерфейса</Text>
       </View>
 
-      <View style={styles.card}>
+      <Card style={styles.card}>
         <Text style={styles.label}>Тема</Text>
         <ThemePicker value={themeName} onChange={onPickTheme} compact />
 
@@ -160,19 +160,18 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Pressable
+        <Button
+          title={busy ? 'Создание...' : 'Создать аккаунт'}
+          onPress={doRegister}
           disabled={busy}
-          style={({pressed}) => [styles.btn, (pressed || busy) && styles.btnPressed]}
-          onPress={doRegister}>
-          {busy ? <ActivityIndicator /> : <Text style={styles.btnText}>Создать аккаунт</Text>}
-        </Pressable>
+        />
 
-        <Pressable
-          style={({pressed}) => [styles.linkBtn, pressed && styles.btnPressed]}
-          onPress={() => (onBack ? onBack() : navigation.goBack())}>
-          <Text style={styles.linkText}>Назад</Text>
-        </Pressable>
-      </View>
+        <Button
+          title="Назад"
+          variant="ghost"
+          onPress={() => (onBack ? onBack() : navigation.goBack())}
+        />
+      </Card>
     </KeyboardAvoidingView>
   );
 };
@@ -199,11 +198,7 @@ const makeStyles = (t: Theme) =>
       color: t.colors.textMuted,
     },
     card: {
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      borderRadius: 16,
-      padding: 16,
-      backgroundColor: t.colors.card,
+      gap: 12,
     },
     label: {
       fontSize: 12,
@@ -223,32 +218,5 @@ const makeStyles = (t: Theme) =>
       marginTop: 10,
       color: t.colors.danger,
       fontSize: 12,
-    },
-    btn: {
-      marginTop: 16,
-      height: 48,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: t.colors.primary,
-    },
-    btnPressed: {
-      opacity: 0.85,
-    },
-    btnText: {
-      color: t.colors.onPrimary,
-      fontWeight: '800',
-      fontSize: 16,
-    },
-    linkBtn: {
-      marginTop: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingVertical: 10,
-    },
-    linkText: {
-      color: t.colors.text,
-      fontWeight: '700',
-      opacity: 0.85,
     },
   });
