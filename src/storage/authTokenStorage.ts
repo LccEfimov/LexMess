@@ -9,7 +9,6 @@ const TOKEN_KEY = 'lexmess_access_token_v1';
 export async function saveAccessToken(token) {
   try {
     await saveSecureToken(token);
-    await AsyncStorage.setItem(TOKEN_KEY, token);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.warn('[authTokenStorage] saveAccessToken failed', e);
@@ -21,11 +20,28 @@ export async function saveAccessToken(token) {
  */
 export async function getAccessToken() {
   try {
-    const token = await AsyncStorage.getItem(TOKEN_KEY);
-    return token || null;
+    const secureToken = await loadSecureToken();
+    if (secureToken) return secureToken;
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.warn('[authTokenStorage] getAccessToken failed', e);
+    console.warn('[authTokenStorage] getAccessToken secure load failed', e);
+  }
+
+  try {
+    const legacyToken = await AsyncStorage.getItem(TOKEN_KEY);
+    if (!legacyToken) return null;
+    try {
+      await saveSecureToken(legacyToken);
+      await AsyncStorage.removeItem(TOKEN_KEY);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('[authTokenStorage] getAccessToken migration failed', e);
+      return legacyToken;
+    }
+    return legacyToken;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('[authTokenStorage] getAccessToken legacy load failed', e);
     return null;
   }
 }
@@ -36,9 +52,15 @@ export async function getAccessToken() {
 export async function clearAccessToken() {
   try {
     await clearSecureToken();
-    await AsyncStorage.removeItem(TOKEN_KEY);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.warn('[authTokenStorage] clearAccessToken failed', e);
+  }
+
+  try {
+    await AsyncStorage.removeItem(TOKEN_KEY);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('[authTokenStorage] clearAccessToken legacy cleanup failed', e);
   }
 }
