@@ -10,6 +10,7 @@ import {
 import {subscribeRtc, IncomingRtcSignal, clearLastOffer} from '../bus/rtcBus';
 import {API_BASE_URL} from '../config/networkConfig';
 import {getAccessToken} from '../storage/authTokenStorage';
+import {logger} from '../utils/logger';
 import {
   sendRoomRtcSignal,
   ensureRoomConnection,
@@ -374,8 +375,7 @@ export function useWebRtcP2P(options: UseWebRtcP2POptions) {
           remoteToRef.current || undefined,
         );
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[useWebRtcP2P] iceRestart failed', e);
+        logger.warn('useWebRtcP2P', 'iceRestart failed', {error: e});
       } finally {
         reconnectInFlightRef.current = false;
         // reconnecting выключим, когда увидим connected
@@ -468,8 +468,7 @@ export function useWebRtcP2P(options: UseWebRtcP2POptions) {
     try {
       await pc.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[useWebRtcP2P] addIceCandidate failed', e);
+      logger.warn('useWebRtcP2P', 'addIceCandidate failed', {error: e});
     }
   }, []);
 

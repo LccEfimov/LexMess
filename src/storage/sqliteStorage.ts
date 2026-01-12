@@ -3,6 +3,7 @@ import SQLite from 'react-native-sqlite-storage';
 import {getDevicePassphrase} from './passphraseStorage';
 import {secretboxDecryptText, secretboxEncryptText} from '../crypto/e2eIdentity';
 import {normalizeThemeName, type ThemeName} from '../theme/themes';
+import {logger} from '../utils/logger';
 
 
 SQLite.enablePromise(true);
@@ -499,8 +500,7 @@ export async function updateMessageDeliveryStatus(
       [status, status, id],
     );
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[sqliteStorage] updateMessageDeliveryStatus failed', e);
+    logger.warn('sqliteStorage', 'updateMessageDeliveryStatus failed', {error: e});
   }
 }
 
@@ -703,8 +703,7 @@ export async function insertMessage(message: MessageRecord): Promise<number> {
       } catch (e) {
         // If encryption fails, fallback to plaintext to avoid data loss,
         // but it will be migrated lazily on next read if possible.
-        // eslint-disable-next-line no-console
-        console.warn('[sqliteStorage] insertMessage: at-rest encryption failed', e);
+        logger.warn('sqliteStorage', 'insertMessage: at-rest encryption failed', {error: e});
       }
     }
   }
@@ -792,8 +791,7 @@ export async function getMessagesForRoom(
         try {
           body = await decryptBodyAtRest(String(cipher), String(nonce));
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.warn('[sqliteStorage] getMessagesForRoom: decrypt failed', e);
+          logger.warn('sqliteStorage', 'getMessagesForRoom: decrypt failed', {error: e});
           body = body || '';
         }
       } else if (body && idNum > 0) {
@@ -880,8 +878,7 @@ export async function getPendingOutgoingMessages(
         try {
           body = await decryptBodyAtRest(String(cipher), String(nonce));
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.warn('[sqliteStorage] getPendingOutgoingMessages: decrypt failed', e);
+          logger.warn('sqliteStorage', 'getPendingOutgoingMessages: decrypt failed', {error: e});
           body = body || '';
         }
       } else if (body && idNum > 0) {
@@ -931,8 +928,7 @@ export async function bumpOutgoingSendAttempt(
       [now, status, error, id],
     );
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[sqliteStorage] bumpOutgoingSendAttempt failed', e);
+    logger.warn('sqliteStorage', 'bumpOutgoingSendAttempt failed', {error: e});
   }
 }
 

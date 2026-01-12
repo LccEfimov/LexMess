@@ -1,3 +1,5 @@
+import {logger} from '../utils/logger';
+
 export type IncomingContainerMessage = {
   id: string;
   roomId: string;
@@ -51,8 +53,7 @@ export async function injectIncomingContainer(
         await (res as Promise<void>);
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[messageBus] listener error', e);
+      logger.warn('messageBus', 'listener error', {error: e});
     }
   }
 }

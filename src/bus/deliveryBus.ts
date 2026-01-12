@@ -1,3 +1,5 @@
+import {logger} from '../utils/logger';
+
 export type DeliveryAck = {
   roomId: string;
   userId?: string;
@@ -26,8 +28,7 @@ export async function injectDeliveryAck(ack: DeliveryAck): Promise<void> {
         await (res as Promise<void>);
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[deliveryBus] listener error', e);
+      logger.warn('deliveryBus', 'listener error', {error: e});
     }
   }
 }

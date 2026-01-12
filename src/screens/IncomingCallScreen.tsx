@@ -4,6 +4,7 @@ import type {Theme} from '../theme/themes';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {sendRoomRtcSignal} from '../net/wsClient';
 import {clearLastOffer} from '../bus/rtcBus';
+import {logger} from '../utils/logger';
 
 type Props = {
   navigation: any;
@@ -47,8 +48,7 @@ export const IncomingCallScreen: React.FC<Props> = ({navigation, route}) => {
         });
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[IncomingCallScreen] decline send busy failed', e);
+      logger.warn('IncomingCallScreen', 'decline send busy failed', {error: e});
     } finally {
       clearLastOffer(callId || null);
       navigation.goBack();

@@ -24,6 +24,7 @@ import {
 import {
   Pressable,useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
+import {logger} from '../utils/logger';
 
 const makeAttachButtonStyles = (t: Theme) =>
   StyleSheet.create({
@@ -200,7 +201,7 @@ export const ChatScreen: React.FC<Props> = ({
     }
     // Пока что onSendText знает только про toAll; список получателей можно
     // будет добавить в сигнатуру позже и передавать ниже в крипто-ядро.
-    console.log('Selected recipients for message:', selectedRecipientIds);
+    logger.info('ChatScreen', 'Selected recipients for message', {data: {selectedRecipientIds}});
     onSendText(trimmed, toAll);
     setText('');
   };
@@ -237,7 +238,7 @@ export const ChatScreen: React.FC<Props> = ({
       if (e && e.code === 'DOCUMENT_PICKER_CANCELED') {
         return;
       }
-      console.warn('ChatScreen: handleAttachFile error', e);
+      logger.warn('ChatScreen', 'handleAttachFile error', {error: e});
     }
   };
 
@@ -262,7 +263,7 @@ export const ChatScreen: React.FC<Props> = ({
       await onSendMedia('image', info);
       closeAttachments();
     } catch (e) {
-      console.warn('ChatScreen: handleAttachPhoto error', e);
+      logger.warn('ChatScreen', 'handleAttachPhoto error', {error: e});
     }
   };
 
@@ -287,7 +288,7 @@ export const ChatScreen: React.FC<Props> = ({
       await onSendMedia('video', info);
       closeAttachments();
     } catch (e) {
-      console.warn('ChatScreen: handleAttachVideo error', e);
+      logger.warn('ChatScreen', 'handleAttachVideo error', {error: e});
     }
   };
 
@@ -325,7 +326,7 @@ export const ChatScreen: React.FC<Props> = ({
         closeAttachments();
       }
     } catch (e) {
-      console.warn('ChatScreen: handleVoiceAll error', e);
+      logger.warn('ChatScreen', 'handleVoiceAll error', {error: e});
       setIsRecordingVoice(false);
     }
   };
@@ -347,7 +348,7 @@ export const ChatScreen: React.FC<Props> = ({
   };
 
   const handleStartCall = (isVideo: boolean, all: boolean) => {
-    console.log('Selected recipients for call:', selectedRecipientIds);
+    logger.info('ChatScreen', 'Selected recipients for call', {data: {selectedRecipientIds}});
     closeAttachments();
     onStartCall({isVideo, toAll: all});
   };
@@ -408,7 +409,7 @@ export const ChatScreen: React.FC<Props> = ({
             try {
               onRetryPending();
             } catch (e) {
-              console.warn('ChatScreen: onRetryPending failed', e);
+              logger.warn('ChatScreen', 'onRetryPending failed', {error: e});
             }
           },
         });
@@ -430,7 +431,7 @@ export const ChatScreen: React.FC<Props> = ({
             try {
               Linking.openURL(fileUri);
             } catch (e) {
-              console.warn('ChatScreen: open file failed', e);
+              logger.warn('ChatScreen', 'open file failed', {error: e});
             }
           },
         });
@@ -472,7 +473,7 @@ const handleToggleVoice = async (msg: ChatMessage) => {
             // ignore
           }
         } catch (e) {
-          console.warn('ChatScreen: stopPlayer error', e);
+          logger.warn('ChatScreen', 'stopPlayer error', {error: e});
         }
         setPlayingVoiceId(null);
         setVoicePosition(0);
@@ -519,11 +520,11 @@ const handleToggleVoice = async (msg: ChatMessage) => {
               }
             });
         } catch (e) {
-          console.warn('ChatScreen: addPlayBackListener error', e);
+          logger.warn('ChatScreen', 'addPlayBackListener error', {error: e});
         }
       }
     } catch (e) {
-      console.warn('ChatScreen: handleToggleVoice error', e);
+      logger.warn('ChatScreen', 'handleToggleVoice error', {error: e});
       setPlayingVoiceId(null);
       setVoicePosition(0);
       setVoiceDuration(0);
@@ -598,7 +599,7 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
             // fileUri is in closure
             openMessageActions(item as any, fileUri);
           } catch (e) {
-            console.warn('ChatScreen: openMessageActions failed', e);
+            logger.warn('ChatScreen', 'openMessageActions failed', {error: e});
           }
         }}
         style={[
@@ -633,7 +634,7 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
                 try {
                   Linking.openURL(fileUri);
                 } catch (e) {
-                  console.warn('ChatScreen: open file failed', e);
+                  logger.warn('ChatScreen', 'open file failed', {error: e});
                 }
               }}>
               <Text style={styles.fileOpenText}>Открыть</Text>

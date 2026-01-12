@@ -1,6 +1,7 @@
 import {useCallback} from 'react';
 import {Buffer} from 'buffer';
 import LexmessCore from '../native/LexmessCore';
+import {logger} from '../utils/logger';
 
 export type RoomStegoConfig = {
   roomId: string;
@@ -166,15 +167,17 @@ export function useStegoEngine(roomConfig?: RoomStegoConfig | null) {
         const slotMismatch = slotIdByte !== expectedSlot;
 
         if (typeMismatch || formatMismatch || templateMismatch || slotMismatch) {
-          console.warn('extractLccFromContainer: roomConfig mismatch – dropping container', {
-            expectedType,
-            actualType,
-            expectedFormat,
-            actualFormat,
-            expectedTemplate,
-            actualTemplate: templateIdByte,
-            expectedSlot,
-            actualSlot: slotIdByte,
+          logger.warn('useStegoEngine', 'roomConfig mismatch - dropping container', {
+            data: {
+              expectedType,
+              actualType,
+              expectedFormat,
+              actualFormat,
+              expectedTemplate,
+              actualTemplate: templateIdByte,
+              expectedSlot,
+              actualSlot: slotIdByte,
+            },
           });
           throw new Error('extractLccFromContainer: container not for this room');
         }

@@ -4,6 +4,7 @@ import type {Theme} from '../theme/themes';
 import {View, StyleSheet, Animated, Easing, Pressable} from 'react-native';
 import Video from 'react-native-video';
 import {useLexmessApi} from '../hooks/useLexmessApi';
+import {logger} from '../utils/logger';
 
 interface Props {
   onDone: () => void;
@@ -71,8 +72,7 @@ export const PreloaderScreen: React.FC<Props> = ({onDone}) => {
       try {
         await getMe({timeoutMs: 2500});
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[Preloader] /v1/account/me failed (will continue anyway)', e);
+        logger.warn('Preloader', '/v1/account/me failed (will continue anyway)', {error: e});
       } finally {
         if (!cancelled) {
           setTimeout(() => {
@@ -106,10 +106,7 @@ export const PreloaderScreen: React.FC<Props> = ({onDone}) => {
           paused={false}
           playInBackground={false}
           playWhenInactive={false}
-          onError={(e) =>
-            // eslint-disable-next-line no-console
-            console.warn('[Preloader] video error', e)
-          }
+          onError={e => logger.warn('Preloader', 'video error', {error: e})}
         />
       </Animated.View>
     </Pressable>

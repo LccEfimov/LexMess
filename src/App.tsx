@@ -12,6 +12,7 @@ import {SecurityProvider} from './security/SecurityContext';
 import {getTheme, normalizeThemeName} from './theme/themes';
 import type {ThemeName} from './theme/themes';
 import {makeNavigationTheme} from './theme/navigationTheme';
+import {logger} from './utils/logger';
 
 import {PreloaderScreen} from './screens/PreloaderScreen';
 import {AuthStartScreen} from './screens/AuthStartScreen';
@@ -82,8 +83,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   }
 
   componentDidCatch(error: any) {
-    // eslint-disable-next-line no-console
-    console.warn('UI crash:', error);
+    logger.warn('App', 'UI crash', {error});
   }
 
   render() {
@@ -171,7 +171,7 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
         const pinsMap = await loadPinnedRooms();
         setPinnedByRoom(pinsMap);
       } catch (e) {
-        console.warn('SQLite initialization failed', e);
+        logger.warn('App', 'SQLite initialization failed', {error: e});
       }
     })();
   }, []);
@@ -196,7 +196,7 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
         setProfileDisplayName(profile.display_name || null);
         setProfileAbout(profile.about || null);
       } catch (e) {
-        console.warn('loadProfile (App) failed', e);
+        logger.warn('App', 'loadProfile failed', {error: e});
       }
     };
 
@@ -237,7 +237,7 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
           } as never,
         );
       } catch (e) {
-        console.warn('[push] navigation to room failed', e);
+        logger.warn('push', 'navigation to room failed', {error: e});
       }
     },
     onNavigateToWallet: () => {
@@ -248,7 +248,7 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
       try {
         nav.navigate('MainTabs' as never, {screen: 'Wallet'} as never);
       } catch (e) {
-        console.warn('[push] navigation to wallet failed', e);
+        logger.warn('push', 'navigation to wallet failed', {error: e});
       }
     },
   });
@@ -475,7 +475,7 @@ const markRoomRead = useCallback(async (roomId: string) => {
     }
     // сохраняем в SQLite
     updateRoomLastRead(rid, nextTs).catch(err => {
-      console.warn('updateRoomLastRead failed', err);
+      logger.warn('App', 'updateRoomLastRead failed', {error: err});
     });
     return {
           unreadCount: Number(room.unread_count || 0),
@@ -511,7 +511,7 @@ const toggleRoomPin = useCallback(async (roomId: string) => {
   try {
     await setRoomPinned(rid, nowPinned);
   } catch (e) {
-    console.warn('setRoomPinned failed', e);
+    logger.warn('App', 'setRoomPinned failed', {error: e});
   }
 }, []);
 
@@ -633,8 +633,10 @@ const toggleRoomPin = useCallback(async (roomId: string) => {
               };
             }
           } catch (e) {
-            // eslint-disable-next-line no-console
-            console.warn('loadRooms: failed to read last message for room', item.id, e);
+            logger.warn('App', 'loadRooms: failed to read last message for room', {
+              error: e,
+              data: {roomId: item.id},
+            });
           }
           return {
             ...item,
@@ -659,8 +661,7 @@ const toggleRoomPin = useCallback(async (roomId: string) => {
       setMyRooms(sortRooms(itemsWithLast.filter(r => r.type === 'my')));
       setOpenRooms(sortRooms(itemsWithLast.filter(r => r.type === 'open')));
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('loadRooms failed', e);
+      logger.warn('App', 'loadRooms failed', {error: e});
     } finally {
       roomsLoadLock.current = false;
       setRoomsLoading(false);
@@ -742,8 +743,7 @@ const handleLeaveRoom = useCallback(
           myUserId,
         } as never);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('navigate to IncomingCall failed', e);
+        logger.warn('App', 'navigate to IncomingCall failed', {error: e});
       }
     });
 
@@ -893,11 +893,11 @@ const handleLeaveRoom = useCallback(
                     rooms={chatRooms}
                     pinnedByRoom={pinnedByRoom}
                     onTogglePin={(rid: string) => {
-                      toggleRoomPin(rid).catch(e => console.warn('toggleRoomPin error', e));
+                      toggleRoomPin(rid).catch(e => logger.warn('App', 'toggleRoomPin error', {error: e}));
                     }}
                     onBack={null}
                     onOpenRoom={(roomId: string, roomTitle?: string) => {
-                      markRoomRead(roomId).catch(e => console.warn('markRoomRead error', e));
+                      markRoomRead(roomId).catch(e => logger.warn('App', 'markRoomRead error', {error: e}));
                       navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
                     }}
                     onOpenMain={() => navigation.navigate('Rooms')}
@@ -905,7 +905,7 @@ const handleLeaveRoom = useCallback(
                     onNewDirect={() => navigation.navigate('NewDirectChat')}
                     refreshing={roomsLoading}
                     onRefresh={() => {
-                      loadRooms().catch(e => console.warn('loadRooms error', e));
+                      loadRooms().catch(e => logger.warn('App', 'loadRooms error', {error: e}));
                     }}
                     onJoinRoom={handleJoinRoom}
                     onLeaveRoom={handleLeaveRoom}
@@ -952,7 +952,7 @@ const handleLeaveRoom = useCallback(
                         try {
                           await retryPending();
                         } catch (e) {
-                          console.warn('retryPending error', e);
+                          logger.warn('App', 'retryPending error', {error: e});
                         }
                       }}
                       onBack={() => navigation.goBack()}
@@ -970,14 +970,14 @@ const handleLeaveRoom = useCallback(
                         try {
                           await sendMedia(kind, fileInfo);
                         } catch (e) {
-                          console.warn('sendMedia error', e);
+                          logger.warn('App', 'sendMedia error', {error: e});
                         }
                       }}
                       onSendText={async (text, toAll) => {
                         try {
                           await sendText(text, toAll);
                         } catch (e) {
-                          console.warn('sendText error', e);
+                          logger.warn('App', 'sendText error', {error: e});
                         }
                       }}
                       onStartCall={({isVideo, toAll}) => {
@@ -1010,7 +1010,7 @@ const handleLeaveRoom = useCallback(
                 name="Rooms"
                 listeners={{
                   focus: () => {
-                    loadRooms().catch(e => console.warn('loadRooms error', e));
+                    loadRooms().catch(e => logger.warn('App', 'loadRooms error', {error: e}));
                   },
                 }}>
                 {({navigation}) => (
@@ -1019,7 +1019,7 @@ const handleLeaveRoom = useCallback(
                     myRooms={myRooms}
                     openRooms={openRooms}
                     onOpenRoom={(roomId: string, roomTitle?: string) => {
-                  markRoomRead(roomId).catch(e => console.warn('markRoomRead error', e));
+                  markRoomRead(roomId).catch(e => logger.warn('App', 'markRoomRead error', {error: e}));
                   navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
                 }}
                     onShowMorePublic={() => navigation.navigate('PublicRoomsList')}
@@ -1030,7 +1030,7 @@ const handleLeaveRoom = useCallback(
                     onJoinByCode={() => navigation.navigate('JoinByCode', {userId: nickname || 'me'})}
                     refreshing={roomsLoading}
                     onRefresh={() => {
-                      loadRooms().catch(e => console.warn('loadRooms error', e));
+                      loadRooms().catch(e => logger.warn('App', 'loadRooms error', {error: e}));
                     }}
                     onJoinRoom={handleJoinRoom}
                     onLeaveRoom={handleLeaveRoom}
@@ -1053,7 +1053,7 @@ const handleLeaveRoom = useCallback(
                     onBack={() => navigation.goBack()}
 
                     onOpenRoom={(roomId: string, roomTitle?: string) => {
-                  markRoomRead(roomId).catch(e => console.warn('markRoomRead error', e));
+                  markRoomRead(roomId).catch(e => logger.warn('App', 'markRoomRead error', {error: e}));
                   navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
                 }}
                     onOpenMain={() => navigation.navigate('Rooms')}
@@ -1061,7 +1061,7 @@ const handleLeaveRoom = useCallback(
                     onNewDirect={() => navigation.navigate('NewDirectChat')}
                     refreshing={roomsLoading}
                     onRefresh={() => {
-                      loadRooms().catch(e => console.warn('loadRooms error', e));
+                      loadRooms().catch(e => logger.warn('App', 'loadRooms error', {error: e}));
                     }}
                     onJoinRoom={handleJoinRoom}
                     onLeaveRoom={handleLeaveRoom}
@@ -1080,7 +1080,7 @@ const handleLeaveRoom = useCallback(
                     busyByRoom={roomBusyById}
                     onBack={() => navigation.goBack()}
                     onOpenRoom={(roomId: string, roomTitle?: string) => {
-                  markRoomRead(roomId).catch(e => console.warn('markRoomRead error', e));
+                  markRoomRead(roomId).catch(e => logger.warn('App', 'markRoomRead error', {error: e}));
                   navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
                 }}
                     onOpenMain={() => navigation.navigate('Rooms')}
@@ -1088,7 +1088,7 @@ const handleLeaveRoom = useCallback(
                     onNewDirect={() => navigation.navigate('NewDirectChat')}
                     refreshing={roomsLoading}
                     onRefresh={() => {
-                      loadRooms().catch(e => console.warn('loadRooms error', e));
+                      loadRooms().catch(e => logger.warn('App', 'loadRooms error', {error: e}));
                     }}
                     onJoinRoom={handleJoinRoom}
                     onLeaveRoom={handleLeaveRoom}
@@ -1107,7 +1107,7 @@ const handleLeaveRoom = useCallback(
                     busyByRoom={roomBusyById}
                     onBack={() => navigation.goBack()}
                     onOpenRoom={(roomId: string, roomTitle?: string) => {
-                  markRoomRead(roomId).catch(e => console.warn('markRoomRead error', e));
+                  markRoomRead(roomId).catch(e => logger.warn('App', 'markRoomRead error', {error: e}));
                   navigation.navigate('Chat', {roomId, roomTitle: roomTitle || roomId});
                 }}
                     onOpenMain={() => navigation.navigate('Rooms')}
@@ -1115,7 +1115,7 @@ const handleLeaveRoom = useCallback(
                     onNewDirect={() => navigation.navigate('NewDirectChat')}
                     refreshing={roomsLoading}
                     onRefresh={() => {
-                      loadRooms().catch(e => console.warn('loadRooms error', e));
+                      loadRooms().catch(e => logger.warn('App', 'loadRooms error', {error: e}));
                     }}
                     onJoinRoom={handleJoinRoom}
                     onLeaveRoom={handleLeaveRoom}
@@ -1175,7 +1175,7 @@ const handleLeaveRoom = useCallback(
                         try {
                           await retryPending();
                         } catch (e) {
-                          console.warn('retryPending error', e);
+                          logger.warn('App', 'retryPending error', {error: e});
                         }
                       }}
                       onBack={() => navigation.goBack()}
@@ -1193,14 +1193,14 @@ const handleLeaveRoom = useCallback(
                         try {
                           await sendMedia(kind, fileInfo);
                         } catch (e) {
-                          console.warn('sendMedia error', e);
+                          logger.warn('App', 'sendMedia error', {error: e});
                         }
                       }}
                       onSendText={async (text, toAll) => {
                         try {
                           await sendText(text, toAll);
                         } catch (e) {
-                          console.warn('sendText error', e);
+                          logger.warn('App', 'sendText error', {error: e});
                         }
                       }}
                       onStartCall={({isVideo, toAll}) => {
@@ -1409,7 +1409,7 @@ const handleLeaveRoom = useCallback(
                         await saveThemePreference(opts.theme);
                       } catch {}
                     } catch (e) {
-                      console.warn('saveAppSettings (settings) failed', e);
+                      logger.warn('App', 'saveAppSettings (settings) failed', {error: e});
                     }
                     navigation.goBack();
                   }}

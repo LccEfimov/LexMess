@@ -1,3 +1,5 @@
+import {logger} from '../utils/logger';
+
 export type IncomingRtcSignal = {
   roomId: string;
   from: string;
@@ -21,8 +23,7 @@ export function subscribeRtc(listener: RtcListener): () => void {
     try {
       void listener(lastOffer);
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[rtcBus] replay offer to new listener failed', e);
+      logger.warn('rtcBus', 'replay offer to new listener failed', {error: e});
     }
   }
 
@@ -60,8 +61,7 @@ export async function injectIncomingRtc(signal: IncomingRtcSignal): Promise<void
     try {
       await cb(signal);
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[rtcBus] listener error', e);
+      logger.warn('rtcBus', 'listener error', {error: e});
     }
   }
 }

@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
+import {logger} from '../utils/logger';
 
 const STORAGE_KEY = 'lexmess_device_passphrase_v1';
 const SERVICE = 'lexmess_device_passphrase_v1';
@@ -14,8 +15,7 @@ export async function getDevicePassphrase() {
       return res.password;
     }
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[passphraseStorage] getDevicePassphrase keychain read failed', e);
+    logger.warn('passphraseStorage', 'getDevicePassphrase keychain read failed', {error: e});
   }
 
   try {
@@ -24,21 +24,20 @@ export async function getDevicePassphrase() {
       try {
         await Keychain.setGenericPassword('passphrase', legacy, {service: SERVICE});
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[passphraseStorage] getDevicePassphrase keychain migrate failed', e);
+        logger.warn('passphraseStorage', 'getDevicePassphrase keychain migrate failed', {
+          error: e,
+        });
         return legacy;
       }
       try {
         await AsyncStorage.removeItem(STORAGE_KEY);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[passphraseStorage] getDevicePassphrase legacy cleanup failed', e);
+        logger.warn('passphraseStorage', 'getDevicePassphrase legacy cleanup failed', {error: e});
       }
       return legacy;
     }
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[passphraseStorage] getDevicePassphrase legacy read failed', e);
+    logger.warn('passphraseStorage', 'getDevicePassphrase legacy read failed', {error: e});
   }
 
   // Минимально случайная строка; при желании можно заменить на криптостойкий генератор.
@@ -50,8 +49,7 @@ export async function getDevicePassphrase() {
     await Keychain.setGenericPassword('passphrase', random, {service: SERVICE});
     return random;
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[passphraseStorage] getDevicePassphrase keychain write failed', e);
+    logger.warn('passphraseStorage', 'getDevicePassphrase keychain write failed', {error: e});
     throw new Error('Failed to persist device passphrase in Keychain');
   }
 }

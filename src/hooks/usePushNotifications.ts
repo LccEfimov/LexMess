@@ -1,5 +1,6 @@
 import {useEffect} from 'react';
 import {NativeModules, Platform} from 'react-native';
+import {logger} from '../utils/logger';
 
 // Пуши опциональны. Если Firebase не подключён (зависимостей/конфига нет),
 // этот хук тихо превращается в no-op.
@@ -61,8 +62,7 @@ export function usePushNotifications(
     } catch (e) {
       // В реальных сборках Hermes/Metro иногда вылетает "Requiring unknown module \"undefined\""
       // из firebase-модулей при неполной линковке/конфиге. Не роняем всё приложение.
-      // eslint-disable-next-line no-console
-      console.warn('[push] getMessaging failed (push disabled)', e);
+      logger.warn('push', 'getMessaging failed (push disabled)', {error: e});
       return;
     }
     if (!messaging) {
@@ -87,8 +87,7 @@ export function usePushNotifications(
         try {
           safeOpts.onNavigateToWallet?.();
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.warn('[push] onNavigateToWallet failed', e);
+          logger.warn('push', 'onNavigateToWallet failed', {error: e});
         }
       }
       const data = remoteMessage.data || {};
@@ -99,16 +98,14 @@ export function usePushNotifications(
       try {
         safeOpts.onIncrementBadge?.();
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[push] onIncrementBadge failed', e);
+        logger.warn('push', 'onIncrementBadge failed', {error: e});
       }
 
       if (roomId) {
         try {
           safeOpts.onNavigateToRoom?.(roomId);
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.warn('[push] onNavigateToRoom failed', e);
+          logger.warn('push', 'onNavigateToRoom failed', {error: e});
         }
       }
     };
@@ -125,8 +122,7 @@ export function usePushNotifications(
           deviceId: null,
         });
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[push] registerPushToken failed', e);
+        logger.warn('push', 'registerPushToken failed', {error: e});
       }
     }
 
@@ -152,8 +148,7 @@ export function usePushNotifications(
         });
 
         unsubscribeOnMessage = messaging().onMessage(async (remoteMessage: any) => {
-          // eslint-disable-next-line no-console
-          console.log('[push] foreground message', remoteMessage?.data || {});
+          logger.info('push', 'foreground message', {data: remoteMessage?.data || {}});
           await handleRemoteMessage(remoteMessage);
         });
 
@@ -166,8 +161,7 @@ export function usePushNotifications(
           await handleRemoteMessage(initialMessage);
         }
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[push] init push failed', e);
+        logger.warn('push', 'init push failed', {error: e});
       }
     }
 

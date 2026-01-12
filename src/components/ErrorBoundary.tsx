@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {logger} from '../utils/logger';
 
 type State = {hasError: boolean; error?: any};
 
@@ -11,8 +12,7 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, 
   }
 
   componentDidCatch(error: any) {
-    // eslint-disable-next-line no-console
-    console.error('[ErrorBoundary]', error);
+    logger.error('ErrorBoundary', 'uncaught error', {error});
   }
 
   render() {

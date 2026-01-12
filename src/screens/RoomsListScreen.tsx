@@ -16,6 +16,7 @@ import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import type {RoomItem} from './RoomsScreen';
+import {logger} from '../utils/logger';
 
 type Props = {
   title: string;
@@ -252,7 +253,7 @@ const filtered = useMemo(() => {
             }
             onOpenRoom(item.id, item.title);
           } catch (e) {
-            console.warn('joinRoom failed', e);
+            logger.warn('RoomsListScreen', 'joinRoom failed', {error: e});
             Alert.alert('Ошибка', 'Не удалось войти в комнату.');
           }
         };
@@ -280,7 +281,7 @@ const filtered = useMemo(() => {
                       await onLeaveRoom(item.id);
                     }
                   } catch (e) {
-                    console.warn('leaveRoom failed', e);
+                    logger.warn('RoomsListScreen', 'leaveRoom failed', {error: e});
                     Alert.alert('Ошибка', 'Не удалось выйти из комнаты.');
                   }
                 };

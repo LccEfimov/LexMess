@@ -20,6 +20,7 @@ import {
   sendRoomContainer,
   sendRoomRead,
 } from '../net/wsClient';
+import {logger} from '../utils/logger';
 
 const MAX_MEDIA_BYTES = 20 * 1024 * 1024;
 
@@ -135,8 +136,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
 
         setMessages(mapped);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('useChatRoom: load history failed', e);
+        logger.warn('useChatRoom', 'load history failed', {error: e});
       }
     }
 
@@ -278,8 +278,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         }
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('useChatRoom: retryPending failed', e);
+      logger.warn('useChatRoom', 'retryPending failed', {error: e});
     }
   }, [roomId, currentUserId, cryptoEngine, stegoEngine, updateMessageStateStatus]);
 
@@ -331,8 +330,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
       try {
         outgoingId = await insertMessage(outgoingRecord);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('useChatRoom: insert outgoing failed', e);
+        logger.warn('useChatRoom', 'insert outgoing failed', {error: e});
       }
 
       const clientMsgId = String(outgoingId || `${now}_${currentUserId}`);
@@ -366,8 +364,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         }
         updateMessageStateStatus(clientMsgId, ok ? 'sent' : 'queued');
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('useChatRoom: sendText crypto/stego error', e);
+        logger.warn('useChatRoom', 'sendText crypto/stego error', {error: e});
         if (outgoingId > 0) {
           await bumpOutgoingSendAttempt(outgoingId, 'local', 'crypto_or_stego_failed');
         }
@@ -416,8 +413,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
       try {
         outgoingId = await insertMessage(outgoingRecord);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('useChatRoom: insert outgoing media failed', e);
+        logger.warn('useChatRoom', 'insert outgoing media failed', {error: e});
       }
 
       const clientMsgId = String(outgoingId || `${now}_${currentUserId}`);
@@ -474,8 +470,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         }
         updateMessageStateStatus(clientMsgId, ok ? 'sent' : 'queued');
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('useChatRoom: sendMedia error', e);
+        logger.warn('useChatRoom', 'sendMedia error', {error: e});
         if (outgoingId > 0) {
           await bumpOutgoingSendAttempt(outgoingId, 'local', 'crypto_or_stego_failed');
         }
@@ -518,8 +513,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
           try {
             incomingId = await insertMessage(incomingRecord);
           } catch (e) {
-            // eslint-disable-next-line no-console
-            console.warn('useChatRoom: insert incoming (text) failed', e);
+            logger.warn('useChatRoom', 'insert incoming (text) failed', {error: e});
           }
 
           appendMessage({
@@ -554,8 +548,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         try {
           localPath = await cryptoEngine.decryptFile(lccIncoming, senderId, msgType, extension, roomFromMsg);
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.warn('useChatRoom: decryptFile failed', e);
+          logger.warn('useChatRoom', 'decryptFile failed', {error: e});
           return;
         }
 
@@ -573,8 +566,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         try {
           incomingId = await insertMessage(incomingRecord);
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.warn('useChatRoom: insert incoming (file) failed', e);
+          logger.warn('useChatRoom', 'insert incoming (file) failed', {error: e});
         }
 
         appendMessage({
@@ -588,8 +580,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
 
         await sendReadAckIfNeeded(tsIncoming);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('useChatRoom: incoming container error', e);
+        logger.warn('useChatRoom', 'incoming container error', {error: e});
       }
     });
 
@@ -615,8 +606,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
       try {
         await updateMessageDeliveryStatus(numericId, status);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('useChatRoom: failed to update delivery status in DB', e);
+        logger.warn('useChatRoom', 'failed to update delivery status in DB', {error: e});
       }
 
       updateMessageStateStatus(String(clientMsgId), status);

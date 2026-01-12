@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {saveSecureToken, loadSecureToken, clearSecureToken} from './secureTokenStorage';
+import {logger} from '../utils/logger';
 
 const TOKEN_KEY = 'lexmess_access_token_v1';
 
@@ -10,8 +11,7 @@ export async function saveAccessToken(token) {
   try {
     await saveSecureToken(token);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[authTokenStorage] saveAccessToken failed', e);
+    logger.warn('authTokenStorage', 'saveAccessToken failed', {error: e});
   }
 }
 
@@ -23,8 +23,7 @@ export async function getAccessToken() {
     const secureToken = await loadSecureToken();
     if (secureToken) return secureToken;
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[authTokenStorage] getAccessToken secure load failed', e);
+    logger.warn('authTokenStorage', 'getAccessToken secure load failed', {error: e});
   }
 
   try {
@@ -34,14 +33,12 @@ export async function getAccessToken() {
       await saveSecureToken(legacyToken);
       await AsyncStorage.removeItem(TOKEN_KEY);
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[authTokenStorage] getAccessToken migration failed', e);
+      logger.warn('authTokenStorage', 'getAccessToken migration failed', {error: e});
       return legacyToken;
     }
     return legacyToken;
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[authTokenStorage] getAccessToken legacy load failed', e);
+    logger.warn('authTokenStorage', 'getAccessToken legacy load failed', {error: e});
     return null;
   }
 }
@@ -53,14 +50,12 @@ export async function clearAccessToken() {
   try {
     await clearSecureToken();
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[authTokenStorage] clearAccessToken failed', e);
+    logger.warn('authTokenStorage', 'clearAccessToken failed', {error: e});
   }
 
   try {
     await AsyncStorage.removeItem(TOKEN_KEY);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[authTokenStorage] clearAccessToken legacy cleanup failed', e);
+    logger.warn('authTokenStorage', 'clearAccessToken legacy cleanup failed', {error: e});
   }
 }

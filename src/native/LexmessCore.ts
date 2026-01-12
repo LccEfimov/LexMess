@@ -1,4 +1,5 @@
 import {NativeModules, Platform} from 'react-native';
+import {logger} from '../utils/logger';
 
 const LINKING_ERROR =
   `LexmessCore native module is not linked properly. ` +
@@ -76,8 +77,7 @@ function createUnlinkedStub(): LexmessCoreModule {
 
 if (!nativeModule) {
   // Do not crash on startup. Feature calls will fail with a clear error.
-  // eslint-disable-next-line no-console
-  console.warn(LINKING_ERROR);
+  logger.warn('LexmessCore', 'native module not linked', {error: LINKING_ERROR});
 }
 
 const impl: LexmessCoreModule = (nativeModule as LexmessCoreModule) || createUnlinkedStub();
