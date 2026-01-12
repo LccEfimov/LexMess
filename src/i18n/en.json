@@ -72,11 +72,20 @@
     },
     "header": {
       "rooms": "Rooms",
-      "settings": "Settings"
+      "settings": "Settings",
+      "muteOn": "Muted",
+      "muteOff": "Sound on",
+      "exit": "Exit"
     },
     "search": {
       "chats": "Search chats",
-      "rooms": "Search rooms"
+      "rooms": "Search rooms",
+      "placeholder": "Search"
+    },
+    "tabs": {
+      "my": "My",
+      "open": "Member",
+      "public": "Public"
     },
     "badge": {
       "my": "MINE",
@@ -84,11 +93,19 @@
       "private": "PRIV",
       "public": "PUB"
     },
+    "meta": {
+      "members": "members",
+      "online": " • online {count}"
+    },
     "noMessages": "No messages",
     "actions": {
       "join": "Join",
       "open": "Open",
-      "leave": "Leave"
+      "leave": "Leave",
+      "create": "Create room",
+      "joinByCode": "Join by code",
+      "showAll": "Show all",
+      "busy": "..."
     },
     "alerts": {
       "joinErrorTitle": "Error",
@@ -98,14 +115,20 @@
       "leaveConfirmTitle": "Leave the room?",
       "leaveConfirmBody": "You will lose quick access to the room. You can join again by invitation.",
       "leaveConfirmCancel": "Cancel",
-      "leaveConfirmLeave": "Leave"
+      "leaveConfirmLeave": "Leave",
+      "exitTitle": "Exit",
+      "exitBody": "Exit the app?",
+      "exitCancel": "Cancel",
+      "exitConfirm": "Exit"
     },
     "pinHint": "Long press to pin/unpin",
     "empty": {
       "chatsTitle": "No chats yet",
       "chatsSubtitle": "Open a room or start a dialog — the history will appear here.",
       "roomsTitle": "No rooms yet",
-      "roomsSubtitle": "Create a room or join by code — it will appear in the list."
+      "roomsSubtitle": "Create a room or join by code — it will appear in the list.",
+      "filteredTitle": "Empty",
+      "filteredSubtitle": "No rooms match your filter."
     }
   },
   "chat": {

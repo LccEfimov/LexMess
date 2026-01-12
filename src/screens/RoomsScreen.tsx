@@ -16,6 +16,7 @@ import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {formatTs} from '../utils/dateTime';
+import {i18n} from '../i18n';
 
 export type RoomItem = {
   id: string;
@@ -110,20 +111,28 @@ export const RoomsScreen: React.FC<Props> = (props) => {
     return (
       <View style={styles.headerRight}>
         <Pressable style={[styles.headerBtn, styles.headerBtnSpacing]} onPress={props.onToggleMute}>
-          <Text style={styles.headerBtnText}>{props.mute ? 'Без звука' : 'Со звуком'}</Text>
+          <Text style={styles.headerBtnText}>
+            {props.mute ? i18n.t('roomsList.header.muteOn') : i18n.t('roomsList.header.muteOff')}
+          </Text>
         </Pressable>
         <Pressable style={[styles.headerBtn, styles.headerBtnSpacing]} onPress={props.onSettings}>
-          <Text style={styles.headerBtnText}>Настройки</Text>
+          <Text style={styles.headerBtnText}>{i18n.t('roomsList.header.settings')}</Text>
         </Pressable>
         <Pressable
           style={[styles.headerBtn, styles.headerBtnDanger]}
           onPress={() => {
-            Alert.alert('Выход', 'Выйти из приложения?', [
-              {text: 'Отмена', style: 'cancel'},
-              {text: 'Выйти', style: 'destructive', onPress: props.onExitApp},
+            Alert.alert(i18n.t('roomsList.alerts.exitTitle'), i18n.t('roomsList.alerts.exitBody'), [
+              {text: i18n.t('roomsList.alerts.exitCancel'), style: 'cancel'},
+              {
+                text: i18n.t('roomsList.alerts.exitConfirm'),
+                style: 'destructive',
+                onPress: props.onExitApp,
+              },
             ]);
           }}>
-          <Text style={[styles.headerBtnText, styles.headerBtnDangerText]}>Выйти</Text>
+          <Text style={[styles.headerBtnText, styles.headerBtnDangerText]}>
+            {i18n.t('roomsList.header.exit')}
+          </Text>
         </Pressable>
       </View>
     );
@@ -151,9 +160,9 @@ export const RoomsScreen: React.FC<Props> = (props) => {
 
     return (
       <View style={styles.tabs}>
-        {tabBtn('my', 'Мои', (props.myRooms || []).length, false)}
-        {tabBtn('open', 'Участник', (props.openRooms || []).length, false)}
-        {tabBtn('public', 'Публичные', (props.publicRooms || []).length, true)}
+        {tabBtn('my', i18n.t('roomsList.tabs.my'), (props.myRooms || []).length, false)}
+        {tabBtn('open', i18n.t('roomsList.tabs.open'), (props.openRooms || []).length, false)}
+        {tabBtn('public', i18n.t('roomsList.tabs.public'), (props.publicRooms || []).length, true)}
       </View>
     );
   }, [styles, tab, props.myRooms, props.openRooms, props.publicRooms]);
@@ -162,13 +171,13 @@ export const RoomsScreen: React.FC<Props> = (props) => {
     return (
       <View style={styles.actionsRow}>
         <Pressable style={[styles.actionBtn, styles.actionBtnSpacing]} onPress={props.onCreateRoom}>
-          <Text style={styles.actionBtnText}>Создать комнату</Text>
+          <Text style={styles.actionBtnText}>{i18n.t('roomsList.actions.create')}</Text>
         </Pressable>
         <Pressable style={[styles.actionBtn, styles.actionBtnSpacing]} onPress={props.onJoinByCode}>
-          <Text style={styles.actionBtnText}>Войти по коду</Text>
+          <Text style={styles.actionBtnText}>{i18n.t('roomsList.actions.joinByCode')}</Text>
         </Pressable>
         <Pressable style={styles.actionBtnGhost} onPress={onShowAll}>
-          <Text style={styles.actionBtnGhostText}>Показать все</Text>
+          <Text style={styles.actionBtnGhostText}>{i18n.t('roomsList.actions.showAll')}</Text>
         </Pressable>
       </View>
     );
@@ -180,7 +189,10 @@ export const RoomsScreen: React.FC<Props> = (props) => {
       try {
         await props.onJoinRoom(roomId);
       } catch (e: any) {
-        Alert.alert('Ошибка', String(e?.message || e || 'Не удалось войти'));
+        Alert.alert(
+          i18n.t('roomsList.alerts.joinErrorTitle'),
+          String(e?.message || e || i18n.t('roomsList.alerts.joinErrorBody')),
+        );
       }
     },
     [props.onJoinRoom],
@@ -189,16 +201,19 @@ export const RoomsScreen: React.FC<Props> = (props) => {
   const onLeave = useCallback(
     async (roomId: string) => {
       if (!props.onLeaveRoom) return;
-      Alert.alert('Выход из комнаты', 'Покинуть комнату?', [
-        {text: 'Отмена', style: 'cancel'},
+      Alert.alert(i18n.t('roomsList.alerts.leaveConfirmTitle'), i18n.t('roomsList.alerts.leaveConfirmBody'), [
+        {text: i18n.t('roomsList.alerts.leaveConfirmCancel'), style: 'cancel'},
         {
-          text: 'Покинуть',
+          text: i18n.t('roomsList.alerts.leaveConfirmLeave'),
           style: 'destructive',
           onPress: async () => {
             try {
               await props.onLeaveRoom?.(roomId);
             } catch (e: any) {
-              Alert.alert('Ошибка', String(e?.message || e || 'Не удалось выйти'));
+              Alert.alert(
+                i18n.t('roomsList.alerts.leaveErrorTitle'),
+                String(e?.message || e || i18n.t('roomsList.alerts.leaveErrorBody')),
+              );
             }
           },
         },
@@ -209,7 +224,7 @@ export const RoomsScreen: React.FC<Props> = (props) => {
 
   return (
     <View style={styles.root}>
-      <AppHeader title="Комнаты" onBack={null} right={headerRight} />
+      <AppHeader title={i18n.t('roomsList.header.rooms')} onBack={null} right={headerRight} />
 
       {renderTabs}
 
@@ -218,7 +233,7 @@ export const RoomsScreen: React.FC<Props> = (props) => {
           style={styles.searchInput}
           value={search}
           onChangeText={setSearch}
-          placeholder="Поиск"
+          placeholder={i18n.t('roomsList.search.placeholder')}
           placeholderTextColor={t.colors.placeholder}
         />
         {search ? (
@@ -244,12 +259,12 @@ export const RoomsScreen: React.FC<Props> = (props) => {
 
           const badge =
             item.type === 'my'
-              ? 'МОЯ'
+              ? i18n.t('roomsList.badge.my')
               : item.type === 'open'
-              ? 'УЧАСТНИК'
+              ? i18n.t('roomsList.badge.open')
               : item.isPrivate
-              ? 'ПРИВАТ'
-              : 'ПУБЛ';
+              ? i18n.t('roomsList.badge.private')
+              : i18n.t('roomsList.badge.public');
 
           const canJoin = item.type === 'public' && !!props.onJoinRoom;
           const canLeave = item.type === 'open' && !!props.onLeaveRoom;
@@ -277,8 +292,10 @@ export const RoomsScreen: React.FC<Props> = (props) => {
 
                   <View style={styles.metaRow}>
                     <Text style={styles.metaText}>
-                      {Number(item.members || 0)} участн.
-                      {typeof item.online === 'number' ? ` • онлайн ${item.online}` : ''}
+                      {Number(item.members || 0)} {i18n.t('roomsList.meta.members')}
+                      {typeof item.online === 'number'
+                        ? i18n.t('roomsList.meta.online', {count: item.online})
+                        : ''}
                     </Text>
                     {ts ? <Text style={styles.metaTime}>{ts}</Text> : null}
                   </View>
@@ -289,7 +306,7 @@ export const RoomsScreen: React.FC<Props> = (props) => {
                     </Text>
                   ) : (
                     <Text style={styles.lastMessageEmpty} numberOfLines={1}>
-                      Нет сообщений
+                      {i18n.t('roomsList.noMessages')}
                     </Text>
                   )}
                 </View>
@@ -312,7 +329,9 @@ export const RoomsScreen: React.FC<Props> = (props) => {
                       ]}
                       onPress={() => onJoin(item.id)}
                       disabled={busy}>
-                      <Text style={styles.smallBtnText}>{busy ? '...' : 'Войти'}</Text>
+                      <Text style={styles.smallBtnText}>
+                        {busy ? i18n.t('roomsList.actions.busy') : i18n.t('roomsList.actions.join')}
+                      </Text>
                     </Pressable>
                   ) : null}
 
@@ -321,7 +340,9 @@ export const RoomsScreen: React.FC<Props> = (props) => {
                       style={[styles.smallBtnGhost, busy ? styles.smallBtnDisabled : null]}
                       onPress={() => onLeave(item.id)}
                       disabled={busy}>
-                      <Text style={styles.smallBtnGhostText}>{busy ? '...' : 'Выйти'}</Text>
+                      <Text style={styles.smallBtnGhostText}>
+                        {busy ? i18n.t('roomsList.actions.busy') : i18n.t('roomsList.actions.leave')}
+                      </Text>
                     </Pressable>
                   ) : null}
                 </View>
@@ -331,8 +352,8 @@ export const RoomsScreen: React.FC<Props> = (props) => {
         }}
         ListEmptyComponent={() => (
           <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>Пусто</Text>
-            <Text style={styles.emptyText}>Нет комнат по вашему фильтру.</Text>
+            <Text style={styles.emptyTitle}>{i18n.t('roomsList.empty.filteredTitle')}</Text>
+            <Text style={styles.emptyText}>{i18n.t('roomsList.empty.filteredSubtitle')}</Text>
           </View>
         )}
       />
