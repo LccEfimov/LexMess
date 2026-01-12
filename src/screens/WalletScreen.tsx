@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  TextInput,
   ActivityIndicator,
   Modal,
   RefreshControl,
@@ -37,6 +36,7 @@ import {i18n} from '../i18n';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {loadWalletTxCache, saveWalletTxCache} from '../storage/sqliteStorage';
+import {Input} from '../ui/Input';
 
 type TabKey = 'overview' | 'send' | 'withdraw' | 'history';
 
@@ -462,30 +462,30 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>{i18n.t('wallet.send.title')}</Text>
             <Text style={styles.label}>{i18n.t('wallet.labels.toAddress')}</Text>
-            <TextInput
+            <Input
               value={toAddress}
               onChangeText={setToAddress}
-              style={styles.input}
               placeholder={i18n.t('wallet.placeholders.address')}
               placeholderTextColor={t.colors.textSecondary}
               autoCapitalize="none"
+              containerStyle={styles.inputContainer}
             />
             <Text style={styles.label}>{i18n.t('wallet.labels.amount')}</Text>
-            <TextInput
+            <Input
               value={sendAmount}
               onChangeText={setSendAmount}
-              style={styles.input}
               placeholder={i18n.t('wallet.placeholders.sendAmount')}
               placeholderTextColor={t.colors.textSecondary}
               keyboardType="numeric"
+              containerStyle={styles.inputContainer}
             />
             <Text style={styles.label}>{i18n.t('wallet.labels.memoOptional')}</Text>
-            <TextInput
+            <Input
               value={sendMemo}
               onChangeText={setSendMemo}
-              style={styles.input}
               placeholder={i18n.t('wallet.placeholders.memo')}
               placeholderTextColor={t.colors.textSecondary}
+              containerStyle={styles.inputContainer}
             />
 
             {sendError ? <Text style={styles.error}>{sendError}</Text> : null}
@@ -534,22 +534,22 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
             <Text style={styles.hint}>{i18n.t('wallet.withdraw.minHint', {amount: withdrawMin})}</Text>
 
             <Text style={styles.label}>{i18n.t('wallet.labels.withdrawDestination')}</Text>
-            <TextInput
+            <Input
               value={withdrawDestination}
               onChangeText={setWithdrawDestination}
-              style={styles.input}
               placeholder={i18n.t('wallet.placeholders.withdrawDestination')}
               placeholderTextColor={t.colors.textSecondary}
               autoCapitalize="none"
+              containerStyle={styles.inputContainer}
             />
             <Text style={styles.label}>{i18n.t('wallet.labels.amount')}</Text>
-            <TextInput
+            <Input
               value={withdrawAmount}
               onChangeText={setWithdrawAmount}
-              style={styles.input}
               placeholder={i18n.t('wallet.placeholders.withdrawAmount')}
               placeholderTextColor={t.colors.textSecondary}
               keyboardType="numeric"
+              containerStyle={styles.inputContainer}
             />
 
             {withdrawError ? <Text style={styles.error}>{withdrawError}</Text> : null}
@@ -712,14 +712,8 @@ const makeStyles = (t: Theme) =>
     mono: {fontFamily: 'monospace', color: t.colors.text},
     balance: {color: t.colors.text, fontWeight: '900', fontSize: 22, marginTop: 6},
 
-    input: {
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      borderRadius: 14,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      color: t.colors.text,
-      backgroundColor: t.colors.bg,
+    inputContainer: {
+      marginBottom: 0,
     },
 
     btn: {
