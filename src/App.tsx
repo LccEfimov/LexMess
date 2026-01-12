@@ -59,6 +59,7 @@ import {
   loadPinnedRooms,
   setRoomPinned,
   getUnreadCountForRoom,
+  resetStorage,
 } from './storage/sqliteStorage';
 import {loadThemePreference, saveThemePreference} from './storage/themePreferenceStorage';
 import {i18n} from './i18n';
@@ -808,6 +809,11 @@ const handleLeaveRoom = useCallback(
     } catch (e) {
       // ignore
     }
+    try {
+      await resetStorage();
+    } catch (e) {
+      // ignore
+    }
     setRecoveryGate(null);
     setIsAuthed(false);
     setAuthChecked(true);
@@ -1318,6 +1324,11 @@ const handleLeaveRoom = useCallback(
                     if (res && res.accessToken) {
                       try { const {saveAccessToken} = await import('./storage/authTokenStorage'); await saveAccessToken(res.accessToken); } catch {}
                     }
+                    try {
+                      await resetStorage();
+                    } catch (e) {
+                      // ignore
+                    }
                   }}
                   onChangePassword={async ({currentPassword, newPassword}: any) => {
                     await authChangePassword({currentPassword, newPassword});
@@ -1487,6 +1498,11 @@ const handleLeaveRoom = useCallback(
                     const res = await authLogoutAll();
                     if (res && res.accessToken) {
                       try { const {saveAccessToken} = await import('./storage/authTokenStorage'); await saveAccessToken(res.accessToken); } catch {}
+                    }
+                    try {
+                      await resetStorage();
+                    } catch (e) {
+                      // ignore
                     }
                   }}
                   onChangePassword={async ({currentPassword, newPassword}: any) => {
