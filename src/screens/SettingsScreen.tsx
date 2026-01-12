@@ -11,7 +11,7 @@ import {
 
 import {useSecurity} from '../security/SecurityContext';
 import {useTheme} from '../theme/ThemeContext';
-import {normalizeThemeName, type Theme, type ThemeName} from '../theme/themes';
+import {normalizeThemeMode, type Theme, type ThemeMode} from '../theme/themes';
 import {loadPendingRecovery} from '../storage/pendingRecoveryStorage';
 import {Button, Divider, ErrorText, Input, Label, Row, SectionTitle, Spacer} from '../ui/kit';
 import {ScreenContainer} from '../ui/ScreenContainer';
@@ -21,7 +21,7 @@ type LanguageName = 'ru' | 'en' | string;
 
 type ApplyOpts = {
   nickname: string;
-  theme: ThemeName;
+  theme: ThemeMode;
   language: LanguageName;
   displayName?: string;
   about?: string;
@@ -29,7 +29,7 @@ type ApplyOpts = {
 
 type Props = {
   initialNickname: string;
-  initialTheme: ThemeName;
+  initialTheme: ThemeMode;
   initialLanguage: LanguageName;
   onBack: () => void;
   onApply: (opts: ApplyOpts) => Promise<void> | void;
@@ -53,7 +53,7 @@ export const SettingsScreen: React.FC<Props> = props => {
   const [nickname, setNickname] = useState(String(props.initialNickname || ''));
   const [displayName, setDisplayName] = useState('');
   const [about, setAbout] = useState('');
-  const [theme, setTheme] = useState<ThemeName>(normalizeThemeName(props.initialTheme || 'lexmess_dark'));
+  const [theme, setTheme] = useState<ThemeMode>(normalizeThemeMode(props.initialTheme || 'system'));
   const [language, setLanguage] = useState<LanguageName>(props.initialLanguage || 'ru');
 
   const [busy, setBusy] = useState(false);

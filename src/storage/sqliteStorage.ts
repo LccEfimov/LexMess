@@ -2,7 +2,7 @@
 import SQLite from 'react-native-sqlite-storage';
 import {getDevicePassphrase} from './passphraseStorage';
 import {secretboxDecryptText, secretboxEncryptText} from '../crypto/e2eIdentity';
-import {normalizeThemeName, type ThemeName} from '../theme/themes';
+import {normalizeThemeMode, type ThemeMode} from '../theme/themes';
 
 
 SQLite.enablePromise(true);
@@ -418,7 +418,7 @@ export async function ensureSchema(): Promise<void> {
 
 export type AppSettings = {
   nickname: string;
-  theme: ThemeName | string;
+  theme: ThemeMode | string;
   lang: string;
   lockMethod: 'none' | 'pin' | 'biometrics';
   chatsMode: 'persistent' | 'ephemeral';
@@ -437,7 +437,7 @@ export async function loadAppSettings(): Promise<AppSettings | null> {
   const row = res.rows.item(0);
   return {
     nickname: row.nickname,
-    theme: normalizeThemeName(row.theme || 'lexmess_dark'),
+    theme: normalizeThemeMode(row.theme || 'lexmess_dark'),
     lang: row.lang || 'ru',
     lockMethod: row.lock_method || 'none',
     chatsMode: row.chats_mode === 'ephemeral' ? 'ephemeral' : 'persistent',
@@ -459,7 +459,7 @@ export async function saveAppSettings(settings: AppSettings): Promise<void> {
     `,
     [
       settings.nickname,
-      normalizeThemeName(settings.theme || 'lexmess_dark'),
+      normalizeThemeMode(settings.theme || 'lexmess_dark'),
       settings.lang,
       settings.lockMethod,
       settings.chatsMode,

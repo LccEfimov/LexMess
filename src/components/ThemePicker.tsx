@@ -1,11 +1,11 @@
 import React, {useMemo} from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {useTheme} from '../theme/ThemeContext';
-import {THEME_OPTIONS, normalizeThemeName, type Theme, type ThemeName} from '../theme/themes';
+import {THEME_OPTIONS, normalizeThemeMode, type Theme, type ThemeMode} from '../theme/themes';
 
 type Props = {
-  value: ThemeName | string | null | undefined;
-  onChange: (next: ThemeName) => void;
+  value: ThemeMode | string | null | undefined;
+  onChange: (next: ThemeMode) => void;
   compact?: boolean;
 };
 
@@ -13,11 +13,15 @@ export const ThemePicker: React.FC<Props> = ({value, onChange, compact}) => {
   const t = useTheme();
   const styles = useMemo(() => makeStyles(t, !!compact), [t, compact]);
 
-  const current = useMemo(() => normalizeThemeName(value), [value]);
+  const current = useMemo(() => normalizeThemeMode(value), [value]);
+  const options = useMemo(
+    () => [{id: 'system' as const, title: 'Системная'}, ...THEME_OPTIONS],
+    [],
+  );
 
   return (
     <View style={styles.wrap}>
-      {THEME_OPTIONS.map(opt => {
+      {options.map(opt => {
         const selected = current === opt.id;
         return (
           <Pressable
