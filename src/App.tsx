@@ -1240,37 +1240,8 @@ const handleLeaveRoom = useCallback(
                     displayName={profileDisplayName}
                     about={profileAbout}
                     onOpenSettings={() => navigation.navigate('Settings')}
-                    onNewDirect={() => navigation.navigate('NewDirectChat')}
                     onOpenDiagnostics={() => navigation.navigate('Diagnostics')}
                     onLogout={handleLogout}
-                  onLogoutAll={async () => {
-                    const res = await authLogoutAll();
-                    if (res && res.accessToken) {
-                      try { const {saveAccessToken} = await import('./storage/authTokenStorage'); await saveAccessToken(res.accessToken); } catch {}
-                    }
-                    try {
-                      await resetStorage();
-                    } catch (e) {
-                      // ignore
-                    }
-                  }}
-                  onChangePassword={async ({currentPassword, newPassword}: any) => {
-                    await authChangePassword({currentPassword, newPassword});
-                  }}
-                  onRotateRecovery={async ({currentPassword}: any) => {
-                    const r = await authRecoveryRotate({currentPassword});
-                    if (!r || !r.accessToken || !r.recoveryKey) {
-                      throw new Error(i18n.t('app.errors.noRecoveryKey'));
-                    }
-                    try { const {saveAccessToken} = await import('./storage/authTokenStorage'); await saveAccessToken(r.accessToken); } catch {}
-                    // получаем адрес кошелька
-                    let addr = '—';
-                    try {
-                      const w = await walletMe();
-                      if (w && w.address) addr = w.address;
-                    } catch {}
-                    return {recoveryKey: r.recoveryKey, walletAddress: addr};
-                  }}
                   />
                 )}
               </ProfileStack.Screen>
