@@ -4,6 +4,7 @@ import {injectIncomingRtc, IncomingRtcSignal, OutgoingRtcSignal} from '../bus/rt
 import {injectDeliveryAck} from '../bus/deliveryBus';
 import {getAccessToken} from '../storage/authTokenStorage';
 import {isAppActive, onAppStateChange} from '../utils/appState';
+import {logger} from '../utils/logger';
 
 export type OutgoingContainerPayload = {
   roomId: string;
@@ -125,8 +126,7 @@ class RoomWsClient {
       // If no pong for too long - reconnect.
       const silentMs = Date.now() - this.lastPongTs;
       if (silentMs > 25_000) {
-        // eslint-disable-next-line no-console
-        console.warn('[wsClient] heartbeat timeout, reconnecting...');
+        logger.warn('[wsClient] heartbeat timeout, reconnecting...');
         try {
           socket.close();
         } catch {}
@@ -136,8 +136,7 @@ class RoomWsClient {
       try {
         socket.send(JSON.stringify({type: 'ping', ts: Date.now()}));
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[wsClient] ping send failed', e);
+        logger.warn('[wsClient] ping send failed', e);
       }
     }, 6_000);
   }
@@ -175,8 +174,7 @@ class RoomWsClient {
 
     let urlBase = normalizeWsBase(WS_URL);
     if (!urlBase) {
-      // eslint-disable-next-line no-console
-      console.warn('[wsClient] WS_URL is empty');
+      logger.warn('[wsClient] WS_URL is empty');
       return;
     }
 
@@ -213,8 +211,7 @@ class RoomWsClient {
             }),
           );
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.warn('[wsClient] send hello failed', e);
+          logger.warn('[wsClient] send hello failed', e);
         }
 
         this.startHeartbeat();
@@ -274,8 +271,7 @@ class RoomWsClient {
             return;
           }
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.warn('[wsClient] onmessage parse failed', e);
+          logger.warn('[wsClient] onmessage parse failed', e);
         }
       };
 
@@ -288,12 +284,10 @@ class RoomWsClient {
       };
 
       socket.onerror = ev => {
-        // eslint-disable-next-line no-console
-        console.warn('[wsClient] socket error', ev);
+        logger.warn('[wsClient] socket error', ev);
       };
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[wsClient] connect failed', e);
+      logger.warn('[wsClient] connect failed', e);
       this.scheduleReconnect();
     }
   }
@@ -347,8 +341,7 @@ class RoomWsClient {
       );
       return true;
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[wsClient] sendRead failed', e);
+      logger.warn('[wsClient] sendRead failed', e);
       this.pendingReadTs = Math.max(this.pendingReadTs || 0, ts);
       return false;
     }
@@ -380,8 +373,7 @@ class RoomWsClient {
       socket.send(JSON.stringify(msg));
       return true;
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[wsClient] sendContainer failed', e);
+      logger.warn('[wsClient] sendContainer failed', e);
       this.pendingContainers.push(payload);
       return false;
     }
@@ -408,8 +400,7 @@ class RoomWsClient {
     try {
       socket.send(JSON.stringify(msg));
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[wsClient] sendRtc failed', e);
+      logger.warn('[wsClient] sendRtc failed', e);
       this.pendingRtc.push(signal);
     }
   }
@@ -470,8 +461,7 @@ export function sendRoomRead(roomId: string, ts: number): boolean {
 export function sendRoomContainer(payload: OutgoingContainerPayload): boolean {
   const client = clientsByRoom.get(payload.roomId);
   if (!client) {
-    // eslint-disable-next-line no-console
-    console.warn('[wsClient] sendRoomContainer: no client for room', payload.roomId);
+    logger.warn('[wsClient] sendRoomContainer: no client for room', payload.roomId);
     return false;
   }
   return client.sendContainer(payload);
@@ -480,8 +470,7 @@ export function sendRoomContainer(payload: OutgoingContainerPayload): boolean {
 export function sendRoomRtcSignal(signal: OutgoingRtcSignal): void {
   const client = clientsByRoom.get(signal.roomId);
   if (!client) {
-    // eslint-disable-next-line no-console
-    console.warn('[wsClient] sendRoomRtcSignal: no client for room', signal.roomId);
+    logger.warn('[wsClient] sendRoomRtcSignal: no client for room', signal.roomId);
     return;
   }
   client.sendRtc(signal);
