@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
+import {generateSaltHex} from '../security/pin';
 
 const STORAGE_KEY = 'lexmess_device_passphrase_v1';
 const SERVICE = 'lexmess_device_passphrase_v1';
@@ -41,10 +42,7 @@ export async function getDevicePassphrase() {
     console.warn('[passphraseStorage] getDevicePassphrase legacy read failed', e);
   }
 
-  // Минимально случайная строка; при желании можно заменить на криптостойкий генератор.
-  const random = Array.from({length: 64})
-    .map(() => Math.floor(Math.random() * 16).toString(16))
-    .join('');
+  const random = generateSaltHex(64);
 
   try {
     await Keychain.setGenericPassword('passphrase', random, {service: SERVICE});
