@@ -484,7 +484,6 @@ const markRoomRead = useCallback(async (roomId: string) => {
       console.warn('updateRoomLastRead failed', err);
     });
     return {
-          unreadCount: Number(room.unread_count || 0),
       ...prev,
       [rid]: nextTs,
     };
