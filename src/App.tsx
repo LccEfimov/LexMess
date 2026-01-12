@@ -945,12 +945,18 @@ const handleLeaveRoom = useCallback(
                 {({route, navigation}) => {
                   const {roomId, roomTitle} = route.params as {roomId: string; roomTitle?: string};
 
-                  const {messages, sendText, sendMedia, retryPending, pendingCount} = useChatRoom(
+                  const {messages, sendText, sendMedia, retryPending, pendingCount, lastError, clearLastError} = useChatRoom(
                     roomId,
                     nickname || 'me',
                     cryptoEngine,
                     stego,
                   );
+
+                  useEffect(() => {
+                    if (!lastError) return;
+                    Alert.alert(lastError.title, lastError.message);
+                    clearLastError();
+                  }, [lastError, clearLastError]);
 
                   return (
                     <ChatScreen
@@ -1170,12 +1176,18 @@ const handleLeaveRoom = useCallback(
                 {({route, navigation}) => {
                   const {roomId, roomTitle} = route.params as {roomId: string; roomTitle?: string};
 
-                  const {messages, sendText, sendMedia, retryPending, pendingCount} = useChatRoom(
+                  const {messages, sendText, sendMedia, retryPending, pendingCount, lastError, clearLastError} = useChatRoom(
                     roomId,
                     nickname || 'me',
                     cryptoEngine,
                     stego,
                   );
+
+                  useEffect(() => {
+                    if (!lastError) return;
+                    Alert.alert(lastError.title, lastError.message);
+                    clearLastError();
+                  }, [lastError, clearLastError]);
 
                   return (
                     <ChatScreen
