@@ -4,6 +4,7 @@ import type {Theme} from '../theme/themes';
 import {View, Text, StyleSheet} from 'react-native';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
+import {i18n} from '../i18n';
 
 interface Props {
   navigation: any;
@@ -19,24 +20,24 @@ export const AuthStartScreen: React.FC<Props> = ({navigation, initialLogin}) => 
       <View style={styles.header}>
         <Text style={styles.title}>LexMess</Text>
         <Text style={styles.subtitle}>
-          Логин — уникальный. Имя отображения может быть любым.
+          {i18n.t('authStart.subtitle')}
         </Text>
       </View>
 
       <Card style={styles.card}>
         <Button
-          title="Войти"
+          title={i18n.t('authStart.login')}
           onPress={() => navigation.navigate('Login', {prefillLogin: initialLogin || ''})}
         />
         <Button
-          title="Регистрация"
+          title={i18n.t('authStart.register')}
           variant="ghost"
           onPress={() => navigation.navigate('Register', {prefillLogin: initialLogin || ''})}
         />
       </Card>
 
       <Text style={styles.hint}>
-        Подсказка: логин — латиница/цифры/._
+        {i18n.t('authStart.hint')}
       </Text>
     </View>
   );

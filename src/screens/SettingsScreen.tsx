@@ -16,6 +16,7 @@ import {loadPendingRecovery} from '../storage/pendingRecoveryStorage';
 import {Button, Divider, ErrorText, Input, Label, Row, SectionTitle, Spacer} from '../ui';
 import {ScreenContainer} from '../ui/ScreenContainer';
 import {ThemePicker} from '../components/ThemePicker';
+import {i18n} from '../i18n';
 
 type LanguageName = 'ru' | 'en' | string;
 
@@ -49,6 +50,7 @@ export const SettingsScreen: React.FC<Props> = props => {
   const security = useSecurity();
   const t = useTheme();
   const styles = useMemo(() => makeStyles(t), [t]);
+  const locale = i18n.getLocale();
 
   const [nickname, setNickname] = useState(String(props.initialNickname || ''));
   const [displayName, setDisplayName] = useState('');
@@ -75,9 +77,13 @@ export const SettingsScreen: React.FC<Props> = props => {
   const [pinErr, setPinErr] = useState<string | null>(null);
 
   const pinTitle = useMemo(() => {
-    if (pinMode === 'change') return pinStep === 1 ? 'Новый PIN' : 'Повторите PIN';
-    return pinStep === 1 ? 'Установите PIN' : 'Повторите PIN';
-  }, [pinMode, pinStep]);
+    if (pinMode === 'change') {
+      return pinStep === 1
+        ? i18n.t('settings.pin.modalChange')
+        : i18n.t('settings.pin.modalRepeat');
+    }
+    return pinStep === 1 ? i18n.t('settings.pin.modalSet') : i18n.t('settings.pin.modalRepeat');
+  }, [locale, pinMode, pinStep]);
 
   const openPin = useCallback(async (mode: PinMode) => {
     try {
@@ -89,13 +95,13 @@ export const SettingsScreen: React.FC<Props> = props => {
 
       if (mode === 'change' && security.hasPin) {
         // сначала попросим текущую проверку (PIN/биометрия)
-        const ok = await security.requireSensitiveAuth('Изменение PIN');
+        const ok = await security.requireSensitiveAuth(i18n.t('settings.pin.requireChange'));
         if (!ok) return;
       }
 
       setPinVisible(true);
     } catch (e: any) {
-      setPinErr(e?.message || 'Ошибка безопасности');
+      setPinErr(e?.message || i18n.t('settings.alerts.securityError'));
     }
   }, [security]);
 
@@ -113,7 +119,7 @@ export const SettingsScreen: React.FC<Props> = props => {
 
     if (pinStep === 1) {
       if (!isDigits(pinA)) {
-        setPinErr('PIN должен состоять из 4 цифр');
+        setPinErr(i18n.t('settings.pin.errorDigits'));
         return;
       }
       setPinStep(2);
@@ -121,11 +127,11 @@ export const SettingsScreen: React.FC<Props> = props => {
     }
 
     if (!isDigits(pinB)) {
-      setPinErr('PIN должен состоять из 4 цифр');
+      setPinErr(i18n.t('settings.pin.errorDigits'));
       return;
     }
     if (pinA !== pinB) {
-      setPinErr('PIN не совпадает');
+      setPinErr(i18n.t('settings.pin.errorMismatch'));
       return;
     }
 
@@ -133,29 +139,29 @@ export const SettingsScreen: React.FC<Props> = props => {
       setBusy(true);
       await security.setPin(pinA);
       closePin();
-      Alert.alert('Готово', 'PIN установлен');
+      Alert.alert(i18n.t('settings.pin.doneTitle'), i18n.t('settings.pin.setSuccess'));
     } catch (e: any) {
-      setPinErr(e?.message || 'Не удалось установить PIN');
+      setPinErr(e?.message || i18n.t('settings.pin.setFailed'));
     } finally {
       setBusy(false);
     }
   }, [busy, closePin, pinA, pinB, pinStep, security]);
 
   const disablePin = useCallback(() => {
-    Alert.alert('Отключить PIN', 'Отключить защиту PIN для входа и операций?', [
-      {text: 'Отмена', style: 'cancel'},
+    Alert.alert(i18n.t('settings.pin.disableTitle'), i18n.t('settings.pin.disableBody'), [
+      {text: i18n.t('common.cancel'), style: 'cancel'},
       {
-        text: 'Отключить',
+        text: i18n.t('settings.pin.disableConfirm'),
         style: 'destructive',
         onPress: async () => {
           try {
             setBusy(true);
-            const ok = await security.requireSensitiveAuth('Отключение PIN');
+            const ok = await security.requireSensitiveAuth(i18n.t('settings.pin.requireDisable'));
             if (!ok) return;
             await security.clearPin();
-            Alert.alert('Готово', 'PIN отключен');
+            Alert.alert(i18n.t('settings.pin.doneTitle'), i18n.t('settings.pin.disableSuccess'));
           } catch (e: any) {
-            Alert.alert('Ошибка', e?.message || 'Не удалось отключить PIN');
+            Alert.alert(i18n.t('common.error'), e?.message || i18n.t('settings.pin.disableFailed'));
           } finally {
             setBusy(false);
           }
@@ -170,7 +176,7 @@ export const SettingsScreen: React.FC<Props> = props => {
       setBusy(true);
       const nick = String(nickname || '').trim();
       if (!nick) {
-        setError('Ник не может быть пустым');
+        setError(i18n.t('settings.alerts.nicknameRequired'));
         return;
       }
       await props.onApply({
@@ -180,9 +186,9 @@ export const SettingsScreen: React.FC<Props> = props => {
         displayName: displayName.trim() || undefined,
         about: about.trim() || undefined,
       });
-      Alert.alert('Сохранено', 'Настройки обновлены');
+      Alert.alert(i18n.t('settings.alerts.savedTitle'), i18n.t('settings.alerts.savedBody'));
     } catch (e: any) {
-      setError(e?.message || 'Не удалось сохранить');
+      setError(e?.message || i18n.t('settings.alerts.saveFailed'));
     } finally {
       setBusy(false);
     }
@@ -190,11 +196,11 @@ export const SettingsScreen: React.FC<Props> = props => {
 
   const doChangePassword = useCallback(async () => {
     if (!pwCurrent.trim() || !pwNew.trim() || !pwNew2.trim()) {
-      setError('Заполните все поля');
+      setError(i18n.t('settings.password.fillAll'));
       return;
     }
     if (pwNew.trim() !== pwNew2.trim()) {
-      setError('Новые пароли не совпадают');
+      setError(i18n.t('settings.password.mismatch'));
       return;
     }
     setBusy(true);
@@ -205,9 +211,9 @@ export const SettingsScreen: React.FC<Props> = props => {
       setPwCurrent('');
       setPwNew('');
       setPwNew2('');
-      Alert.alert('Готово', 'Пароль изменён');
+      Alert.alert(i18n.t('settings.pin.doneTitle'), i18n.t('settings.password.changed'));
     } catch (e: any) {
-      setError(e?.message || 'Не удалось изменить пароль');
+      setError(e?.message || i18n.t('settings.password.changeFailed'));
     } finally {
       setBusy(false);
     }
@@ -215,7 +221,7 @@ export const SettingsScreen: React.FC<Props> = props => {
 
   const doRotateRecovery = useCallback(async () => {
     if (!rotCurrent.trim()) {
-      setError('Введите текущий пароль');
+      setError(i18n.t('settings.recovery.missing'));
       return;
     }
     setBusy(true);
@@ -227,26 +233,26 @@ export const SettingsScreen: React.FC<Props> = props => {
       // показываем новый recovery key через существующий экран
       props.onShowRecovery({login: nickname, recoveryKey: res.recoveryKey, walletAddress: res.walletAddress});
     } catch (e: any) {
-      setError(e?.message || 'Не удалось сгенерировать ключ');
+      setError(e?.message || i18n.t('settings.recovery.failed'));
     } finally {
       setBusy(false);
     }
   }, [props, rotCurrent, nickname]);
 
   const doLogoutAll = useCallback(() => {
-    Alert.alert('Выход со всех устройств', 'Завершить все активные сессии?', [
-      {text: 'Отмена', style: 'cancel'},
+    Alert.alert(i18n.t('settings.alerts.logoutAllTitle'), i18n.t('settings.alerts.logoutAllBody'), [
+      {text: i18n.t('common.cancel'), style: 'cancel'},
       {
-        text: 'Выйти везде',
+        text: i18n.t('settings.alerts.logoutAllConfirm'),
         style: 'destructive',
         onPress: async () => {
           try {
             setBusy(true);
             setError(null);
             await props.onLogoutAll();
-            Alert.alert('Готово', 'Все сессии завершены');
+            Alert.alert(i18n.t('settings.pin.doneTitle'), i18n.t('settings.alerts.logoutAllSuccess'));
           } catch (e: any) {
-            setError(e?.message || 'Не удалось выполнить');
+            setError(e?.message || i18n.t('settings.alerts.logoutAllFailed'));
           } finally {
             setBusy(false);
           }
@@ -259,38 +265,41 @@ export const SettingsScreen: React.FC<Props> = props => {
     try {
       const p = await loadPendingRecovery();
       if (!p) {
-        Alert.alert('Ключ восстановления', 'Ключ не найден (он показывается один раз после регистрации).');
+        Alert.alert(
+          i18n.t('settings.alerts.recoveryTitle'),
+          i18n.t('settings.alerts.recoveryMissing'),
+        );
         return;
       }
       props.onShowRecovery({login: p.login, recoveryKey: p.recovery_key, walletAddress: p.wallet_address});
     } catch {
-      Alert.alert('Ошибка', 'Не удалось загрузить ключ');
+      Alert.alert(i18n.t('common.error'), i18n.t('settings.alerts.recoveryLoadFailed'));
     }
   }, [props]);
 
   return (
     <ScreenContainer scroll style={styles.root} contentStyle={styles.content}>
-      <SectionTitle>Профиль</SectionTitle>
+      <SectionTitle>{i18n.t('settings.title')}</SectionTitle>
 
       {error ? <ErrorText>{error}</ErrorText> : null}
 
-      <Label>Ник (логин)</Label>
-      <Input value={nickname} onChangeText={setNickname} autoCapitalize="none" placeholder="login" />
+      <Label>{i18n.t('settings.labels.nickname')}</Label>
+      <Input value={nickname} onChangeText={setNickname} autoCapitalize="none" placeholder={i18n.t('settings.placeholders.login')} />
       <Spacer h={10} />
 
-      <Label>Имя отображения</Label>
-      <Input value={displayName} onChangeText={setDisplayName} placeholder="например: Алексей" />
+      <Label>{i18n.t('settings.labels.displayName')}</Label>
+      <Input value={displayName} onChangeText={setDisplayName} placeholder={i18n.t('settings.placeholders.displayName')} />
       <Spacer h={10} />
 
-      <Label>О себе</Label>
-      <Input value={about} onChangeText={setAbout} placeholder="пара слов" />
+      <Label>{i18n.t('settings.labels.about')}</Label>
+      <Input value={about} onChangeText={setAbout} placeholder={i18n.t('settings.placeholders.about')} />
 
       <Spacer h={16} />
-      <SectionTitle>Тема</SectionTitle>
+      <SectionTitle>{i18n.t('settings.theme')}</SectionTitle>
       <ThemePicker value={theme} onChange={setTheme} compact />
 
       <Spacer h={16} />
-      <SectionTitle>Язык</SectionTitle>
+      <SectionTitle>{i18n.t('settings.language')}</SectionTitle>
       <Row>
         <Button
           title="RU"
@@ -308,43 +317,45 @@ export const SettingsScreen: React.FC<Props> = props => {
       </Row>
 
       <Spacer h={16} />
-      <SectionTitle>Безопасность</SectionTitle>
-      <Text style={styles.muted}>PIN: {security.hasPin ? 'включён' : 'выключен'}</Text>
+      <SectionTitle>{i18n.t('settings.security')}</SectionTitle>
+      <Text style={styles.muted}>
+        {i18n.t('settings.pinStatus.label')} {security.hasPin ? i18n.t('settings.pinStatus.enabled') : i18n.t('settings.pinStatus.disabled')}
+      </Text>
       <Spacer h={8} />
       <Row>
         {!security.hasPin ? (
-          <Button title="Установить PIN" onPress={() => openPin('set')} small />
+          <Button title={i18n.t('settings.pin.set')} onPress={() => openPin('set')} small />
         ) : (
           <>
-            <Button title="Изменить PIN" onPress={() => openPin('change')} small />
+            <Button title={i18n.t('settings.pin.change')} onPress={() => openPin('change')} small />
             <Spacer w={10} />
-            <Button title="Отключить" onPress={disablePin} small secondary />
+            <Button title={i18n.t('settings.pin.disable')} onPress={disablePin} small secondary />
           </>
         )}
       </Row>
 
       <Spacer h={8} />
-      <Button title="Показать ключ восстановления" onPress={showRecovery} small secondary />
+      <Button title={i18n.t('settings.pin.showRecovery')} onPress={showRecovery} small secondary />
 
       <Spacer h={16} />
       <Divider />
       <Spacer h={16} />
 
-      <SectionTitle>Навигация</SectionTitle>
+      <SectionTitle>{i18n.t('settings.navigation')}</SectionTitle>
       <Row>
-        <Button title="Главная" onPress={props.onOpenMain} small secondary />
+        <Button title={i18n.t('settings.buttons.main')} onPress={props.onOpenMain} small secondary />
         <Spacer w={10} />
-        <Button title="Кошелёк" onPress={props.onOpenWallet} small secondary />
+        <Button title={i18n.t('settings.buttons.wallet')} onPress={props.onOpenWallet} small secondary />
         <Spacer w={10} />
-        <Button title="Диагностика" onPress={props.onOpenDiagnostics} small secondary />
+        <Button title={i18n.t('settings.buttons.diagnostics')} onPress={props.onOpenDiagnostics} small secondary />
       </Row>
 
       <Spacer h={18} />
-      <Button title={busy ? '...' : 'Сохранить'} onPress={apply} disabled={busy} />
+      <Button title={busy ? i18n.t('settings.buttons.saving') : i18n.t('settings.buttons.save')} onPress={apply} disabled={busy} />
       <Spacer h={10} />
-      <Button title="Назад" onPress={props.onBack} secondary />
+      <Button title={i18n.t('settings.buttons.back')} onPress={props.onBack} secondary />
       <Spacer h={10} />
-      <Button title="Выйти" onPress={props.onLogout} danger secondary />
+      <Button title={i18n.t('settings.buttons.logout')} onPress={props.onLogout} danger secondary />
 
       {/* PIN modal */}
       <Modal visible={pinVisible} transparent animationType="fade" onRequestClose={closePin}>
@@ -367,9 +378,9 @@ export const SettingsScreen: React.FC<Props> = props => {
 
             <Spacer h={14} />
             <Row>
-              <Button title="Отмена" onPress={closePin} small secondary />
+              <Button title={i18n.t('common.cancel')} onPress={closePin} small secondary />
               <Spacer w={10} />
-              <Button title={pinStep === 1 ? 'Далее' : 'Готово'} onPress={pinNext} small />
+              <Button title={pinStep === 1 ? i18n.t('common.next') : i18n.t('settings.pin.doneTitle')} onPress={pinNext} small />
             </Row>
           </Pressable>
         </Pressable>
@@ -379,18 +390,18 @@ export const SettingsScreen: React.FC<Props> = props => {
       <Modal visible={pwOpen} transparent animationType="fade" onRequestClose={() => setPwOpen(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setPwOpen(false)}>
           <Pressable style={styles.modalCard} onPress={() => {}}>
-            <Text style={styles.modalTitle}>Изменение пароля</Text>
+            <Text style={styles.modalTitle}>{i18n.t('settings.password.changeTitle')}</Text>
             <Spacer h={8} />
-            <Input value={pwCurrent} onChangeText={setPwCurrent} placeholder="Текущий пароль" secureTextEntry />
+            <Input value={pwCurrent} onChangeText={setPwCurrent} placeholder={i18n.t('settings.password.current')} secureTextEntry />
             <Spacer h={8} />
-            <Input value={pwNew} onChangeText={setPwNew} placeholder="Новый пароль" secureTextEntry />
+            <Input value={pwNew} onChangeText={setPwNew} placeholder={i18n.t('settings.password.new')} secureTextEntry />
             <Spacer h={8} />
-            <Input value={pwNew2} onChangeText={setPwNew2} placeholder="Повтор нового пароля" secureTextEntry />
+            <Input value={pwNew2} onChangeText={setPwNew2} placeholder={i18n.t('settings.password.repeat')} secureTextEntry />
             <Spacer h={12} />
             <Row>
-              <Button title="Отмена" onPress={() => setPwOpen(false)} secondary />
+              <Button title={i18n.t('common.cancel')} onPress={() => setPwOpen(false)} secondary />
               <Spacer w={10} />
-              <Button title={busy ? '...' : 'Сменить'} onPress={doChangePassword} disabled={busy} />
+              <Button title={busy ? i18n.t('settings.buttons.saving') : i18n.t('settings.password.change')} onPress={doChangePassword} disabled={busy} />
             </Row>
           </Pressable>
         </Pressable>
@@ -399,15 +410,15 @@ export const SettingsScreen: React.FC<Props> = props => {
       <Modal visible={rotOpen} transparent animationType="fade" onRequestClose={() => setRotOpen(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setRotOpen(false)}>
           <Pressable style={styles.modalCard} onPress={() => {}}>
-            <Text style={styles.modalTitle}>Новый ключ восстановления</Text>
-            <Text style={styles.muted}>Для генерации требуется подтверждение текущим паролем.</Text>
+            <Text style={styles.modalTitle}>{i18n.t('settings.recovery.title')}</Text>
+            <Text style={styles.muted}>{i18n.t('settings.recovery.subtitle')}</Text>
             <Spacer h={10} />
-            <Input value={rotCurrent} onChangeText={setRotCurrent} placeholder="Текущий пароль" secureTextEntry />
+            <Input value={rotCurrent} onChangeText={setRotCurrent} placeholder={i18n.t('settings.recovery.current')} secureTextEntry />
             <Spacer h={12} />
             <Row>
-              <Button title="Отмена" onPress={() => setRotOpen(false)} secondary />
+              <Button title={i18n.t('common.cancel')} onPress={() => setRotOpen(false)} secondary />
               <Spacer w={10} />
-              <Button title={busy ? '...' : 'Сгенерировать'} onPress={doRotateRecovery} disabled={busy} />
+              <Button title={busy ? i18n.t('settings.buttons.saving') : i18n.t('settings.recovery.generate')} onPress={doRotateRecovery} disabled={busy} />
             </Row>
           </Pressable>
         </Pressable>

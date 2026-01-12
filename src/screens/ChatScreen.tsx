@@ -24,6 +24,7 @@ import {
 import {
   Pressable,useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
+import {i18n} from '../i18n';
 
 const makeAttachButtonStyles = (t: Theme) =>
   StyleSheet.create({
@@ -138,8 +139,9 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = React.memo(
     }
 
     const ts = Number((item as any).ts || 0);
+    const locale = i18n.getLocale() === 'ru' ? 'ru-RU' : 'en-US';
     const timeText = ts
-      ? new Date(ts).toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})
+      ? new Date(ts).toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit'})
       : '';
 
     const status = String(item.deliveryStatus || '').toLowerCase();
@@ -197,7 +199,7 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = React.memo(
               </Text>
             </TouchableOpacity>
             <Text style={styles.audioLabel}>
-              Голосовое сообщение
+              {i18n.t('chat.voiceMessage')}
               {playingVoiceId === item.id
                 ? `  ${formatMillis(voicePosition)} / ${formatMillis(voiceDuration)}`
                 : ''}
@@ -205,7 +207,7 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = React.memo(
           </View>
         ) : isFile && fileUri ? (
           <View style={styles.fileRow}>
-            <Text style={styles.fileName}>{item.body || 'Файл'}</Text>
+            <Text style={styles.fileName}>{item.body || i18n.t('chat.file')}</Text>
             <TouchableOpacity
               style={styles.fileOpenBtn}
               onPress={() => {
@@ -215,7 +217,7 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = React.memo(
                   console.warn('ChatScreen: open file failed', e);
                 }
               }}>
-              <Text style={styles.fileOpenText}>Открыть</Text>
+              <Text style={styles.fileOpenText}>{i18n.t('chat.open')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -226,7 +228,7 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = React.memo(
           {!!timeText && <Text style={styles.metaTime}>{timeText}</Text>}
           {item.outgoing && status === 'failed' && onRetryPending ? (
             <TouchableOpacity style={styles.retryInline} onPress={onRetryPending}>
-              <Text style={styles.retryInlineText}>Повторить</Text>
+              <Text style={styles.retryInlineText}>{i18n.t('chat.retry')}</Text>
             </TouchableOpacity>
           ) : null}
           {item.outgoing && !!statusSymbol && (
@@ -559,7 +561,7 @@ export const ChatScreen: React.FC<Props> = ({
 
       if (canRetry && onRetryPending) {
         buttons.push({
-          text: 'Повторить отправку',
+          text: i18n.t('chat.actions.retrySend'),
           onPress: () => {
             try {
               onRetryPending();
@@ -572,7 +574,7 @@ export const ChatScreen: React.FC<Props> = ({
 
       if (item.contentType === 'text' && item.body) {
         buttons.push({
-          text: 'Копировать текст',
+          text: i18n.t('chat.actions.copyText'),
           onPress: () => {
             copyToClipboard(String(item.body || '')).catch(() => {});
           },
@@ -581,7 +583,7 @@ export const ChatScreen: React.FC<Props> = ({
 
       if (fileUri) {
         buttons.push({
-          text: 'Открыть файл',
+          text: i18n.t('chat.actions.openFile'),
           onPress: () => {
             try {
               Linking.openURL(fileUri);
@@ -593,16 +595,19 @@ export const ChatScreen: React.FC<Props> = ({
       }
 
       buttons.push({
-        text: 'Поделиться',
+        text: i18n.t('chat.actions.share'),
         onPress: () => {
-          const payload = item.contentType === 'text' ? String(item.body || '') : String(item.body || 'Сообщение');
+          const payload =
+            item.contentType === 'text'
+              ? String(item.body || '')
+              : String(item.body || i18n.t('chat.shareFallback'));
           Share.share({message: payload}).catch(() => {});
         },
       });
 
-      buttons.push({text: 'Отмена', style: 'cancel'});
+      buttons.push({text: i18n.t('chat.actions.cancel'), style: 'cancel'});
 
-      Alert.alert('Действия', undefined, buttons);
+      Alert.alert(i18n.t('chat.actions.title'), undefined, buttons);
     },
     [copyToClipboard, onRetryPending],
   );
@@ -715,10 +720,10 @@ export const ChatScreen: React.FC<Props> = ({
 
 
   const recipientsLabel = toAll
-    ? 'Всем'
+    ? i18n.t('chat.recipients.all')
     : selectedRecipientIds.length > 0
-    ? `Выборочно (${selectedRecipientIds.length})`
-    : 'Выборочно';
+    ? i18n.t('chat.recipients.selectedCount', {count: selectedRecipientIds.length})
+    : i18n.t('chat.recipients.selected');
 
   return (
     <KeyboardAvoidingView
@@ -770,9 +775,9 @@ export const ChatScreen: React.FC<Props> = ({
         onRequestClose={closeMenu}>
         <View style={styles.menuBackdrop}>
           <View style={styles.menuCard}>
-            <Text style={styles.menuTitle}>Навигация</Text>
+            <Text style={styles.menuTitle}>{i18n.t('chat.menu.title')}</Text>
             <TouchableOpacity style={styles.menuItem} onPress={handleGoMain}>
-              <Text style={styles.menuItemText}>Главный экран</Text>
+              <Text style={styles.menuItemText}>{i18n.t('chat.menu.main')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.menuItem}
@@ -782,13 +787,13 @@ export const ChatScreen: React.FC<Props> = ({
                   onOpenRoomDetails();
                 }
               }}>
-              <Text style={styles.menuItemText}>О комнате</Text>
+              <Text style={styles.menuItemText}>{i18n.t('chat.menu.room')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={handleGoSettings}>
-              <Text style={styles.menuItemText}>Настройки</Text>
+              <Text style={styles.menuItemText}>{i18n.t('chat.menu.settings')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={closeMenu}>
-              <Text style={styles.menuItemText}>Закрыть меню</Text>
+              <Text style={styles.menuItemText}>{i18n.t('chat.menu.close')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -802,7 +807,7 @@ export const ChatScreen: React.FC<Props> = ({
         onRequestClose={handleRecipientsDone}>
         <View style={styles.modalBackdrop}>
           <View style={styles.recipientsPanel}>
-            <Text style={styles.attachTitle}>Выбор получателей</Text>
+            <Text style={styles.attachTitle}>{i18n.t('chat.recipients.title')}</Text>
             <ScrollView style={styles.recipientsList}>
               {participants.map(p => {
                 const active = selectedRecipientIds.includes(p.id);
@@ -826,7 +831,7 @@ export const ChatScreen: React.FC<Props> = ({
             <TouchableOpacity
               style={styles.closeAttachButton}
               onPress={handleRecipientsDone}>
-              <Text style={styles.closeAttachText}>Готово</Text>
+              <Text style={styles.closeAttachText}>{i18n.t('chat.recipients.done')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -847,8 +852,8 @@ export const ChatScreen: React.FC<Props> = ({
         removeClippedSubviews
         ListEmptyComponent={
           <View style={styles.emptyWrap}>
-            <Text style={styles.emptyTitle}>Пока нет сообщений</Text>
-            <Text style={styles.emptyHint}>Отправьте первое сообщение, чтобы начать диалог.</Text>
+            <Text style={styles.emptyTitle}>{i18n.t('chat.empty.title')}</Text>
+            <Text style={styles.emptyHint}>{i18n.t('chat.empty.subtitle')}</Text>
           </View>
         }
         inverted
@@ -862,40 +867,44 @@ export const ChatScreen: React.FC<Props> = ({
         onRequestClose={closeAttachments}>
         <View style={styles.modalBackdrop}>
           <View style={styles.attachPanel}>
-            <Text style={styles.attachTitle}>Вложения и звонки</Text>
+            <Text style={styles.attachTitle}>{i18n.t('chat.attachments.title')}</Text>
             <View style={styles.attachGrid}>
-              <AttachButton label="Файл" onPress={handleAttachFile} />
-              <AttachButton label="Фото" onPress={handleAttachPhoto} />
-              <AttachButton label="Видео" onPress={handleAttachVideo} />
+              <AttachButton label={i18n.t('chat.attachments.file')} onPress={handleAttachFile} />
+              <AttachButton label={i18n.t('chat.attachments.photo')} onPress={handleAttachPhoto} />
+              <AttachButton label={i18n.t('chat.attachments.video')} onPress={handleAttachVideo} />
               <AttachButton
-                label={isRecordingVoice ? "Стоп голос всем" : "Голос всем"}
+                label={
+                  isRecordingVoice
+                    ? i18n.t('chat.attachments.voiceStopAll')
+                    : i18n.t('chat.attachments.voiceAll')
+                }
                 onPress={handleVoiceAll}
               />
               <AttachButton
-                label="Голос выборочно"
+                label={i18n.t('chat.attachments.voiceSelective')}
                 onPress={handleVoiceSelective}
               />
               <AttachButton
-                label="Видео всем"
+                label={i18n.t('chat.attachments.videoAll')}
                 onPress={() => handleStartCall(true, true)}
               />
               <AttachButton
-                label="Видео выборочно"
+                label={i18n.t('chat.attachments.videoSelective')}
                 onPress={() => handleStartCall(true, false)}
               />
               <AttachButton
-                label="Аудио всем"
+                label={i18n.t('chat.attachments.audioAll')}
                 onPress={() => handleStartCall(false, true)}
               />
               <AttachButton
-                label="Аудио выборочно"
+                label={i18n.t('chat.attachments.audioSelective')}
                 onPress={() => handleStartCall(false, false)}
               />
             </View>
             <TouchableOpacity
               style={styles.closeAttachButton}
               onPress={closeAttachments}>
-              <Text style={styles.closeAttachText}>Закрыть</Text>
+              <Text style={styles.closeAttachText}>{i18n.t('chat.attachments.close')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -911,7 +920,7 @@ export const ChatScreen: React.FC<Props> = ({
           style={styles.input}
           value={text}
           onChangeText={setText}
-          placeholder="Сообщение..."
+          placeholder={i18n.t('chat.inputPlaceholder')}
           placeholderTextColor={t.colors.placeholder}
         />
 

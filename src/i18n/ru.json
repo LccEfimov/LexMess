@@ -1,0 +1,260 @@
+{
+  "app": {
+    "error": {
+      "title": "Произошла ошибка интерфейса",
+      "body": "Перезапустите приложение. Если ошибка повторяется — проверьте API и логи."
+    },
+    "messages": {
+      "event": "[Событие]",
+      "text": "Текстовое сообщение",
+      "image": "[Изображение]",
+      "video": "[Видео]",
+      "audio": "[Аудио]",
+      "voice": "[Голосовое сообщение]",
+      "file": "[Файл]",
+      "youPrefix": "Вы: {message}"
+    },
+    "participant": {
+      "me": "Я",
+      "peer1": "Собеседник 1",
+      "peer2": "Собеседник 2"
+    },
+    "room": {
+      "fallbackTitle": "Комната"
+    },
+    "errors": {
+      "noRoomId": "Сервер не вернул room_id",
+      "noRecoveryKey": "Сервер не вернул ключ"
+    },
+    "call": {
+      "group": "Группа",
+      "selective": "Выборочно"
+    }
+  },
+  "tabs": {
+    "chats": "Чаты",
+    "rooms": "Комнаты",
+    "wallet": "Кошелёк",
+    "profile": "Профиль"
+  },
+  "authStart": {
+    "subtitle": "Логин — уникальный. Имя отображения может быть любым.",
+    "login": "Войти",
+    "register": "Регистрация",
+    "hint": "Подсказка: логин — латиница/цифры/._"
+  },
+  "register": {
+    "title": "Регистрация",
+    "subtitle": "Выберите логин, пароль и тему интерфейса",
+    "theme": "Тема",
+    "loginLabel": "Логин",
+    "loginPlaceholder": "например: piton_01",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "пароль",
+    "passwordRepeatLabel": "Повтор пароля",
+    "passwordRepeatPlaceholder": "повтор",
+    "create": "Создать аккаунт",
+    "creating": "Создание...",
+    "back": "Назад",
+    "errors": {
+      "missing": "Введите логин и пароль",
+      "passwordLength": "Пароль должен быть не короче 6 символов",
+      "passwordMismatch": "Пароли не совпадают",
+      "registerFailed": "Ошибка регистрации"
+    }
+  },
+  "roomsList": {
+    "title": {
+      "chats": "Чаты",
+      "public": "Публичные",
+      "my": "Мои комнаты",
+      "open": "Открытые"
+    },
+    "header": {
+      "rooms": "Комнаты",
+      "settings": "Настройки"
+    },
+    "search": {
+      "chats": "Поиск по чатам",
+      "rooms": "Поиск по комнатам"
+    },
+    "badge": {
+      "my": "МОЯ",
+      "open": "ОТКР",
+      "private": "ПРИВ",
+      "public": "ПУБЛ"
+    },
+    "noMessages": "Нет сообщений",
+    "actions": {
+      "join": "Вступить",
+      "open": "Открыть",
+      "leave": "Выйти"
+    },
+    "alerts": {
+      "joinErrorTitle": "Ошибка",
+      "joinErrorBody": "Не удалось войти в комнату.",
+      "leaveErrorTitle": "Ошибка",
+      "leaveErrorBody": "Не удалось выйти из комнаты.",
+      "leaveConfirmTitle": "Выйти из комнаты?",
+      "leaveConfirmBody": "Вы потеряете быстрый доступ к комнате. Можно будет войти снова по приглашению.",
+      "leaveConfirmCancel": "Отмена",
+      "leaveConfirmLeave": "Выйти"
+    },
+    "pinHint": "Долгое нажатие: закрепить/открепить",
+    "empty": {
+      "chatsTitle": "Пока нет чатов",
+      "chatsSubtitle": "Откройте комнату или начните диалог — здесь появится история.",
+      "roomsTitle": "Пока нет комнат",
+      "roomsSubtitle": "Создайте комнату или войдите по коду — она появится в списке."
+    }
+  },
+  "chat": {
+    "voiceMessage": "Голосовое сообщение",
+    "file": "Файл",
+    "open": "Открыть",
+    "retry": "Повторить",
+    "recipients": {
+      "all": "Всем",
+      "selected": "Выборочно",
+      "selectedCount": "Выборочно ({count})",
+      "title": "Выбор получателей",
+      "done": "Готово"
+    },
+    "menu": {
+      "title": "Навигация",
+      "main": "Главный экран",
+      "room": "О комнате",
+      "settings": "Настройки",
+      "close": "Закрыть меню"
+    },
+    "empty": {
+      "title": "Пока нет сообщений",
+      "subtitle": "Отправьте первое сообщение, чтобы начать диалог."
+    },
+    "attachments": {
+      "title": "Вложения и звонки",
+      "file": "Файл",
+      "photo": "Фото",
+      "video": "Видео",
+      "voiceAll": "Голос всем",
+      "voiceStopAll": "Стоп голос всем",
+      "voiceSelective": "Голос выборочно",
+      "videoAll": "Видео всем",
+      "videoSelective": "Видео выборочно",
+      "audioAll": "Аудио всем",
+      "audioSelective": "Аудио выборочно",
+      "close": "Закрыть"
+    },
+    "inputPlaceholder": "Сообщение...",
+    "actions": {
+      "title": "Действия",
+      "retrySend": "Повторить отправку",
+      "copyText": "Копировать текст",
+      "openFile": "Открыть файл",
+      "share": "Поделиться",
+      "cancel": "Отмена"
+    },
+    "shareFallback": "Сообщение"
+  },
+  "settings": {
+    "title": "Профиль",
+    "theme": "Тема",
+    "language": "Язык",
+    "security": "Безопасность",
+    "navigation": "Навигация",
+    "labels": {
+      "nickname": "Ник (логин)",
+      "displayName": "Имя отображения",
+      "about": "О себе"
+    },
+    "placeholders": {
+      "login": "login",
+      "displayName": "например: Алексей",
+      "about": "пара слов"
+    },
+    "pinStatus": {
+      "label": "PIN:",
+      "enabled": "включён",
+      "disabled": "выключен"
+    },
+    "pin": {
+      "set": "Установить PIN",
+      "change": "Изменить PIN",
+      "disable": "Отключить",
+      "showRecovery": "Показать ключ восстановления",
+      "modalSet": "Установите PIN",
+      "modalChange": "Новый PIN",
+      "modalRepeat": "Повторите PIN",
+      "errorDigits": "PIN должен состоять из 4 цифр",
+      "errorMismatch": "PIN не совпадает",
+      "doneTitle": "Готово",
+      "setSuccess": "PIN установлен",
+      "setFailed": "Не удалось установить PIN",
+      "disableTitle": "Отключить PIN",
+      "disableBody": "Отключить защиту PIN для входа и операций?",
+      "disableConfirm": "Отключить",
+      "disableSuccess": "PIN отключен",
+      "disableFailed": "Не удалось отключить PIN",
+      "requireChange": "Изменение PIN",
+      "requireDisable": "Отключение PIN"
+    },
+    "buttons": {
+      "main": "Главная",
+      "wallet": "Кошелёк",
+      "diagnostics": "Диагностика",
+      "save": "Сохранить",
+      "saving": "...",
+      "back": "Назад",
+      "logout": "Выйти"
+    },
+    "alerts": {
+      "savedTitle": "Сохранено",
+      "savedBody": "Настройки обновлены",
+      "saveFailed": "Не удалось сохранить",
+      "nicknameRequired": "Ник не может быть пустым",
+      "securityError": "Ошибка безопасности",
+      "logoutAllTitle": "Выход со всех устройств",
+      "logoutAllBody": "Завершить все активные сессии?",
+      "logoutAllConfirm": "Выйти везде",
+      "logoutAllSuccess": "Все сессии завершены",
+      "logoutAllFailed": "Не удалось выполнить",
+      "recoveryTitle": "Ключ восстановления",
+      "recoveryMissing": "Ключ не найден (он показывается один раз после регистрации).",
+      "recoveryLoadFailed": "Не удалось загрузить ключ"
+    },
+    "password": {
+      "changeTitle": "Изменение пароля",
+      "current": "Текущий пароль",
+      "new": "Новый пароль",
+      "repeat": "Повтор нового пароля",
+      "change": "Сменить",
+      "fillAll": "Заполните все поля",
+      "mismatch": "Новые пароли не совпадают",
+      "changed": "Пароль изменён",
+      "changeFailed": "Не удалось изменить пароль"
+    },
+    "recovery": {
+      "title": "Новый ключ восстановления",
+      "subtitle": "Для генерации требуется подтверждение текущим паролем.",
+      "generate": "Сгенерировать",
+      "current": "Текущий пароль",
+      "missing": "Введите текущий пароль",
+      "failed": "Не удалось сгенерировать ключ"
+    }
+  },
+  "theme": {
+    "system": "Системная",
+    "lexmess_dark": "LexMess (тёмная)",
+    "lexmess_light": "LexMess (светлая)",
+    "telegram_dark": "Telegram (тёмная)",
+    "telegram_light": "Telegram (светлая)",
+    "whatsapp_dark": "WhatsApp (тёмная)",
+    "whatsapp_light": "WhatsApp (светлая)"
+  },
+  "common": {
+    "cancel": "Отмена",
+    "done": "Готово",
+    "next": "Далее",
+    "error": "Ошибка"
+  }
+}

@@ -1,6 +1,6 @@
 
 import React, {useState, useMemo, useEffect, useCallback, useRef} from 'react';
-import {BackHandler, Text, Image, useColorScheme} from 'react-native';
+import {BackHandler, Text, Image, View, useColorScheme} from 'react-native';
 import {NavigationContainer, NavigationContainerRef} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -61,6 +61,7 @@ import {
   getUnreadCountForRoom,
 } from './storage/sqliteStorage';
 import {loadThemePreference, saveThemePreference} from './storage/themePreferenceStorage';
+import {i18n} from './i18n';
 
 const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -70,7 +71,7 @@ const WalletStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
 
 
-class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+class ErrorBoundary extends React.Component<{children: React.ReactNode; title: string; message: string}, {hasError: boolean}> {
   constructor(props: any) {
     super(props);
     this.state = {hasError: false};
@@ -89,9 +90,9 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
     if (this.state.hasError) {
       return (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20}}>
-          <Text style={{fontSize: 16, fontWeight: '700', marginBottom: 10}}>Произошла ошибка интерфейса</Text>
+          <Text style={{fontSize: 16, fontWeight: '700', marginBottom: 10}}>{this.props.title}</Text>
           <Text style={{fontSize: 13, opacity: 0.8, textAlign: 'center'}}>
-            Перезапустите приложение. Если ошибка повторяется — проверьте API и логи.
+            {this.props.message}
           </Text>
         </View>
       );
@@ -123,6 +124,7 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
   const [roomBusyById, setRoomBusyById] = useState<Record<string, boolean>>({});
 
   const systemScheme = useColorScheme();
+  i18n.setLocale(language);
   const resolvedThemeName = useMemo(
     () => resolveThemeName(theme, systemScheme),
     [theme, systemScheme],
@@ -138,7 +140,7 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
     () =>
       (profileDisplayName && profileDisplayName.trim()) ||
       (nickname && nickname.trim()) ||
-      'Я',
+      i18n.t('app.participant.me'),
     [profileDisplayName, nickname],
   );
 
@@ -260,24 +262,24 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
   const summarizeMessage = useCallback((msg: MessageRecord): string => {
     const body = (msg.body || '').trim();
     if (msg.contentType === 'system') {
-      return body || '[Событие]';
+      return body || i18n.t('app.messages.event');
     }
     if (msg.contentType === 'text') {
-      return body || 'Текстовое сообщение';
+      return body || i18n.t('app.messages.text');
     }
     if (msg.contentType === 'image') {
-      return body || '[Изображение]';
+      return body || i18n.t('app.messages.image');
     }
     if (msg.contentType === 'video') {
-      return body || '[Видео]';
+      return body || i18n.t('app.messages.video');
     }
     if (msg.contentType === 'audio') {
-      return body || '[Аудио]';
+      return body || i18n.t('app.messages.audio');
     }
     if (msg.contentType === 'voice') {
-      return body || '[Голосовое сообщение]';
+      return body || i18n.t('app.messages.voice');
     }
-    return body || '[Файл]';
+    return body || i18n.t('app.messages.file');
   }, []);
 
   const [publicRooms, setPublicRooms] = useState<RoomItem[]>([]);
@@ -448,8 +450,8 @@ useEffect(() => {
 
   const participants = [
     {id: myUserId, name: myName},
-    {id: 'peer-1', name: 'Собеседник 1'},
-    {id: 'peer-2', name: 'Собеседник 2'},
+    {id: 'peer-1', name: i18n.t('app.participant.peer1')},
+    {id: 'peer-2', name: i18n.t('app.participant.peer2')},
   ];
   
 const markRoomRead = useCallback(async (roomId: string) => {
@@ -564,7 +566,7 @@ const toggleRoomPin = useCallback(async (roomId: string) => {
 
       const baseItems: RoomItem[] = safeList.map((room: any) => {
         const roomId = room.room_id || room.roomId || '';
-        const title = room.title || roomId || 'Комната';
+        const title = room.title || roomId || i18n.t('app.room.fallbackTitle');
         const members: string[] = Array.isArray(room.members)
           ? room.members
           : [];
@@ -620,7 +622,9 @@ const toggleRoomPin = useCallback(async (roomId: string) => {
             if (messages.length > 0) {
               const m: MessageRecord = messages[0];
               const basePreview = summarizeMessage(m);
-              const lastMessage = m.outgoing ? `Вы: ${basePreview}` : basePreview;
+              const lastMessage = m.outgoing
+                ? i18n.t('app.messages.youPrefix', {message: basePreview})
+                : basePreview;
               const lastMessageTs = m.ts || 0;
               const lastReadTs = lastReadByRoom[item.id] || 0;
               let unreadCount = 0;
@@ -887,13 +891,14 @@ const handleLeaveRoom = useCallback(
         })}>
         <Tab.Screen
           name="Chats"
-          options={{tabBarLabel: 'Чаты'}}
+          options={{tabBarLabel: i18n.t('tabs.chats')}}
           children={() => (
             <ChatsStack.Navigator screenOptions={{headerShown: false}} initialRouteName="ChatsHome">
               <ChatsStack.Screen name="ChatsHome">
                 {({navigation}) => (
                   <RoomsListScreen
-                    title="Чаты"
+                    title={i18n.t('roomsList.title.chats')}
+                    listKind="chats"
                     rooms={chatRooms}
                     pinnedByRoom={pinnedByRoom}
                     onTogglePin={(rid: string) => {
@@ -926,7 +931,7 @@ const handleLeaveRoom = useCallback(
                       const res: any = await ensureDirectRoom({peerUserId});
                       const roomId: string = (res && (res.room_id || res.roomId || res.id)) ? String(res.room_id || res.roomId || res.id) : '';
                       if (!roomId) {
-                        throw new Error('Сервер не вернул room_id');
+                        throw new Error(i18n.t('app.errors.noRoomId'));
                       }
                       await loadRooms();
                       navigation.replace('Chat', {roomId, roomTitle: roomId});
@@ -985,7 +990,9 @@ const handleLeaveRoom = useCallback(
                         }
                       }}
                       onStartCall={({isVideo, toAll}) => {
-                        const calleeName = toAll ? 'Группа' : 'Выборочно';
+                        const calleeName = toAll
+                          ? i18n.t('app.call.group')
+                          : i18n.t('app.call.selective');
                         const targetUserId = !toAll
                           ? participants.find(p => p.id && p.id !== myUserId)?.id
                           : undefined;
@@ -1007,7 +1014,7 @@ const handleLeaveRoom = useCallback(
 
         <Tab.Screen
           name="Rooms"
-          options={{tabBarLabel: 'Комнаты'}}
+          options={{tabBarLabel: i18n.t('tabs.rooms')}}
           children={() => (
             <RoomsStack.Navigator screenOptions={{headerShown: false}} initialRouteName="Rooms">
               <RoomsStack.Screen
@@ -1049,7 +1056,7 @@ const handleLeaveRoom = useCallback(
               <RoomsStack.Screen name="PublicRoomsList">
                 {({navigation}) => (
                   <RoomsListScreen
-                    title="Публичные"
+                    title={i18n.t('roomsList.title.public')}
                     rooms={publicRooms}
                     onJoinRoom={handleJoinRoom}
                     onLeaveRoom={handleLeaveRoom}
@@ -1077,7 +1084,7 @@ const handleLeaveRoom = useCallback(
               <RoomsStack.Screen name="MyRoomsList">
                 {({navigation}) => (
                   <RoomsListScreen
-                    title="Мои комнаты"
+                    title={i18n.t('roomsList.title.my')}
                     rooms={myRooms}
                     onJoinRoom={handleJoinRoom}
                     onLeaveRoom={handleLeaveRoom}
@@ -1104,7 +1111,7 @@ const handleLeaveRoom = useCallback(
               <RoomsStack.Screen name="OpenRoomsList">
                 {({navigation}) => (
                   <RoomsListScreen
-                    title="Открытые"
+                    title={i18n.t('roomsList.title.open')}
                     rooms={openRooms}
                     onJoinRoom={handleJoinRoom}
                     onLeaveRoom={handleLeaveRoom}
@@ -1208,7 +1215,9 @@ const handleLeaveRoom = useCallback(
                         }
                       }}
                       onStartCall={({isVideo, toAll}) => {
-                        const calleeName = toAll ? 'Группа' : 'Выборочно';
+                        const calleeName = toAll
+                          ? i18n.t('app.call.group')
+                          : i18n.t('app.call.selective');
                         const targetUserId = !toAll
                           ? participants.find(p => p.id && p.id !== myUserId)?.id
                           : undefined;
@@ -1224,7 +1233,7 @@ const handleLeaveRoom = useCallback(
 
         <Tab.Screen
           name="Wallet"
-          options={{tabBarLabel: 'Кошелёк'}}
+          options={{tabBarLabel: i18n.t('tabs.wallet')}}
           children={() => (
             <WalletStack.Navigator screenOptions={{headerShown: false}} initialRouteName="WalletHome">
               <WalletStack.Screen name="WalletHome">
@@ -1238,7 +1247,7 @@ const handleLeaveRoom = useCallback(
 
         <Tab.Screen
           name="Profile"
-          options={{tabBarLabel: 'Профиль'}}
+          options={{tabBarLabel: i18n.t('tabs.profile')}}
           children={() => (
             <ProfileStack.Navigator screenOptions={{headerShown: false}} initialRouteName="ProfileHome">
               <ProfileStack.Screen name="ProfileHome">
@@ -1263,7 +1272,7 @@ const handleLeaveRoom = useCallback(
                   onRotateRecovery={async ({currentPassword}: any) => {
                     const r = await authRecoveryRotate({currentPassword});
                     if (!r || !r.accessToken || !r.recoveryKey) {
-                      throw new Error('Сервер не вернул ключ');
+                      throw new Error(i18n.t('app.errors.noRecoveryKey'));
                     }
                     try { const {saveAccessToken} = await import('./storage/authTokenStorage'); await saveAccessToken(r.accessToken); } catch {}
                     // получаем адрес кошелька
@@ -1285,7 +1294,7 @@ const handleLeaveRoom = useCallback(
   };
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary title={i18n.t('app.error.title')} message={i18n.t('app.error.body')}>
       <SafeAreaProvider>
       <ThemeProvider themeName={theme} setThemeName={setTheme}>
         <SecurityProvider>
@@ -1433,7 +1442,7 @@ const handleLeaveRoom = useCallback(
                   onRotateRecovery={async ({currentPassword}: any) => {
                     const r = await authRecoveryRotate({currentPassword});
                     if (!r || !r.accessToken || !r.recoveryKey) {
-                      throw new Error('Сервер не вернул ключ');
+                      throw new Error(i18n.t('app.errors.noRecoveryKey'));
                     }
                     try { const {saveAccessToken} = await import('./storage/authTokenStorage'); await saveAccessToken(r.accessToken); } catch {}
                     // получаем адрес кошелька

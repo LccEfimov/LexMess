@@ -16,6 +16,7 @@ import {
 import {ThemePicker} from '../components/ThemePicker';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
+import {i18n} from '../i18n';
 
 interface Props {
   navigation: any;
@@ -60,15 +61,15 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
   const doRegister = async () => {
     const l = (login || '').trim();
     if (!l || !password) {
-      setError('Введите логин и пароль');
+      setError(i18n.t('register.errors.missing'));
       return;
     }
     if (password.length < 6) {
-      setError('Пароль должен быть не короче 6 символов');
+      setError(i18n.t('register.errors.passwordLength'));
       return;
     }
     if (password !== password2) {
-      setError('Пароли не совпадают');
+      setError(i18n.t('register.errors.passwordMismatch'));
       return;
     }
 
@@ -101,7 +102,7 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
 
       onAuthed((me && me.user_id) || l);
     } catch (e: any) {
-      const m = (e && (e.message || e.payload?.detail)) || 'Ошибка регистрации';
+      const m = (e && (e.message || e.payload?.detail)) || i18n.t('register.errors.registerFailed');
       setError(String(m));
     } finally {
       setBusy(false);
@@ -113,32 +114,32 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <Text style={styles.title}>Регистрация</Text>
-        <Text style={styles.subtitle}>Выберите логин, пароль и тему интерфейса</Text>
+        <Text style={styles.title}>{i18n.t('register.title')}</Text>
+        <Text style={styles.subtitle}>{i18n.t('register.subtitle')}</Text>
       </View>
 
       <Card style={styles.card}>
-        <Text style={styles.label}>Тема</Text>
+        <Text style={styles.label}>{i18n.t('register.theme')}</Text>
         <ThemePicker value={themeName} onChange={onPickTheme} compact />
 
         <View style={{height: 14}} />
 
-        <Text style={styles.label}>Логин</Text>
+        <Text style={styles.label}>{i18n.t('register.loginLabel')}</Text>
         <TextInput
           value={login}
           onChangeText={setLogin}
-          placeholder="например: piton_01"
+          placeholder={i18n.t('register.loginPlaceholder')}
           placeholderTextColor={t.colors.placeholder}
           autoCapitalize="none"
           autoCorrect={false}
           style={styles.input}
         />
 
-        <Text style={[styles.label, {marginTop: 12}]}>Пароль</Text>
+        <Text style={[styles.label, {marginTop: 12}]}>{i18n.t('register.passwordLabel')}</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
-          placeholder="пароль"
+          placeholder={i18n.t('register.passwordPlaceholder')}
           placeholderTextColor={t.colors.placeholder}
           secureTextEntry
           autoCapitalize="none"
@@ -146,11 +147,11 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
           style={styles.input}
         />
 
-        <Text style={[styles.label, {marginTop: 12}]}>Повтор пароля</Text>
+        <Text style={[styles.label, {marginTop: 12}]}>{i18n.t('register.passwordRepeatLabel')}</Text>
         <TextInput
           value={password2}
           onChangeText={setPassword2}
-          placeholder="повтор"
+          placeholder={i18n.t('register.passwordRepeatPlaceholder')}
           placeholderTextColor={t.colors.placeholder}
           secureTextEntry
           autoCapitalize="none"
@@ -161,13 +162,13 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Button
-          title={busy ? 'Создание...' : 'Создать аккаунт'}
+          title={busy ? i18n.t('register.creating') : i18n.t('register.create')}
           onPress={doRegister}
           disabled={busy}
         />
 
         <Button
-          title="Назад"
+          title={i18n.t('register.back')}
           variant="ghost"
           onPress={() => (onBack ? onBack() : navigation.goBack())}
         />
