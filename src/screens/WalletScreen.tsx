@@ -32,6 +32,7 @@ function getQRCodeComponent(): any | null {
 import {AppHeader} from '../components/AppHeader';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {useSecurity} from '../security/SecurityContext';
+import {generateSaltHex} from '../security/pin';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {loadWalletTxCache, saveWalletTxCache} from '../storage/sqliteStorage';
@@ -51,7 +52,7 @@ type WithdrawItem = {
 };
 
 function makeIdempotencyKey(prefix: string): string {
-  const rnd = Math.random().toString(36).slice(2);
+  const rnd = generateSaltHex(16);
   return `${prefix}_${Date.now().toString(36)}_${rnd}`;
 }
 
