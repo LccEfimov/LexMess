@@ -192,6 +192,118 @@
     },
     "shareFallback": "Message"
   },
+  "chatRoom": {
+    "errors": {
+      "historyLoadFailed": "Failed to load message history.",
+      "sendTextFailed": "Failed to send message. Please try again.",
+      "fileTooLarge": "File is too large. Maximum size is 20 MB.",
+      "sendMediaFailed": "Failed to send file. Please try again."
+    }
+  },
+  "wallet": {
+    "title": "Wallet",
+    "subtitle": "EIN",
+    "tabs": {
+      "overview": "Overview",
+      "send": "Send",
+      "withdraw": "Withdraw",
+      "history": "History"
+    },
+    "loading": "Loading…",
+    "labels": {
+      "address": "Address",
+      "balance": "Balance",
+      "toAddress": "To (address)",
+      "amount": "Amount",
+      "memoOptional": "Comment (optional)",
+      "withdrawDestination": "Destination (address/details)"
+    },
+    "placeholders": {
+      "address": "EIN…",
+      "sendAmount": "e.g. 25",
+      "memo": "memo",
+      "withdrawDestination": "e.g. EIN… or details",
+      "withdrawAmount": "e.g. 100"
+    },
+    "actions": {
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "close": "Close",
+      "createSend": "Create transfer",
+      "createWithdraw": "Create withdrawal request",
+      "sending": "Sending…",
+      "creating": "Creating…",
+      "confirm": "Confirm",
+      "loadMore": "Load more",
+      "noMore": "No more"
+    },
+    "hints": {
+      "transactionsNotice": "Transfers and withdrawals are requests. Transactions are processed by the server/validators."
+    },
+    "qr": {
+      "title": "Address QR",
+      "button": "QR",
+      "unavailable": "QR is unavailable in this build",
+      "emptyValue": "-"
+    },
+    "balanceValue": "{amount} EIN",
+    "send": {
+      "title": "Send EIN",
+      "confirmTitle": "Confirm transfer",
+      "confirmTo": "To:",
+      "confirmAmount": "Amount: {amount} EIN",
+      "confirmMemo": "Memo: {memo}"
+    },
+    "withdraw": {
+      "title": "Withdraw EIN",
+      "minHint": "Minimum withdrawal amount: {amount} EIN",
+      "confirmTitle": "Confirm withdrawal",
+      "confirmDestination": "Destination:",
+      "confirmAmount": "Amount: {amount} EIN",
+      "requestsTitle": "My requests",
+      "empty": "No requests yet.",
+      "itemTitle": "Withdrawal • {amount} EIN",
+      "statusLabel": "Status: {status}",
+      "errorLabel": "Reason: {error}",
+      "adminCommentLabel": "Comment: {comment}",
+      "txLabel": "Tx: {tx}"
+    },
+    "history": {
+      "title": "History",
+      "empty": "No transactions yet.",
+      "itemTitle": "{kind} • {amount} EIN",
+      "statusLabel": "Status: {status}"
+    },
+    "errors": {
+      "loadFailed": "Failed to load wallet",
+      "missingRecipient": "Enter recipient address.",
+      "invalidAmount": "Enter an amount (integer > 0).",
+      "sendFailed": "Failed to create transfer",
+      "withdrawMissingDestination": "Enter withdrawal address/details.",
+      "withdrawInvalidAmount": "Enter an amount (integer > 0).",
+      "withdrawMin": "Minimum withdrawal amount: {amount} EIN.",
+      "withdrawFailed": "Failed to create withdrawal request",
+      "operationCancelled": "Operation cancelled."
+    },
+    "info": {
+      "duplicatePrefix": "Duplicate request. ",
+      "sendCreated": "Transfer request created.",
+      "sendCreatedWithId": "Transfer request created (#{id}).",
+      "withdrawCreated": "Withdrawal request created.",
+      "withdrawCreatedWithId": "Withdrawal request created (#{id})."
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "paid": "Paid",
+      "rejected": "Rejected",
+      "unknown": "—"
+    },
+    "security": {
+      "sendAuthTitle": "Send EIN",
+      "withdrawAuthTitle": "Withdraw EIN"
+    }
+  },
   "settings": {
     "title": "Profile",
     "theme": "Theme",

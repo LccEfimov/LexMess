@@ -33,6 +33,7 @@ import {AppHeader} from '../components/AppHeader';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {useSecurity} from '../security/SecurityContext';
 import {generateSaltHex} from '../security/pin';
+import {i18n} from '../i18n';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {loadWalletTxCache, saveWalletTxCache} from '../storage/sqliteStorage';
@@ -89,11 +90,11 @@ function mergeTx(prev: any[], next: any[]): any[] {
 
 function withdrawStatusLabel(st: any): string {
   const s = String(st || '').toLowerCase();
-  if (s === 'pending') return 'Ожидает';
-  if (s === 'approved') return 'Одобрено';
-  if (s === 'paid') return 'Выплачено';
-  if (s === 'rejected') return 'Отклонено';
-  return s || '—';
+  if (s === 'pending') return i18n.t('wallet.status.pending');
+  if (s === 'approved') return i18n.t('wallet.status.approved');
+  if (s === 'paid') return i18n.t('wallet.status.paid');
+  if (s === 'rejected') return i18n.t('wallet.status.rejected');
+  return s || i18n.t('wallet.status.unknown');
 }
 
 
@@ -174,7 +175,7 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
       setBalance(Number(me?.balance || 0));
       await loadTxFirstPage();
     } catch (e: any) {
-      setError(e?.message || 'Не удалось загрузить кошелёк');
+      setError(e?.message || i18n.t('wallet.errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -246,11 +247,11 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
     const memo = (sendMemo || '').trim();
 
     if (!to) {
-      setSendError('Укажите адрес получателя.');
+      setSendError(i18n.t('wallet.errors.missingRecipient'));
       return;
     }
     if (!Number.isFinite(amt) || amt <= 0) {
-      setSendError('Введите сумму (целое число > 0).');
+      setSendError(i18n.t('wallet.errors.invalidAmount'));
       return;
     }
 
@@ -262,9 +263,9 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
     if (!pendingSend) return;
     setConfirmSendOpen(false);
 
-    const authed = await security.requireSensitiveAuth('Перевод EIN');
+    const authed = await security.requireSensitiveAuth(i18n.t('wallet.security.sendAuthTitle'));
     if (!authed) {
-      setSendError('Операция отменена.');
+      setSendError(i18n.t('wallet.errors.operationCancelled'));
       return;
     }
 
@@ -282,7 +283,11 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
       const opId = res?.op_id ?? res?.id;
       const dup = !!res?.duplicate;
       setSendInfo(
-        opId ? `${dup ? 'Повтор запроса. ' : ''}Заявка на перевод создана (#${opId}).` : 'Заявка на перевод создана.',
+        opId
+          ? `${dup ? i18n.t('wallet.info.duplicatePrefix') : ''}${i18n.t('wallet.info.sendCreatedWithId', {
+              id: opId,
+            })}`
+          : i18n.t('wallet.info.sendCreated'),
       );
       setToAddress('');
       setSendAmount('');
@@ -290,7 +295,7 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
       setPendingSend(null);
       await loadWallet();
     } catch (e: any) {
-      setSendError(e?.message || 'Не удалось создать перевод');
+      setSendError(e?.message || i18n.t('wallet.errors.sendFailed'));
     } finally {
       setSendBusy(false);
     }
@@ -304,15 +309,15 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
     const amt = parseInt((withdrawAmount || '').trim(), 10);
 
     if (!dest) {
-      setWithdrawError('Укажите адрес/реквизиты вывода.');
+      setWithdrawError(i18n.t('wallet.errors.withdrawMissingDestination'));
       return;
     }
     if (!Number.isFinite(amt) || amt <= 0) {
-      setWithdrawError('Введите сумму (целое число > 0).');
+      setWithdrawError(i18n.t('wallet.errors.withdrawInvalidAmount'));
       return;
     }
     if (withdrawMin > 0 && amt < withdrawMin) {
-      setWithdrawError(`Минимальная сумма вывода: ${withdrawMin} EIN.`);
+      setWithdrawError(i18n.t('wallet.errors.withdrawMin', {amount: withdrawMin}));
       return;
     }
 
@@ -324,9 +329,9 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
     if (!pendingWithdraw) return;
     setConfirmWithdrawOpen(false);
 
-    const authed = await security.requireSensitiveAuth('Вывод EIN');
+    const authed = await security.requireSensitiveAuth(i18n.t('wallet.security.withdrawAuthTitle'));
     if (!authed) {
-      setWithdrawError('Операция отменена.');
+      setWithdrawError(i18n.t('wallet.errors.operationCancelled'));
       return;
     }
 
@@ -343,7 +348,11 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
       const reqId = res?.request?.id ?? res?.request_id ?? res?.id;
       const dup = !!res?.duplicate;
       setWithdrawInfo(
-        reqId ? `${dup ? 'Повтор запроса. ' : ''}Заявка на вывод создана (#${reqId}).` : 'Заявка на вывод создана.',
+        reqId
+          ? `${dup ? i18n.t('wallet.info.duplicatePrefix') : ''}${i18n.t('wallet.info.withdrawCreatedWithId', {
+              id: reqId,
+            })}`
+          : i18n.t('wallet.info.withdrawCreated'),
       );
       setWithdrawDestination('');
       setWithdrawAmount('');
@@ -351,7 +360,7 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
       await loadWithdrawMeta();
       await loadWallet();
     } catch (e: any) {
-      setWithdrawError(e?.message || 'Не удалось создать заявку на вывод');
+      setWithdrawError(e?.message || i18n.t('wallet.errors.withdrawFailed'));
     } finally {
       setWithdrawBusy(false);
     }
@@ -371,13 +380,13 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
 
   return (
     <View style={styles.root}>
-      <AppHeader title="Кошелёк" subtitle="EIN" onBack={onBack} />
+      <AppHeader title={i18n.t('wallet.title')} subtitle={i18n.t('wallet.subtitle')} onBack={onBack} />
 
       <View style={styles.tabs}>
-        <TabButton k="overview" title="Обзор" isLast={false} />
-        <TabButton k="send" title="Перевод" isLast={false} />
-        <TabButton k="withdraw" title="Вывод" isLast={false} />
-        <TabButton k="history" title="История" isLast />
+        <TabButton k="overview" title={i18n.t('wallet.tabs.overview')} isLast={false} />
+        <TabButton k="send" title={i18n.t('wallet.tabs.send')} isLast={false} />
+        <TabButton k="withdraw" title={i18n.t('wallet.tabs.withdraw')} isLast={false} />
+        <TabButton k="history" title={i18n.t('wallet.tabs.history')} isLast />
       </View>
 
       <ScrollView
@@ -388,57 +397,62 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
         {loading ? (
           <View style={styles.center}>
             <ActivityIndicator />
-            <Text style={styles.hint}>Загрузка…</Text>
+            <Text style={styles.hint}>{i18n.t('wallet.loading')}</Text>
           </View>
         ) : error ? (
           <View style={styles.center}>
             <Text style={styles.error}>{error}</Text>
             <TouchableOpacity style={styles.btn} onPress={loadWallet}>
-              <Text style={styles.btnText}>Повторить</Text>
+              <Text style={styles.btnText}>{i18n.t('wallet.actions.retry')}</Text>
             </TouchableOpacity>
           </View>
         ) : tab === 'overview' ? (
           <View style={styles.card}>
-            <Text style={styles.label}>Адрес</Text>
+            <Text style={styles.label}>{i18n.t('wallet.labels.address')}</Text>
             <View style={styles.rowBetween}>
               <Text style={[styles.mono, styles.flex1]} numberOfLines={1}>
-                {walletAddress || '—'}
+                {walletAddress || i18n.t('wallet.status.unknown')}
               </Text>
               <TouchableOpacity
                 style={[styles.btnTiny, !walletAddress ? styles.btnTinyDisabled : null]}
                 disabled={!walletAddress}
                 onPress={() => setQrOpen(true)}>
-                <Text style={styles.btnTinyText}>QR</Text>
+                <Text style={styles.btnTinyText}>{i18n.t('wallet.qr.button')}</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.sep} />
 
-            <Text style={styles.label}>Баланс</Text>
-            <Text style={styles.balance}>{balance} EIN</Text>
+            <Text style={styles.label}>{i18n.t('wallet.labels.balance')}</Text>
+            <Text style={styles.balance}>{i18n.t('wallet.balanceValue', {amount: balance})}</Text>
 
             <View style={styles.row}>
               <TouchableOpacity style={[styles.btn, styles.btnSoft]} onPress={loadWallet}>
-                <Text style={styles.btnText}>Обновить</Text>
+                <Text style={styles.btnText}>{i18n.t('wallet.actions.refresh')}</Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.hint}>
-              Переводы и вывод — заявки. Проведение транзакций выполняется сервером/валидаторами.
-            </Text>
+            <Text style={styles.hint}>{i18n.t('wallet.hints.transactionsNotice')}</Text>
 
             <Modal visible={qrOpen} transparent animationType="fade" onRequestClose={() => setQrOpen(false)}>
               <View style={styles.modalBackdrop}>
                 <View style={styles.modalCard}>
-                  <Text style={styles.modalTitle}>QR адреса</Text>
+                  <Text style={styles.modalTitle}>{i18n.t('wallet.qr.title')}</Text>
                   <View style={styles.qrBox}>
-                    {(() => { const Q = getQRCodeComponent(); return Q ? <Q value={walletAddress || '-'} size={220} /> : <Text style={styles.qrFallback}>QR недоступен в этой сборке</Text>; })()}
+                    {(() => {
+                      const Q = getQRCodeComponent();
+                      return Q ? (
+                        <Q value={walletAddress || i18n.t('wallet.qr.emptyValue')} size={220} />
+                      ) : (
+                        <Text style={styles.qrFallback}>{i18n.t('wallet.qr.unavailable')}</Text>
+                      );
+                    })()}
                   </View>
                   <Text style={[styles.mono, styles.modalMono]} numberOfLines={2}>
-                    {walletAddress || '—'}
+                    {walletAddress || i18n.t('wallet.status.unknown')}
                   </Text>
                   <TouchableOpacity style={[styles.btn, styles.modalBtn]} onPress={() => setQrOpen(false)}>
-                    <Text style={styles.btnText}>Закрыть</Text>
+                    <Text style={styles.btnText}>{i18n.t('wallet.actions.close')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -446,31 +460,31 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
           </View>
         ) : tab === 'send' ? (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Перевод EIN</Text>
-            <Text style={styles.label}>Кому (адрес)</Text>
+            <Text style={styles.cardTitle}>{i18n.t('wallet.send.title')}</Text>
+            <Text style={styles.label}>{i18n.t('wallet.labels.toAddress')}</Text>
             <TextInput
               value={toAddress}
               onChangeText={setToAddress}
               style={styles.input}
-              placeholder="EIN…"
+              placeholder={i18n.t('wallet.placeholders.address')}
               placeholderTextColor={t.colors.textSecondary}
               autoCapitalize="none"
             />
-            <Text style={styles.label}>Сумма</Text>
+            <Text style={styles.label}>{i18n.t('wallet.labels.amount')}</Text>
             <TextInput
               value={sendAmount}
               onChangeText={setSendAmount}
               style={styles.input}
-              placeholder="например, 25"
+              placeholder={i18n.t('wallet.placeholders.sendAmount')}
               placeholderTextColor={t.colors.textSecondary}
               keyboardType="numeric"
             />
-            <Text style={styles.label}>Комментарий (необязательно)</Text>
+            <Text style={styles.label}>{i18n.t('wallet.labels.memoOptional')}</Text>
             <TextInput
               value={sendMemo}
               onChangeText={setSendMemo}
               style={styles.input}
-              placeholder="memo"
+              placeholder={i18n.t('wallet.placeholders.memo')}
               placeholderTextColor={t.colors.textSecondary}
             />
 
@@ -481,26 +495,32 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
               style={[styles.btn, sendBusy ? styles.btnDisabled : null]}
               disabled={sendBusy}
               onPress={onSend}>
-              <Text style={styles.btnText}>{sendBusy ? 'Отправка…' : 'Создать перевод'}</Text>
+              <Text style={styles.btnText}>
+                {sendBusy ? i18n.t('wallet.actions.sending') : i18n.t('wallet.actions.createSend')}
+              </Text>
             </TouchableOpacity>
 
             <Modal visible={confirmSendOpen} transparent animationType="fade" onRequestClose={() => setConfirmSendOpen(false)}>
               <View style={styles.modalBackdrop}>
                 <View style={styles.modalCard}>
-                  <Text style={styles.modalTitle}>Подтвердить перевод</Text>
-                  <Text style={styles.modalText}>Кому:</Text>
+                  <Text style={styles.modalTitle}>{i18n.t('wallet.send.confirmTitle')}</Text>
+                  <Text style={styles.modalText}>{i18n.t('wallet.send.confirmTo')}</Text>
                   <Text style={[styles.mono, styles.modalMono]} numberOfLines={2}>
-                    {pendingSend?.to || '—'}
+                    {pendingSend?.to || i18n.t('wallet.status.unknown')}
                   </Text>
-                  <Text style={styles.modalText}>Сумма: {pendingSend?.amt ?? 0} EIN</Text>
-                  {pendingSend?.memo ? <Text style={styles.modalText}>Memo: {pendingSend.memo}</Text> : null}
+                  <Text style={styles.modalText}>
+                    {i18n.t('wallet.send.confirmAmount', {amount: pendingSend?.amt ?? 0})}
+                  </Text>
+                  {pendingSend?.memo ? (
+                    <Text style={styles.modalText}>{i18n.t('wallet.send.confirmMemo', {memo: pendingSend.memo})}</Text>
+                  ) : null}
 
                   <View style={styles.rowBetween}>
                     <TouchableOpacity style={[styles.btn, styles.btnSoft, styles.flex1, styles.mr8]} onPress={() => setConfirmSendOpen(false)}>
-                      <Text style={styles.btnText}>Отмена</Text>
+                      <Text style={styles.btnText}>{i18n.t('common.cancel')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.btn, styles.flex1]} onPress={doSend}>
-                      <Text style={styles.btnText}>Подтвердить</Text>
+                      <Text style={styles.btnText}>{i18n.t('wallet.actions.confirm')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -509,25 +529,25 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
           </View>
         ) : tab === 'withdraw' ? (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Вывод EIN</Text>
-            {withdrawLoading ? <Text style={styles.hint}>Загрузка…</Text> : null}
-            <Text style={styles.hint}>Минимальная сумма вывода: {withdrawMin} EIN</Text>
+            <Text style={styles.cardTitle}>{i18n.t('wallet.withdraw.title')}</Text>
+            {withdrawLoading ? <Text style={styles.hint}>{i18n.t('wallet.loading')}</Text> : null}
+            <Text style={styles.hint}>{i18n.t('wallet.withdraw.minHint', {amount: withdrawMin})}</Text>
 
-            <Text style={styles.label}>Куда (адрес/реквизиты)</Text>
+            <Text style={styles.label}>{i18n.t('wallet.labels.withdrawDestination')}</Text>
             <TextInput
               value={withdrawDestination}
               onChangeText={setWithdrawDestination}
               style={styles.input}
-              placeholder="например, EIN… или реквизиты"
+              placeholder={i18n.t('wallet.placeholders.withdrawDestination')}
               placeholderTextColor={t.colors.textSecondary}
               autoCapitalize="none"
             />
-            <Text style={styles.label}>Сумма</Text>
+            <Text style={styles.label}>{i18n.t('wallet.labels.amount')}</Text>
             <TextInput
               value={withdrawAmount}
               onChangeText={setWithdrawAmount}
               style={styles.input}
-              placeholder="например, 100"
+              placeholder={i18n.t('wallet.placeholders.withdrawAmount')}
               placeholderTextColor={t.colors.textSecondary}
               keyboardType="numeric"
             />
@@ -539,7 +559,9 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
               style={[styles.btn, withdrawBusy ? styles.btnDisabled : null]}
               disabled={withdrawBusy}
               onPress={onWithdraw}>
-              <Text style={styles.btnText}>{withdrawBusy ? 'Создание…' : 'Создать заявку на вывод'}</Text>
+              <Text style={styles.btnText}>
+                {withdrawBusy ? i18n.t('wallet.actions.creating') : i18n.t('wallet.actions.createWithdraw')}
+              </Text>
             </TouchableOpacity>
 
             <Modal
@@ -549,19 +571,21 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
               onRequestClose={() => setConfirmWithdrawOpen(false)}>
               <View style={styles.modalBackdrop}>
                 <View style={styles.modalCard}>
-                  <Text style={styles.modalTitle}>Подтвердить вывод</Text>
-                  <Text style={styles.modalText}>Куда:</Text>
+                  <Text style={styles.modalTitle}>{i18n.t('wallet.withdraw.confirmTitle')}</Text>
+                  <Text style={styles.modalText}>{i18n.t('wallet.withdraw.confirmDestination')}</Text>
                   <Text style={[styles.mono, styles.modalMono]} numberOfLines={3}>
-                    {pendingWithdraw?.dest || '—'}
+                    {pendingWithdraw?.dest || i18n.t('wallet.status.unknown')}
                   </Text>
-                  <Text style={styles.modalText}>Сумма: {pendingWithdraw?.amt ?? 0} EIN</Text>
+                  <Text style={styles.modalText}>
+                    {i18n.t('wallet.withdraw.confirmAmount', {amount: pendingWithdraw?.amt ?? 0})}
+                  </Text>
 
                   <View style={styles.rowBetween}>
                     <TouchableOpacity style={[styles.btn, styles.btnSoft, styles.flex1, styles.mr8]} onPress={() => setConfirmWithdrawOpen(false)}>
-                      <Text style={styles.btnText}>Отмена</Text>
+                      <Text style={styles.btnText}>{i18n.t('common.cancel')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.btn, styles.flex1]} onPress={doWithdraw}>
-                      <Text style={styles.btnText}>Подтвердить</Text>
+                      <Text style={styles.btnText}>{i18n.t('wallet.actions.confirm')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -569,21 +593,31 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
             </Modal>
 
             <View style={styles.sep} />
-            <Text style={styles.cardTitle}>Мои заявки</Text>
+            <Text style={styles.cardTitle}>{i18n.t('wallet.withdraw.requestsTitle')}</Text>
             {withdrawItems.length === 0 ? (
-              <Text style={styles.hint}>Пока нет заявок.</Text>
+              <Text style={styles.hint}>{i18n.t('wallet.withdraw.empty')}</Text>
             ) : (
               <View>
                 {withdrawItems.map((it: any) => (
                   <View key={String(it.id)} style={styles.listItem}>
                     <Text style={styles.listTitle}>
-                      Вывод • {Number(it.amount || 0)} EIN
+                      {i18n.t('wallet.withdraw.itemTitle', {amount: Number(it.amount || 0)})}
                     </Text>
                     <Text style={styles.listMeta}>{it.destination}</Text>
-                    <Text style={styles.listMeta}>Статус: {withdrawStatusLabel(it.status)}</Text>
-                    {it.error ? <Text style={styles.error}>Причина: {String(it.error)}</Text> : null}
-                    {it.admin_comment ? <Text style={styles.hint}>Комментарий: {String(it.admin_comment)}</Text> : null}
-                    {it.payout_tx_id ? <Text style={styles.listMeta}>Tx: {String(it.payout_tx_id)}</Text> : null}
+                    <Text style={styles.listMeta}>
+                      {i18n.t('wallet.withdraw.statusLabel', {status: withdrawStatusLabel(it.status)})}
+                    </Text>
+                    {it.error ? (
+                      <Text style={styles.error}>{i18n.t('wallet.withdraw.errorLabel', {error: String(it.error)})}</Text>
+                    ) : null}
+                    {it.admin_comment ? (
+                      <Text style={styles.hint}>
+                        {i18n.t('wallet.withdraw.adminCommentLabel', {comment: String(it.admin_comment)})}
+                      </Text>
+                    ) : null}
+                    {it.payout_tx_id ? (
+                      <Text style={styles.listMeta}>{i18n.t('wallet.withdraw.txLabel', {tx: String(it.payout_tx_id)})}</Text>
+                    ) : null}
                   </View>
                 ))}
               </View>
@@ -591,19 +625,26 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
           </View>
         ) : (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>История</Text>
+            <Text style={styles.cardTitle}>{i18n.t('wallet.history.title')}</Text>
 
             {txItems.length === 0 ? (
-              <Text style={styles.hint}>Пока нет операций.</Text>
+              <Text style={styles.hint}>{i18n.t('wallet.history.empty')}</Text>
             ) : (
               <View>
                 {txItems.map((it: any, idx: number) => (
                   <View key={txStableKey(it) + ':' + String(idx)} style={styles.listItem}>
                     <Text style={styles.listTitle}>
-                      {String(it.kind || 'tx')} • {Number(it.amount || 0)} EIN
+                      {i18n.t('wallet.history.itemTitle', {
+                        kind: String(it.kind || 'tx'),
+                        amount: Number(it.amount || 0),
+                      })}
                     </Text>
-                    <Text style={styles.listMeta}>{it.memo ? String(it.memo) : '—'}</Text>
-                    {it.status ? <Text style={styles.listMeta}>Статус: {String(it.status)}</Text> : null}
+                    <Text style={styles.listMeta}>{it.memo ? String(it.memo) : i18n.t('wallet.status.unknown')}</Text>
+                    {it.status ? (
+                      <Text style={styles.listMeta}>
+                        {i18n.t('wallet.history.statusLabel', {status: String(it.status)})}
+                      </Text>
+                    ) : null}
                   </View>
                 ))}
               </View>
@@ -614,7 +655,13 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
                 style={[styles.btn, styles.btnSoft, (!txHasMore || txLoadingMore) ? styles.btnDisabled : null]}
                 disabled={!txHasMore || txLoadingMore}
                 onPress={loadMoreTx}>
-                <Text style={styles.btnText}>{txLoadingMore ? 'Загрузка…' : txHasMore ? 'Загрузить ещё' : 'Больше нет'}</Text>
+                <Text style={styles.btnText}>
+                  {txLoadingMore
+                    ? i18n.t('wallet.loading')
+                    : txHasMore
+                      ? i18n.t('wallet.actions.loadMore')
+                      : i18n.t('wallet.actions.noMore')}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
