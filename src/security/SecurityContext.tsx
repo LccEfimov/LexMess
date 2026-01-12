@@ -3,6 +3,8 @@ import {Modal, Text, TextInput, TouchableOpacity, View, StyleSheet} from 'react-
 
 import {loadAppSettings, saveAppSettings, loadSecurityState, setPinHashSalt, clearPin as clearPinStorage, recordPinFailure, resetPinFailures, setSecurityBiometricsEnabled} from '../storage/sqliteStorage';
 import {DEFAULT_PIN_KDF, generateSaltHex, hashPin, hashPinLegacy, isValidPin, normalizePin, type PinKdfParams} from './pin';
+import {useTheme} from '../theme/ThemeContext';
+import type {Theme} from '../theme/themes';
 
 export type LockMethod = 'none' | 'pin' | 'biometrics';
 
@@ -50,6 +52,8 @@ async function tryBiometrics(promptMessage: string): Promise<boolean> {
 }
 
 export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
+  const t = useTheme();
+  const styles = useMemo(() => makeStyles(t), [t]);
   const [lockMethod, setLockMethodState] = useState<LockMethod>('none');
   const [isPinSet, setIsPinSet] = useState(false);
   const [biometricsEnabled, setBiometricsEnabledState] = useState(false);
@@ -297,7 +301,7 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
               keyboardType="number-pad"
               secureTextEntry
               style={styles.input}
-              placeholderTextColor="#8b97a6"
+              placeholderTextColor={t.colors.placeholder}
               autoFocus
             />
 
@@ -322,70 +326,72 @@ export function useSecurity(): Ctx {
   return useContext(SecurityContext);
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 420,
-    borderRadius: 18,
-    backgroundColor: '#0b1220',
-    padding: 18,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#e5e7eb',
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: '#9ca3af',
-    marginBottom: 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: 'rgba(148,163,184,0.25)',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: '#e5e7eb',
-    marginBottom: 10,
-  },
-  error: {
-    color: '#fca5a5',
-    marginBottom: 10,
-    fontSize: 12,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  btnSpacer: {
-    marginRight: 10,
-  },
-  btn: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 14,
-  },
-  btnGhost: {
-    backgroundColor: 'rgba(148,163,184,0.12)',
-  },
-  btnPrimary: {
-    backgroundColor: 'rgba(59,130,246,0.9)',
-  },
-  btnGhostText: {
-    color: '#e5e7eb',
-    fontWeight: '600',
-  },
-  btnPrimaryText: {
-    color: '#fff',
-    fontWeight: '800',
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: t.colors.bg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+    },
+    card: {
+      width: '100%',
+      maxWidth: 420,
+      borderRadius: 18,
+      backgroundColor: t.colors.card,
+      padding: 18,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: t.colors.text,
+      marginBottom: 6,
+    },
+    subtitle: {
+      fontSize: 13,
+      color: t.colors.textMuted,
+      marginBottom: 12,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: t.colors.inputBorder,
+      backgroundColor: t.colors.inputBg,
+      borderRadius: 14,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      color: t.colors.text,
+      marginBottom: 10,
+    },
+    error: {
+      color: t.colors.danger,
+      marginBottom: 10,
+      fontSize: 12,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+    },
+    btnSpacer: {
+      marginRight: 10,
+    },
+    btn: {
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      borderRadius: 14,
+    },
+    btnGhost: {
+      backgroundColor: t.colors.ghostBg,
+    },
+    btnPrimary: {
+      backgroundColor: t.colors.primary,
+    },
+    btnGhostText: {
+      color: t.colors.text,
+      fontWeight: '600',
+    },
+    btnPrimaryText: {
+      color: t.colors.onPrimary,
+      fontWeight: '800',
+    },
+  });
