@@ -347,6 +347,19 @@ export const ChatScreen: React.FC<Props> = ({
     setRecipientsVisible(false);
   };
 
+  const logRecipientSelection = useCallback(
+    (action: string, recipients: string[]) => {
+      if (!__DEV__) {
+        return;
+      }
+      const count = recipients.length;
+      console.log(
+        `[ChatScreen] ${action}: ${count} recipient${count === 1 ? '' : 's'} selected`,
+      );
+    },
+    [],
+  );
+
   const handleSend = () => {
     const trimmed = text.trim();
     if (!trimmed) {
@@ -354,7 +367,7 @@ export const ChatScreen: React.FC<Props> = ({
     }
     // Пока что onSendText знает только про toAll; список получателей можно
     // будет добавить в сигнатуру позже и передавать ниже в крипто-ядро.
-    console.log('Selected recipients for message:', selectedRecipientIds);
+    logRecipientSelection('send message', selectedRecipientIds);
     onSendText(trimmed, toAll);
     setText('');
   };
@@ -501,7 +514,7 @@ export const ChatScreen: React.FC<Props> = ({
   };
 
   const handleStartCall = (isVideo: boolean, all: boolean) => {
-    console.log('Selected recipients for call:', selectedRecipientIds);
+    logRecipientSelection('start call', selectedRecipientIds);
     closeAttachments();
     onStartCall({isVideo, toAll: all});
   };
