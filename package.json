@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "react": "^18.2.0",
-    "react-native": "^0.73.6"
+    "react-native": "^0.73.6",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-quick-crypto": "^0.7.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

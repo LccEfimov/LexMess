@@ -2,7 +2,7 @@ import React, {createContext, useCallback, useContext, useEffect, useMemo, useRe
 import {Modal, Text, TextInput, TouchableOpacity, View, StyleSheet} from 'react-native';
 
 import {loadAppSettings, saveAppSettings, loadSecurityState, setPinHashSalt, clearPin as clearPinStorage, recordPinFailure, resetPinFailures, setSecurityBiometricsEnabled} from '../storage/sqliteStorage';
-import {generateSaltHex, hashPin, isValidPin, normalizePin} from './pin';
+import {DEFAULT_PIN_KDF, generateSaltHex, hashPin, hashPinLegacy, isValidPin, normalizePin, type PinKdfParams} from './pin';
 
 export type LockMethod = 'none' | 'pin' | 'biometrics';
 
@@ -115,9 +115,10 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
     if (!isValidPin(pin)) {
       throw new Error('PIN должен быть 4–8 цифр.');
     }
-    const salt = generateSaltHex(16);
-    const h = hashPin(pin, salt);
-    await setPinHashSalt(h, salt);
+    const salt = generateSaltHex(32);
+    const kdfParams = DEFAULT_PIN_KDF;
+    const h = hashPin(pin, salt, kdfParams);
+    await setPinHashSalt(h, salt, kdfParams);
     setIsPinSet(true);
     setPinLockedUntil(0);
   }, []);
@@ -222,9 +223,27 @@ export const SecurityProvider: React.FC<{children: React.ReactNode}> = ({childre
         setPinError('PIN не установлен.');
         return;
       }
-      const h = hashPin(p, String(sec.pinSalt));
-      if (String(sec.pinHash) === h) {
+      const kdfParams: PinKdfParams | null =
+        sec.pinKdf === 'pbkdf2'
+          ? {
+              kdf: 'pbkdf2',
+              iterations: sec.pinIters || DEFAULT_PIN_KDF.iterations,
+              keyLength: sec.pinKeyLen || DEFAULT_PIN_KDF.keyLength,
+              digest: 'sha256',
+              memory: sec.pinMem ?? DEFAULT_PIN_KDF.memory,
+            }
+          : null;
+      const derived = kdfParams
+        ? hashPin(p, String(sec.pinSalt), kdfParams)
+        : hashPinLegacy(p, String(sec.pinSalt));
+
+      if (String(sec.pinHash) === derived) {
         await resetPinFailures();
+        if (!kdfParams) {
+          const newSalt = generateSaltHex(32);
+          const newHash = hashPin(p, newSalt, DEFAULT_PIN_KDF);
+          await setPinHashSalt(newHash, newSalt, DEFAULT_PIN_KDF);
+        }
         lastUnlockAtRef.current = now;
         closePrompt(true);
         return;
