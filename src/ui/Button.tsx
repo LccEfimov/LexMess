@@ -72,7 +72,7 @@ function makeButtonStyles(t: Theme, variant: ButtonVariant, disabled: boolean, s
   if (variant === 'danger') {
     bg = t.colors.danger;
     border = t.colors.danger;
-    text = '#ffffff';
+    text = t.colors.onDanger;
   }
 
   return {
