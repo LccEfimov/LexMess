@@ -390,6 +390,44 @@
       "failed": "Failed to generate key"
     }
   },
+  "createRoom": {
+    "title": "Create room",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Chatting",
+    "inviteCodeLabel": "Invite code (optional)",
+    "inviteCodePlaceholder": "e.g. EIN-1234",
+    "maxParticipantsLabel": "Max participants",
+    "maxParticipantsPlaceholder": "25",
+    "privateTitle": "Private room",
+    "privateHint": "Private rooms are not shown in the public list.",
+    "persistentTitle": "Persistent",
+    "persistentHint": "The room keeps settings and participants.",
+    "creating": "Creating...",
+    "create": "Create",
+    "note": "After creation, the invite code screen will open.",
+    "defaultTitle": "Room {date}",
+    "system": {
+      "created": "Room created"
+    },
+    "errors": {
+      "title": "Error",
+      "missingOwner": "Owner ID is required. Please sign in again.",
+      "missingRoomId": "Server did not return a room ID.",
+      "createFailed": "Failed to create room"
+    }
+  },
+  "newDirectChat": {
+    "title": "New chat",
+    "subtitle": "Direct chat (1:1)",
+    "userIdLabel": "User ID",
+    "userIdPlaceholder": "UUID or profile ID",
+    "create": "Create chat",
+    "cancel": "Cancel",
+    "errors": {
+      "missingUserId": "Enter a user ID",
+      "createFailed": "Failed to create chat"
+    }
+  },
   "theme": {
     "system": "System",
     "lexmess_dark": "LexMess (dark)",
@@ -403,6 +441,7 @@
     "cancel": "Cancel",
     "done": "Done",
     "next": "Next",
-    "error": "Error"
+    "error": "Error",
+    "ellipsis": "…"
   }
 }

@@ -18,6 +18,7 @@ import {useLexmessApi} from '../hooks/useLexmessApi';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
 import {Input} from '../ui/Input';
+import {i18n} from '../i18n';
 
 type Props = {
   navigation: any;
@@ -54,12 +55,17 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
 
   const handleCreate = async () => {
     if (!ownerId) {
-      setError('Нужен ownerId. Выполните вход заново.');
+      setError(i18n.t('createRoom.errors.missingOwner'));
       return;
     }
 
     const rawTitle = title.trim();
-    const titleFinal = rawTitle.length > 0 ? rawTitle : `Комната ${new Date().toLocaleDateString('ru-RU')}`;
+    const titleFinal =
+      rawTitle.length > 0
+        ? rawTitle
+        : i18n.t('createRoom.defaultTitle', {
+            date: new Date().toLocaleDateString(i18n.getLocale()),
+          });
 
     const max = clampInt(parseInt(maxParticipants || '25', 10) || 25, 2, 500);
 
@@ -92,12 +98,15 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
 
       // If server did not return room id — stop here
       if (!createdRoomId) {
-        Alert.alert('Ошибка', 'Сервер не вернул идентификатор комнаты.');
+        Alert.alert(
+          i18n.t('createRoom.errors.title'),
+          i18n.t('createRoom.errors.missingRoomId'),
+        );
         return;
       }
 
       try {
-        await insertSystemMessage(createdRoomId, 'Комната создана');
+        await insertSystemMessage(createdRoomId, i18n.t('createRoom.system.created'));
       } catch (e) {
         // ignore
       }
@@ -108,7 +117,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
         inviteCode: createdInvite,
       });
     } catch (e: any) {
-      const msg = String(e?.message || e || 'Не удалось создать комнату');
+      const msg = String(e?.message || e || i18n.t('createRoom.errors.createFailed'));
       setError(msg);
     } finally {
       setBusy(false);
@@ -117,7 +126,11 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
 
   return (
     <View style={styles.root}>
-      <AppHeader title="Создать комнату" onBack={() => navigation.goBack()} right={null} />
+      <AppHeader
+        title={i18n.t('createRoom.title')}
+        onBack={() => navigation.goBack()}
+        right={null}
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -126,59 +139,55 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
           contentContainerStyle={styles.scrollPad}
           keyboardShouldPersistTaps="handled">
           <Card style={styles.card}>
-            <Text style={[styles.label, styles.cardItem]}>Название</Text>
+            <Text style={[styles.label, styles.cardItem]}>{i18n.t('createRoom.nameLabel')}</Text>
             <Input
               style={styles.input}
               containerStyle={styles.cardItem}
               value={title}
               onChangeText={setTitle}
-              placeholder="Например: Общение"
+              placeholder={i18n.t('createRoom.namePlaceholder')}
               autoCapitalize="sentences"
               maxLength={64}
             />
 
             <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>
-              Инвайт-код (необязательно)
+              {i18n.t('createRoom.inviteCodeLabel')}
             </Text>
             <Input
               style={styles.input}
               containerStyle={styles.cardItem}
               value={inviteCode}
               onChangeText={setInviteCode}
-              placeholder="Например: EIN-1234"
+              placeholder={i18n.t('createRoom.inviteCodePlaceholder')}
               autoCapitalize="characters"
               maxLength={32}
             />
 
             <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>
-              Максимум участников
+              {i18n.t('createRoom.maxParticipantsLabel')}
             </Text>
             <Input
               style={styles.input}
               containerStyle={styles.cardItem}
               value={maxParticipants}
               onChangeText={(v) => setMaxParticipants(v.replace(/[^0-9]/g, ''))}
-              placeholder="25"
+              placeholder={i18n.t('createRoom.maxParticipantsPlaceholder')}
               keyboardType="number-pad"
               maxLength={3}
             />
 
             <View style={[styles.switchRow, styles.cardItem]}>
               <View style={styles.switchTextWrap}>
-                <Text style={styles.switchTitle}>Приватная комната</Text>
-                <Text style={styles.switchHint}>
-                  Приватные комнаты не отображаются в публичном списке.
-                </Text>
+                <Text style={styles.switchTitle}>{i18n.t('createRoom.privateTitle')}</Text>
+                <Text style={styles.switchHint}>{i18n.t('createRoom.privateHint')}</Text>
               </View>
               <Switch value={isPrivate} onValueChange={setIsPrivate} />
             </View>
 
             <View style={[styles.switchRow, styles.cardItem]}>
               <View style={styles.switchTextWrap}>
-                <Text style={styles.switchTitle}>Постоянная</Text>
-                <Text style={styles.switchHint}>
-                  Комната сохраняет настройки и участников.
-                </Text>
+                <Text style={styles.switchTitle}>{i18n.t('createRoom.persistentTitle')}</Text>
+                <Text style={styles.switchHint}>{i18n.t('createRoom.persistentHint')}</Text>
               </View>
               <Switch value={isPersistent} onValueChange={setIsPersistent} />
             </View>
@@ -186,15 +195,13 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
             {error ? <Text style={[styles.errorText, styles.cardItem]}>{error}</Text> : null}
 
             <Button
-              title={busy ? 'Создание...' : 'Создать'}
+              title={busy ? i18n.t('createRoom.creating') : i18n.t('createRoom.create')}
               onPress={handleCreate}
               disabled={!canSubmit}
               style={styles.cardItem}
             />
 
-            <Text style={styles.note}>
-              После создания откроется экран с кодом приглашения.
-            </Text>
+            <Text style={styles.note}>{i18n.t('createRoom.note')}</Text>
           </Card>
         </ScrollView>
       </KeyboardAvoidingView>

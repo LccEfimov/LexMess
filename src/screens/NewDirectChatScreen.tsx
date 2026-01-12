@@ -2,6 +2,7 @@ import React, {useMemo, useState} from 'react';
 import {ScreenContainer} from '../ui/ScreenContainer';
 import {Button, ErrorText, Input, Label, SectionTitle, Spacer} from '../ui';
 import {AppHeader} from '../components/AppHeader';
+import {i18n} from '../i18n';
 
 type Props = {
   onBack: () => void;
@@ -18,7 +19,7 @@ export const NewDirectChatScreen: React.FC<Props> = ({onBack, onCreate}) => {
   const submit = async () => {
     const v = peerUserId.trim();
     if (!v) {
-      setError('Введите ID пользователя');
+      setError(i18n.t('newDirectChat.errors.missingUserId'));
       return;
     }
     setBusy(true);
@@ -26,7 +27,7 @@ export const NewDirectChatScreen: React.FC<Props> = ({onBack, onCreate}) => {
     try {
       await onCreate(v);
     } catch (e: any) {
-      setError(e?.message || 'Не удалось создать чат');
+      setError(e?.message || i18n.t('newDirectChat.errors.createFailed'));
     } finally {
       setBusy(false);
     }
@@ -34,23 +35,27 @@ export const NewDirectChatScreen: React.FC<Props> = ({onBack, onCreate}) => {
 
   return (
     <ScreenContainer>
-      <AppHeader title="Новый чат" onBack={onBack} />
+      <AppHeader title={i18n.t('newDirectChat.title')} onBack={onBack} />
       <Spacer h={14} />
-      <SectionTitle>Личный диалог (1:1)</SectionTitle>
+      <SectionTitle>{i18n.t('newDirectChat.subtitle')}</SectionTitle>
       <Spacer h={10} />
-      <Label>ID пользователя</Label>
+      <Label>{i18n.t('newDirectChat.userIdLabel')}</Label>
       <Input
         value={peerUserId}
         onChangeText={setPeerUserId}
-        placeholder="UUID или ID из профиля"
+        placeholder={i18n.t('newDirectChat.userIdPlaceholder')}
         autoCapitalize="none"
       />
       <Spacer h={10} />
       <ErrorText text={error} />
       <Spacer h={12} />
-      <Button title={busy ? '...' : 'Создать чат'} onPress={submit} disabled={!canSubmit} />
+      <Button
+        title={busy ? i18n.t('common.ellipsis') : i18n.t('newDirectChat.create')}
+        onPress={submit}
+        disabled={!canSubmit}
+      />
       <Spacer h={10} />
-      <Button title="Отмена" onPress={onBack} secondary />
+      <Button title={i18n.t('newDirectChat.cancel')} onPress={onBack} secondary />
       <Spacer h={18} />
     </ScreenContainer>
   );
