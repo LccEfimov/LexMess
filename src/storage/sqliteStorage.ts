@@ -39,7 +39,7 @@ async function lazyMigratePlaintextBody(
 let dbInstance: SQLite.SQLiteDatabase | null = null;
 
 // Увеличиваем при изменении схемы. Миграции ниже обязаны быть идемпотентны.
-const SCHEMA_VERSION = 9;
+const SCHEMA_VERSION = 10;
 
 async function getUserVersion(db: SQLite.SQLiteDatabase): Promise<number> {
   const [res] = await db.executeSql('PRAGMA user_version;');
@@ -347,6 +347,22 @@ async function migrateToV9(db: SQLite.SQLiteDatabase): Promise<void> {
   } catch (e) {}
 }
 
+async function migrateToV10(db: SQLite.SQLiteDatabase): Promise<void> {
+  // R36: параметры KDF для PIN.
+  try {
+    await db.executeSql(`ALTER TABLE security_state ADD COLUMN pin_kdf TEXT;`);
+  } catch (e) {}
+  try {
+    await db.executeSql(`ALTER TABLE security_state ADD COLUMN pin_iters INTEGER;`);
+  } catch (e) {}
+  try {
+    await db.executeSql(`ALTER TABLE security_state ADD COLUMN pin_mem INTEGER;`);
+  } catch (e) {}
+  try {
+    await db.executeSql(`ALTER TABLE security_state ADD COLUMN pin_key_len INTEGER;`);
+  } catch (e) {}
+}
+
 export async function ensureSchema(): Promise<void> {
   const db = await getDatabase();
 
@@ -410,6 +426,9 @@ export async function ensureSchema(): Promise<void> {
     }
     if (v2 < 9) {
       await migrateToV9(db);
+    }
+    if (v2 < 10) {
+      await migrateToV10(db);
     }
     await setUserVersion(db, SCHEMA_VERSION);
   }
@@ -1010,6 +1029,10 @@ export async function clearWalletTxCache(): Promise<void> {
 export type SecurityState = {
   pinHash: string | null;
   pinSalt: string | null;
+  pinKdf: string | null;
+  pinIters: number | null;
+  pinMem: number | null;
+  pinKeyLen: number | null;
   pinFailCount: number;
   pinLockedUntil: number;
   biometricsEnabled: boolean;
@@ -1031,6 +1054,10 @@ export async function loadSecurityState(): Promise<SecurityState> {
     return {
       pinHash: null,
       pinSalt: null,
+      pinKdf: null,
+      pinIters: null,
+      pinMem: null,
+      pinKeyLen: null,
       pinFailCount: 0,
       pinLockedUntil: 0,
       biometricsEnabled: false,
@@ -1041,6 +1068,10 @@ export async function loadSecurityState(): Promise<SecurityState> {
   return {
     pinHash: row.pin_hash ? String(row.pin_hash) : null,
     pinSalt: row.pin_salt ? String(row.pin_salt) : null,
+    pinKdf: row.pin_kdf ? String(row.pin_kdf) : null,
+    pinIters: row.pin_iters !== undefined && row.pin_iters !== null ? Number(row.pin_iters) : null,
+    pinMem: row.pin_mem !== undefined && row.pin_mem !== null ? Number(row.pin_mem) : null,
+    pinKeyLen: row.pin_key_len !== undefined && row.pin_key_len !== null ? Number(row.pin_key_len) : null,
     pinFailCount: Number(row.pin_fail_count || 0),
     pinLockedUntil: Number(row.pin_locked_until || 0),
     biometricsEnabled: Number(row.biometrics_enabled || 0) === 1,
@@ -1058,13 +1089,17 @@ export async function setSecurityBiometricsEnabled(enabled: boolean): Promise<vo
   );
 }
 
-export async function setPinHashSalt(pinHash: string, pinSalt: string): Promise<void> {
+export async function setPinHashSalt(
+  pinHash: string,
+  pinSalt: string,
+  params: {kdf: string; iterations: number; memory?: number; keyLength?: number},
+): Promise<void> {
   const db = await getDatabase();
   await ensureSchema();
   const now = Math.floor(Date.now() / 1000);
   await db.executeSql(
-    'UPDATE security_state SET pin_hash = ?, pin_salt = ?, pin_fail_count = 0, pin_locked_until = 0, updated_at = ? WHERE id = 1;',
-    [pinHash, pinSalt, now],
+    'UPDATE security_state SET pin_hash = ?, pin_salt = ?, pin_kdf = ?, pin_iters = ?, pin_mem = ?, pin_key_len = ?, pin_fail_count = 0, pin_locked_until = 0, updated_at = ? WHERE id = 1;',
+    [pinHash, pinSalt, params.kdf, params.iterations, params.memory ?? null, params.keyLength ?? null, now],
   );
 }
 
@@ -1073,7 +1108,7 @@ export async function clearPin(): Promise<void> {
   await ensureSchema();
   const now = Math.floor(Date.now() / 1000);
   await db.executeSql(
-    'UPDATE security_state SET pin_hash = NULL, pin_salt = NULL, pin_fail_count = 0, pin_locked_until = 0, updated_at = ? WHERE id = 1;',
+    'UPDATE security_state SET pin_hash = NULL, pin_salt = NULL, pin_kdf = NULL, pin_iters = NULL, pin_mem = NULL, pin_key_len = NULL, pin_fail_count = 0, pin_locked_until = 0, updated_at = ? WHERE id = 1;',
     [now],
   );
 }
