@@ -353,7 +353,7 @@ const makeStyles = (t: Theme) =>
       borderColor: t.colors.border,
       backgroundColor: t.colors.bgElevated,
     },
-    headerBtnDanger: {borderColor: 'rgba(255,59,48,0.35)'},
+    headerBtnDanger: {borderColor: t.colors.dangerBorderStrong},
     headerBtnText: {...t.typography.body, color: t.colors.text},
     headerBtnDangerText: {color: t.colors.danger},
 
@@ -472,7 +472,7 @@ const makeStyles = (t: Theme) =>
       overflow: 'hidden',
     },
     badgePublic: {backgroundColor: t.colors.ghostBg, borderColor: t.colors.ghostBorder, color: t.colors.textMuted},
-    badgePrivate: {backgroundColor: 'rgba(255,59,48,0.10)', borderColor: 'rgba(255,59,48,0.25)', color: t.colors.danger},
+    badgePrivate: {backgroundColor: t.colors.dangerBg, borderColor: t.colors.dangerBorder, color: t.colors.danger},
     title: {...t.typography.title, color: t.colors.text, flex: 1},
 
     metaRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6},
