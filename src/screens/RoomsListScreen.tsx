@@ -101,25 +101,19 @@ export const RoomsListScreen: React.FC<Props> = ({
     return isPrivate && members === 2;
   }, []);
 
-  const visibleRooms = useMemo(() => {
+  const filtered = useMemo(() => {
     const list = Array.isArray(rooms) ? rooms : [];
-    if (listKind === 'chats') {
-      return list.filter(it => isDirectRoom(it));
-    }
-    return list.filter(it => !isDirectRoom(it));
-  }, [rooms, listKind, isDirectRoom]);
+    const filteredByKind =
+      listKind === 'chats' ? list.filter(it => isDirectRoom(it)) : list.filter(it => !isDirectRoom(it));
+    if (!normalized) return filteredByKind;
 
-const filtered = useMemo(() => {
-    const list = Array.isArray(visibleRooms) ? visibleRooms : [];
-    if (!normalized) return list;
-
-    return list.filter(item => {
+    return filteredByKind.filter(item => {
       const tt = String(item.title || '').toLowerCase();
       const id = String(item.id || '').toLowerCase();
       const last = String(item.lastMessage || '').toLowerCase();
       return tt.includes(normalized) || id.includes(normalized) || last.includes(normalized);
     });
-  }, [visibleRooms, normalized]);
+  }, [rooms, title, listKind, normalized, isDirectRoom]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
