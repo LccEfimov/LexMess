@@ -120,7 +120,7 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#050817',
+    backgroundColor: t.colors.bg,
     alignItems: 'center',
     justifyContent: 'flex-start',
   },

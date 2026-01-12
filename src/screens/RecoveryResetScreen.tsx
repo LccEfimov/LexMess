@@ -110,37 +110,37 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
         </Text>
       </View>
 
-      <ScrollView contentContainerStyle={{paddingBottom: 22}} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
           <Text style={styles.label}>Логин</Text>
           <TextInput
             value={login}
             onChangeText={setLogin}
             placeholder="например: piton_01"
-            placeholderTextColor="rgba(232,236,255,0.35)"
+            placeholderTextColor={t.colors.placeholder}
             autoCapitalize="none"
             autoCorrect={false}
             style={styles.input}
           />
 
-          <Text style={[styles.label, {marginTop: 12}]}>Ключ восстановления</Text>
+          <Text style={[styles.label, styles.labelSpacing]}>Ключ восстановления</Text>
           <TextInput
             value={recoveryKey}
             onChangeText={setRecoveryKey}
             placeholder="вставьте ключ"
-            placeholderTextColor="rgba(232,236,255,0.35)"
+            placeholderTextColor={t.colors.placeholder}
             autoCapitalize="none"
             autoCorrect={false}
             multiline
             style={[styles.input, styles.inputMulti]}
           />
 
-          <Text style={[styles.label, {marginTop: 12}]}>Новый пароль</Text>
+          <Text style={[styles.label, styles.labelSpacing]}>Новый пароль</Text>
           <TextInput
             value={newPassword}
             onChangeText={setNewPassword}
             placeholder="новый пароль"
-            placeholderTextColor="rgba(232,236,255,0.35)"
+            placeholderTextColor={t.colors.placeholder}
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
@@ -154,7 +154,11 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
             disabled={busy}
             style={({pressed}) => [styles.btn, (pressed || busy) && styles.btnPressed]}
             onPress={doReset}>
-            {busy ? <ActivityIndicator /> : <Text style={styles.btnText}>Восстановить</Text>}
+            {busy ? (
+              <ActivityIndicator color={t.colors.onPrimary} />
+            ) : (
+              <Text style={styles.btnText}>Восстановить</Text>
+            )}
           </Pressable>
 
           <Pressable
@@ -179,103 +183,110 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#050817',
-    paddingHorizontal: 22,
-    paddingTop: 48,
+    backgroundColor: t.colors.bg,
+    paddingHorizontal: t.spacing.xl,
+    paddingTop: t.spacing.xl * 2,
   },
   header: {
     marginBottom: 20,
   },
   title: {
+    ...t.typography.title,
     fontSize: 26,
     fontWeight: '900',
-    color: '#E8ECFF',
+    color: t.colors.text,
   },
   subtitle: {
-    marginTop: 10,
-    fontSize: 12,
+    marginTop: t.spacing.sm,
+    ...t.typography.caption,
     lineHeight: 18,
-    color: 'rgba(232,236,255,0.68)',
+    color: t.colors.textMuted,
   },
   card: {
     borderWidth: 1,
-    borderColor: 'rgba(120,150,255,0.22)',
-    borderRadius: 18,
-    padding: 16,
-    backgroundColor: 'rgba(10,14,35,0.65)',
+    borderColor: t.colors.border,
+    borderRadius: t.radii.lg,
+    padding: t.spacing.md,
+    backgroundColor: t.colors.card,
   },
   label: {
-    fontSize: 12,
-    color: 'rgba(232,236,255,0.75)',
-    marginBottom: 6,
+    ...t.typography.caption,
+    color: t.colors.textMuted,
+    marginBottom: t.spacing.xs,
+  },
+  labelSpacing: {
+    marginTop: t.spacing.md,
   },
   input: {
     minHeight: 46,
-    borderRadius: 12,
+    borderRadius: t.radii.md,
     borderWidth: 1,
-    borderColor: 'rgba(120,150,255,0.25)',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: '#E8ECFF',
-    backgroundColor: 'rgba(5,8,23,0.35)',
+    borderColor: t.colors.inputBorder,
+    paddingHorizontal: t.spacing.md,
+    paddingVertical: t.spacing.sm,
+    color: t.colors.text,
+    backgroundColor: t.colors.inputBg,
   },
   inputMulti: {
     minHeight: 92,
     textAlignVertical: 'top',
   },
   error: {
-    marginTop: 10,
-    color: '#FF6B8A',
-    fontSize: 12,
+    marginTop: t.spacing.sm,
+    color: t.colors.danger,
+    ...t.typography.caption,
   },
   ok: {
-    marginTop: 10,
-    color: 'rgba(120,255,170,0.9)',
-    fontSize: 12,
+    marginTop: t.spacing.sm,
+    color: t.colors.success,
+    ...t.typography.caption,
   },
   btn: {
-    marginTop: 16,
+    marginTop: t.spacing.md,
     height: 48,
-    borderRadius: 12,
+    borderRadius: t.radii.md,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#6B7CFF',
+    backgroundColor: t.colors.primary,
   },
   btnPressed: {
     opacity: 0.85,
   },
   btnText: {
-    color: '#0B102A',
+    color: t.colors.onPrimary,
     fontWeight: '800',
     fontSize: 16,
   },
   linkBtn: {
-    marginTop: 12,
+    marginTop: t.spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: t.spacing.sm,
   },
   linkText: {
-    color: 'rgba(232,236,255,0.75)',
+    color: t.colors.textMuted,
     fontWeight: '700',
   },
   noteBox: {
-    marginTop: 12,
+    marginTop: t.spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(140,175,255,0.18)',
-    backgroundColor: 'rgba(120,150,255,0.06)',
-    borderRadius: 14,
-    padding: 12,
+    borderColor: t.colors.border,
+    backgroundColor: t.colors.ghostBg,
+    borderRadius: t.radii.md,
+    padding: t.spacing.md,
   },
   noteTitle: {
-    fontSize: 12,
+    ...t.typography.caption,
     fontWeight: '900',
-    color: 'rgba(232,236,255,0.85)',
+    color: t.colors.text,
   },
   noteText: {
-    marginTop: 6,
-    fontSize: 12,
+    marginTop: t.spacing.xs,
+    ...t.typography.caption,
     lineHeight: 18,
-    color: 'rgba(232,236,255,0.68)',
+    color: t.colors.textMuted,
+  },
+  scrollContent: {
+    paddingBottom: t.spacing.xl,
   },
 });

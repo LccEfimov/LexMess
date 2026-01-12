@@ -121,7 +121,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{flex: 1}}>
+        style={styles.keyboard}>
         <ScrollView
           contentContainerStyle={styles.scrollPad}
           keyboardShouldPersistTaps="handled">
@@ -137,7 +137,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
               maxLength={64}
             />
 
-            <Text style={[styles.label, {marginTop: 14}]}>Инвайт-код (необязательно)</Text>
+            <Text style={[styles.label, styles.labelSpacing]}>Инвайт-код (необязательно)</Text>
             <TextInput
               style={styles.input}
               value={inviteCode}
@@ -148,7 +148,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
               maxLength={32}
             />
 
-            <Text style={[styles.label, {marginTop: 14}]}>Максимум участников</Text>
+            <Text style={[styles.label, styles.labelSpacing]}>Максимум участников</Text>
             <TextInput
               style={styles.input}
               value={maxParticipants}
@@ -160,7 +160,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
             />
 
             <View style={styles.switchRow}>
-              <View style={{flex: 1}}>
+              <View style={styles.switchTextWrap}>
                 <Text style={styles.switchTitle}>Приватная комната</Text>
                 <Text style={styles.switchHint}>
                   Приватные комнаты не отображаются в публичном списке.
@@ -170,7 +170,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
             </View>
 
             <View style={styles.switchRow}>
-              <View style={{flex: 1}}>
+              <View style={styles.switchTextWrap}>
                 <Text style={styles.switchTitle}>Постоянная</Text>
                 <Text style={styles.switchHint}>
                   Комната сохраняет настройки и участников.
@@ -186,7 +186,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
               style={[styles.primaryButton, !canSubmit ? styles.primaryButtonDisabled : null]}
               onPress={handleCreate}>
               {busy ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={t.colors.onPrimary} />
               ) : (
                 <Text style={styles.primaryButtonText}>Создать</Text>
               )}
@@ -205,51 +205,54 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
     root: {flex: 1, backgroundColor: t.colors.bg},
-    scrollPad: {padding: 14, paddingBottom: 24},
+    scrollPad: {padding: t.spacing.md, paddingBottom: t.spacing.xl},
+    keyboard: {flex: 1},
     card: {
       borderRadius: 16,
       borderWidth: 1,
       borderColor: t.colors.border,
       backgroundColor: t.colors.card,
-      padding: 14,
+      padding: t.spacing.md,
       ...t.shadows.card,
     },
     label: {...t.typography.body, color: t.colors.textMuted},
+    labelSpacing: {marginTop: t.spacing.md},
     input: {
-      marginTop: 8,
+      marginTop: t.spacing.sm,
       borderRadius: 14,
       borderWidth: 1,
       borderColor: t.colors.border,
       backgroundColor: t.colors.bgElevated,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm,
       color: t.colors.text,
       ...t.typography.bodyRegular,
     },
     switchRow: {
-      marginTop: 14,
+      marginTop: t.spacing.md,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
-      paddingVertical: 10,
-      paddingHorizontal: 12,
+      gap: t.spacing.md,
+      paddingVertical: t.spacing.sm,
+      paddingHorizontal: t.spacing.md,
       borderRadius: 16,
       borderWidth: 1,
       borderColor: t.colors.border,
       backgroundColor: t.colors.bgElevated,
     },
+    switchTextWrap: {flex: 1},
     switchTitle: {...t.typography.body, color: t.colors.text},
-    switchHint: {...t.typography.tiny, color: t.colors.textMuted, marginTop: 3},
+    switchHint: {...t.typography.tiny, color: t.colors.textMuted, marginTop: t.spacing.xs},
     errorText: {
-      marginTop: 12,
+      marginTop: t.spacing.md,
       color: t.colors.danger,
       ...t.typography.body,
     },
     primaryButton: {
-      marginTop: 16,
+      marginTop: t.spacing.lg,
       borderRadius: 14,
       backgroundColor: t.colors.primary,
-      paddingVertical: 12,
+      paddingVertical: t.spacing.md,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -257,10 +260,10 @@ const makeStyles = (t: Theme) =>
     primaryButtonText: {
       ...t.typography.body,
       fontWeight: '700',
-      color: '#fff',
+      color: t.colors.onPrimary,
     },
     note: {
-      marginTop: 10,
+      marginTop: t.spacing.sm,
       ...t.typography.tiny,
       color: t.colors.textMuted,
     },

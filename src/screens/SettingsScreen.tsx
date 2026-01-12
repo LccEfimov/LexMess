@@ -361,7 +361,7 @@ export const SettingsScreen: React.FC<Props> = props => {
               maxLength={4}
               style={styles.pinInput}
               placeholder="••••"
-              placeholderTextColor="#6f7690"
+              placeholderTextColor={t.colors.placeholder}
             />
             {pinErr ? <ErrorText>{pinErr}</ErrorText> : null}
 

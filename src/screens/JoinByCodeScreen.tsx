@@ -76,7 +76,7 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{flex: 1, justifyContent: 'center'}}>
+        style={styles.keyboard}>
         <View style={styles.card}>
           <Text style={styles.label}>Код приглашения</Text>
           <TextInput
@@ -97,7 +97,7 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
             style={[styles.primaryButton, !canSubmit ? styles.primaryButtonDisabled : null]}
             onPress={handleJoin}>
             {busy ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={t.colors.onPrimary} />
             ) : (
               <Text style={styles.primaryButtonText}>Войти</Text>
             )}
@@ -115,37 +115,38 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
     root: {flex: 1, backgroundColor: t.colors.bg},
+    keyboard: {flex: 1, justifyContent: 'center'},
     card: {
-      marginHorizontal: 14,
-      borderRadius: 16,
+      marginHorizontal: t.spacing.md,
+      borderRadius: t.radii.md,
       borderWidth: 1,
       borderColor: t.colors.border,
       backgroundColor: t.colors.card,
-      padding: 14,
+      padding: t.spacing.md,
       ...t.shadows.card,
     },
     label: {...t.typography.body, color: t.colors.textMuted},
     input: {
-      marginTop: 8,
-      borderRadius: 14,
+      marginTop: t.spacing.sm,
+      borderRadius: t.radii.md,
       borderWidth: 1,
       borderColor: t.colors.border,
       backgroundColor: t.colors.bgElevated,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm,
       color: t.colors.text,
       ...t.typography.bodyRegular,
     },
     errorText: {
-      marginTop: 12,
+      marginTop: t.spacing.md,
       color: t.colors.danger,
       ...t.typography.body,
     },
     primaryButton: {
-      marginTop: 16,
-      borderRadius: 14,
+      marginTop: t.spacing.lg,
+      borderRadius: t.radii.md,
       backgroundColor: t.colors.primary,
-      paddingVertical: 12,
+      paddingVertical: t.spacing.md,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -153,10 +154,10 @@ const makeStyles = (t: Theme) =>
     primaryButtonText: {
       ...t.typography.body,
       fontWeight: '700',
-      color: '#fff',
+      color: t.colors.onPrimary,
     },
     note: {
-      marginTop: 10,
+      marginTop: t.spacing.sm,
       ...t.typography.tiny,
       color: t.colors.textMuted,
     },

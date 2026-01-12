@@ -701,8 +701,8 @@ const makeStyles = (t: Theme) =>
     btnTinyText: {color: t.colors.text, fontWeight: '900'},
 
     hint: {color: t.colors.textSecondary, marginTop: 10},
-    error: {color: '#ef4444', marginTop: 10, fontWeight: '700'},
-    success: {color: '#10b981', marginTop: 10, fontWeight: '700'},
+    error: {color: t.colors.danger, marginTop: 10, fontWeight: '700'},
+    success: {color: t.colors.success, marginTop: 10, fontWeight: '700'},
     row: {flexDirection: 'row', gap: 10, marginTop: 12},
     rowBetween: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2},
     flex1: {flex: 1},
@@ -749,7 +749,7 @@ const makeStyles = (t: Theme) =>
       borderRadius: 18,
       borderWidth: 1,
       borderColor: t.colors.border,
-      backgroundColor: '#ffffff',
+      backgroundColor: t.colors.bgElevated,
     },
     qrFallback: {color: t.colors.textMuted, textAlign: 'center', ...t.typography.bodyRegular},
   });
