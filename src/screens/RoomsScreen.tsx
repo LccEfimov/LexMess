@@ -138,10 +138,10 @@ export const RoomsScreen: React.FC<Props> = (props) => {
   const headerRight = useMemo(() => {
     return (
       <View style={styles.headerRight}>
-        <Pressable style={styles.headerBtn} onPress={props.onToggleMute}>
+        <Pressable style={[styles.headerBtn, styles.headerBtnSpacing]} onPress={props.onToggleMute}>
           <Text style={styles.headerBtnText}>{props.mute ? 'Без звука' : 'Со звуком'}</Text>
         </Pressable>
-        <Pressable style={styles.headerBtn} onPress={props.onSettings}>
+        <Pressable style={[styles.headerBtn, styles.headerBtnSpacing]} onPress={props.onSettings}>
           <Text style={styles.headerBtnText}>Настройки</Text>
         </Pressable>
         <Pressable
@@ -161,12 +161,12 @@ export const RoomsScreen: React.FC<Props> = (props) => {
   const clearSearch = useCallback(() => setSearch(''), []);
 
   const renderTabs = useMemo(() => {
-    const tabBtn = (key: TabKey, label: string, count: number) => {
+    const tabBtn = (key: TabKey, label: string, count: number, isLast: boolean) => {
       const active = tab === key;
       return (
         <Pressable
           key={key}
-          style={[styles.tabBtn, active ? styles.tabBtnActive : null]}
+          style={[styles.tabBtn, !isLast ? styles.tabBtnSpacing : null, active ? styles.tabBtnActive : null]}
           onPress={() => setTab(key)}>
           <Text style={[styles.tabText, active ? styles.tabTextActive : null]}>{label}</Text>
           <View style={[styles.tabCount, active ? styles.tabCountActive : null]}>
@@ -180,9 +180,9 @@ export const RoomsScreen: React.FC<Props> = (props) => {
 
     return (
       <View style={styles.tabs}>
-        {tabBtn('my', 'Мои', (props.myRooms || []).length)}
-        {tabBtn('open', 'Участник', (props.openRooms || []).length)}
-        {tabBtn('public', 'Публичные', (props.publicRooms || []).length)}
+        {tabBtn('my', 'Мои', (props.myRooms || []).length, false)}
+        {tabBtn('open', 'Участник', (props.openRooms || []).length, false)}
+        {tabBtn('public', 'Публичные', (props.publicRooms || []).length, true)}
       </View>
     );
   }, [styles, tab, props.myRooms, props.openRooms, props.publicRooms]);
@@ -190,10 +190,10 @@ export const RoomsScreen: React.FC<Props> = (props) => {
   const renderActions = useMemo(() => {
     return (
       <View style={styles.actionsRow}>
-        <Pressable style={styles.actionBtn} onPress={props.onCreateRoom}>
+        <Pressable style={[styles.actionBtn, styles.actionBtnSpacing]} onPress={props.onCreateRoom}>
           <Text style={styles.actionBtnText}>Создать комнату</Text>
         </Pressable>
-        <Pressable style={styles.actionBtn} onPress={props.onJoinByCode}>
+        <Pressable style={[styles.actionBtn, styles.actionBtnSpacing]} onPress={props.onJoinByCode}>
           <Text style={styles.actionBtnText}>Войти по коду</Text>
         </Pressable>
         <Pressable style={styles.actionBtnGhost} onPress={onShowAll}>
@@ -282,17 +282,19 @@ export const RoomsScreen: React.FC<Props> = (props) => {
 
           const canJoin = item.type === 'public' && !!props.onJoinRoom;
           const canLeave = item.type === 'open' && !!props.onLeaveRoom;
+          const hasActionsBelow = canJoin || canLeave;
 
           return (
             <Pressable
               style={({pressed}) => [styles.card, pressed ? styles.cardPressed : null]}
               onPress={() => props.onOpenRoom(item.id, item.title)}>
               <View style={styles.cardTop}>
-                <View style={styles.cardLeft}>
+                <View style={[styles.cardLeft, styles.cardTopItem]}>
                   <View style={styles.titleRow}>
                     <Text
                       style={[
                         styles.badge,
+                        styles.titleRowItem,
                         item.isPrivate ? styles.badgePrivate : styles.badgePublic,
                       ]}>
                       {badge}
@@ -323,16 +325,20 @@ export const RoomsScreen: React.FC<Props> = (props) => {
 
                 <View style={styles.cardRight}>
                   {unread > 0 ? (
-                    <View style={styles.unreadBadge}>
+                    <View style={[styles.unreadBadge, hasActionsBelow ? styles.cardRightItem : null]}>
                       <Text style={styles.unreadText}>{unread > 99 ? '99+' : String(unread)}</Text>
                     </View>
                   ) : (
-                    <View style={styles.unreadSpacer} />
+                    <View style={[styles.unreadSpacer, hasActionsBelow ? styles.cardRightItem : null]} />
                   )}
 
                   {canJoin ? (
                     <Pressable
-                      style={[styles.smallBtn, busy ? styles.smallBtnDisabled : null]}
+                      style={[
+                        styles.smallBtn,
+                        busy ? styles.smallBtnDisabled : null,
+                        canLeave ? styles.cardRightItem : null,
+                      ]}
                       onPress={() => onJoin(item.id)}
                       disabled={busy}>
                       <Text style={styles.smallBtnText}>{busy ? '...' : 'Войти'}</Text>
@@ -366,7 +372,8 @@ export const RoomsScreen: React.FC<Props> = (props) => {
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
     root: {flex: 1, backgroundColor: t.colors.bg},
-    headerRight: {flexDirection: 'row', alignItems: 'center', gap: 10},
+    headerRight: {flexDirection: 'row', alignItems: 'center'},
+    headerBtnSpacing: {marginRight: 10},
     headerBtn: {
       paddingHorizontal: 12,
       paddingVertical: 8,
@@ -381,11 +388,11 @@ const makeStyles = (t: Theme) =>
 
     tabs: {
       flexDirection: 'row',
-      gap: 10,
       paddingHorizontal: 14,
       paddingTop: 12,
       paddingBottom: 6,
     },
+    tabBtnSpacing: {marginRight: 10},
     tabBtn: {
       flex: 1,
       flexDirection: 'row',
@@ -443,7 +450,8 @@ const makeStyles = (t: Theme) =>
     },
     searchClearText: {fontSize: 20, color: t.colors.textMuted, marginTop: -2},
 
-    actionsRow: {flexDirection: 'row', gap: 10, paddingHorizontal: 14, paddingTop: 10},
+    actionsRow: {flexDirection: 'row', paddingHorizontal: 14, paddingTop: 10},
+    actionBtnSpacing: {marginRight: 10},
     actionBtn: {
       flex: 1,
       paddingVertical: 10,
@@ -477,11 +485,13 @@ const makeStyles = (t: Theme) =>
       ...t.shadows.card,
     },
     cardPressed: {opacity: 0.92},
-    cardTop: {flexDirection: 'row', alignItems: 'flex-start', gap: 12},
+    cardTop: {flexDirection: 'row', alignItems: 'flex-start'},
+    cardTopItem: {marginRight: 12},
     cardLeft: {flex: 1, minWidth: 0},
-    cardRight: {alignItems: 'flex-end', justifyContent: 'flex-start', gap: 10, minWidth: 84},
+    cardRight: {alignItems: 'flex-end', justifyContent: 'flex-start', minWidth: 84},
 
-    titleRow: {flexDirection: 'row', alignItems: 'center', gap: 8},
+    titleRow: {flexDirection: 'row', alignItems: 'center'},
+    titleRowItem: {marginRight: 8},
     badge: {
       ...t.typography.tiny,
       paddingHorizontal: 8,
@@ -512,6 +522,7 @@ const makeStyles = (t: Theme) =>
     },
     unreadText: {...t.typography.tiny, color: t.colors.onPrimary},
     unreadSpacer: {height: 22},
+    cardRightItem: {marginBottom: 10},
 
     smallBtn: {
       paddingHorizontal: 12,

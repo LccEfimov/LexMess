@@ -36,6 +36,7 @@ export const ThemePicker: React.FC<Props> = ({value, onChange, compact}) => {
             key={opt.id}
             onPress={() => onChange(opt.id)}
             style={({pressed}) => [
+              styles.itemSpacing,
               styles.item,
               selected ? styles.itemSelected : styles.itemNormal,
               pressed && styles.itemPressed,
@@ -48,12 +49,19 @@ export const ThemePicker: React.FC<Props> = ({value, onChange, compact}) => {
   );
 };
 
-const makeStyles = (t: Theme, compact: boolean) =>
-  StyleSheet.create({
+const makeStyles = (t: Theme, compact: boolean) => {
+  const spacing = compact ? 8 : 10;
+
+  return StyleSheet.create({
     wrap: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: compact ? 8 : 10,
+      marginRight: -spacing,
+      marginBottom: -spacing,
+    },
+    itemSpacing: {
+      marginRight: spacing,
+      marginBottom: spacing,
     },
     item: {
       borderWidth: 1,
@@ -81,3 +89,4 @@ const makeStyles = (t: Theme, compact: boolean) =>
       color: t.colors.onPrimary,
     },
   });
+};

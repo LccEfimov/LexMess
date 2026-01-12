@@ -170,10 +170,10 @@ const makeStyles = (t: Theme) =>
       marginTop: t.spacing.sm,
       flexDirection: 'row',
       justifyContent: 'space-between',
-      gap: t.spacing.xs,
     },
     primaryAction: {
       flex: 1.2,
+      marginRight: t.spacing.xs,
     },
     secondaryAction: {
       flex: 1,

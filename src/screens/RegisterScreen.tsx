@@ -119,12 +119,14 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
       </View>
 
       <Card style={styles.card}>
-        <Text style={styles.label}>{i18n.t('register.theme')}</Text>
-        <ThemePicker value={themeName} onChange={onPickTheme} compact />
+        <Text style={[styles.label, styles.cardItem]}>{i18n.t('register.theme')}</Text>
+        <View style={styles.cardItem}>
+          <ThemePicker value={themeName} onChange={onPickTheme} compact />
+        </View>
 
-        <View style={{height: 14}} />
+        <View style={[styles.spacer, styles.cardItem]} />
 
-        <Text style={styles.label}>{i18n.t('register.loginLabel')}</Text>
+        <Text style={[styles.label, styles.cardItem]}>{i18n.t('register.loginLabel')}</Text>
         <TextInput
           value={login}
           onChangeText={setLogin}
@@ -132,10 +134,12 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
           placeholderTextColor={t.colors.placeholder}
           autoCapitalize="none"
           autoCorrect={false}
-          style={styles.input}
+          style={[styles.input, styles.cardItem]}
         />
 
-        <Text style={[styles.label, {marginTop: 12}]}>{i18n.t('register.passwordLabel')}</Text>
+        <Text style={[styles.label, styles.cardItem, {marginTop: 12}]}>
+          {i18n.t('register.passwordLabel')}
+        </Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
@@ -144,10 +148,12 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
-          style={styles.input}
+          style={[styles.input, styles.cardItem]}
         />
 
-        <Text style={[styles.label, {marginTop: 12}]}>{i18n.t('register.passwordRepeatLabel')}</Text>
+        <Text style={[styles.label, styles.cardItem, {marginTop: 12}]}>
+          {i18n.t('register.passwordRepeatLabel')}
+        </Text>
         <TextInput
           value={password2}
           onChangeText={setPassword2}
@@ -156,15 +162,16 @@ export const RegisterScreen: React.FC<Props> = ({navigation, route, onAuthed, on
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
-          style={styles.input}
+          style={[styles.input, styles.cardItem]}
         />
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text style={[styles.error, styles.cardItem]}>{error}</Text> : null}
 
         <Button
           title={busy ? i18n.t('register.creating') : i18n.t('register.create')}
           onPress={doRegister}
           disabled={busy}
+          style={styles.cardItem}
         />
 
         <Button
@@ -198,8 +205,12 @@ const makeStyles = (t: Theme) =>
       fontSize: 13,
       color: t.colors.textMuted,
     },
-    card: {
-      gap: 12,
+    card: {},
+    cardItem: {
+      marginBottom: 12,
+    },
+    spacer: {
+      height: 14,
     },
     label: {
       fontSize: 12,

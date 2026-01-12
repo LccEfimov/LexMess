@@ -126,9 +126,9 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
           contentContainerStyle={styles.scrollPad}
           keyboardShouldPersistTaps="handled">
           <Card style={styles.card}>
-            <Text style={styles.label}>Название</Text>
+            <Text style={[styles.label, styles.cardItem]}>Название</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.cardItem]}
               value={title}
               onChangeText={setTitle}
               placeholder="Например: Общение"
@@ -137,9 +137,11 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
               maxLength={64}
             />
 
-            <Text style={[styles.label, styles.labelSpacing]}>Инвайт-код (необязательно)</Text>
+            <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>
+              Инвайт-код (необязательно)
+            </Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.cardItem]}
               value={inviteCode}
               onChangeText={setInviteCode}
               placeholder="Например: EIN-1234"
@@ -148,9 +150,11 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
               maxLength={32}
             />
 
-            <Text style={[styles.label, styles.labelSpacing]}>Максимум участников</Text>
+            <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>
+              Максимум участников
+            </Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.cardItem]}
               value={maxParticipants}
               onChangeText={(v) => setMaxParticipants(v.replace(/[^0-9]/g, ''))}
               placeholder="25"
@@ -159,7 +163,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
               maxLength={3}
             />
 
-            <View style={styles.switchRow}>
+            <View style={[styles.switchRow, styles.cardItem]}>
               <View style={styles.switchTextWrap}>
                 <Text style={styles.switchTitle}>Приватная комната</Text>
                 <Text style={styles.switchHint}>
@@ -169,7 +173,7 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
               <Switch value={isPrivate} onValueChange={setIsPrivate} />
             </View>
 
-            <View style={styles.switchRow}>
+            <View style={[styles.switchRow, styles.cardItem]}>
               <View style={styles.switchTextWrap}>
                 <Text style={styles.switchTitle}>Постоянная</Text>
                 <Text style={styles.switchHint}>
@@ -179,12 +183,13 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
               <Switch value={isPersistent} onValueChange={setIsPersistent} />
             </View>
 
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error ? <Text style={[styles.errorText, styles.cardItem]}>{error}</Text> : null}
 
             <Button
               title={busy ? 'Создание...' : 'Создать'}
               onPress={handleCreate}
               disabled={!canSubmit}
+              style={styles.cardItem}
             />
 
             <Text style={styles.note}>
@@ -202,8 +207,9 @@ const makeStyles = (t: Theme) =>
     root: {flex: 1, backgroundColor: t.colors.bg},
     scrollPad: {padding: t.spacing.md, paddingBottom: t.spacing.xl},
     keyboard: {flex: 1},
-    card: {
-      gap: t.spacing.md,
+    card: {},
+    cardItem: {
+      marginBottom: t.spacing.md,
     },
     label: {...t.typography.body, color: t.colors.textMuted},
     labelSpacing: {marginTop: t.spacing.md},
@@ -222,7 +228,6 @@ const makeStyles = (t: Theme) =>
       marginTop: t.spacing.md,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: t.spacing.md,
       paddingVertical: t.spacing.sm,
       paddingHorizontal: t.spacing.md,
       borderRadius: 16,
@@ -230,7 +235,7 @@ const makeStyles = (t: Theme) =>
       borderColor: t.colors.border,
       backgroundColor: t.colors.bgElevated,
     },
-    switchTextWrap: {flex: 1},
+    switchTextWrap: {flex: 1, marginRight: t.spacing.md},
     switchTitle: {...t.typography.body, color: t.colors.text},
     switchHint: {...t.typography.tiny, color: t.colors.textMuted, marginTop: t.spacing.xs},
     errorText: {

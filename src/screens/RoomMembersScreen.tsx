@@ -219,7 +219,7 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
 
           return (
             <View style={styles.memberRow}>
-              <View style={{flex: 1, minWidth: 0}}>
+              <View style={styles.memberInfo}>
                 <Text style={styles.memberId} numberOfLines={1}>
                   {item.userId}
                 </Text>
@@ -232,7 +232,7 @@ export const RoomMembersScreen: React.FC<Props> = ({route, navigation}) => {
               <View style={styles.actionsCol}>
                 {canToggle ? (
                   <TouchableOpacity
-                    style={styles.smallBtn}
+                    style={[styles.smallBtn, canKickThis ? styles.actionsItem : null]}
                     onPress={() => toggleModerator(item.userId, item.role)}>
                     <Text style={styles.smallBtnText}>
                       {isMod ? 'Снять модера' : 'Сделать модером'}
@@ -298,7 +298,6 @@ const makeStyles = (t: Theme) =>
     memberRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
       padding: 14,
       borderRadius: 16,
       borderWidth: 1,
@@ -307,10 +306,12 @@ const makeStyles = (t: Theme) =>
       marginBottom: 12,
       ...t.shadows.card,
     },
+    memberInfo: {flex: 1, minWidth: 0, marginRight: 12},
     memberId: {...t.typography.body, color: t.colors.text},
     memberRole: {...t.typography.tiny, color: t.colors.textMuted, marginTop: 4},
 
-    actionsCol: {alignItems: 'flex-end', justifyContent: 'center', gap: 8},
+    actionsCol: {alignItems: 'flex-end', justifyContent: 'center'},
+    actionsItem: {marginBottom: 8},
     smallBtn: {
       paddingHorizontal: 10,
       paddingVertical: 8,

@@ -78,9 +78,9 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboard}>
         <Card style={styles.card}>
-          <Text style={styles.label}>Код приглашения</Text>
+          <Text style={[styles.label, styles.cardItem]}>Код приглашения</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.cardItem]}
             value={code}
             onChangeText={(v) => setCode(v.toUpperCase())}
             placeholder="Например: EIN-1234"
@@ -90,12 +90,13 @@ export const JoinByCodeScreen: React.FC<Props> = ({navigation, route}) => {
             maxLength={32}
           />
 
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {error ? <Text style={[styles.errorText, styles.cardItem]}>{error}</Text> : null}
 
           <Button
             title={busy ? 'Входим...' : 'Войти'}
             onPress={handleJoin}
             disabled={!canSubmit}
+            style={styles.cardItem}
           />
 
           <Text style={styles.note}>
@@ -113,7 +114,9 @@ const makeStyles = (t: Theme) =>
     keyboard: {flex: 1, justifyContent: 'center'},
     card: {
       marginHorizontal: t.spacing.md,
-      gap: t.spacing.md,
+    },
+    cardItem: {
+      marginBottom: t.spacing.md,
     },
     label: {...t.typography.body, color: t.colors.textMuted},
     input: {

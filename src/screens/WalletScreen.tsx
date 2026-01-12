@@ -356,12 +356,12 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
     }
   }, [api, pendingWithdraw, loadWithdrawMeta, loadWallet, security]);
 
-  const TabButton = ({k, title}: {k: TabKey; title: string}) => {
+  const TabButton = ({k, title, isLast}: {k: TabKey; title: string; isLast: boolean}) => {
     const active = tab === k;
     return (
       <TouchableOpacity
         onPress={() => setTab(k)}
-        style={[styles.tabBtn, active ? styles.tabBtnActive : null]}
+        style={[styles.tabBtn, !isLast ? styles.tabBtnSpacing : null, active ? styles.tabBtnActive : null]}
         accessibilityRole="button">
         <Text style={[styles.tabText, active ? styles.tabTextActive : null]}>{title}</Text>
       </TouchableOpacity>
@@ -373,10 +373,10 @@ export const WalletScreen: React.FC<{navigation: any}> = ({navigation}) => {
       <AppHeader title="Кошелёк" subtitle="EIN" onBack={onBack} />
 
       <View style={styles.tabs}>
-        <TabButton k="overview" title="Обзор" />
-        <TabButton k="send" title="Перевод" />
-        <TabButton k="withdraw" title="Вывод" />
-        <TabButton k="history" title="История" />
+        <TabButton k="overview" title="Обзор" isLast={false} />
+        <TabButton k="send" title="Перевод" isLast={false} />
+        <TabButton k="withdraw" title="Вывод" isLast={false} />
+        <TabButton k="history" title="История" isLast />
       </View>
 
       <ScrollView
@@ -633,9 +633,9 @@ const makeStyles = (t: Theme) =>
       flexDirection: 'row',
       paddingHorizontal: 12,
       paddingBottom: 10,
-      gap: 8,
       backgroundColor: t.colors.bg,
     },
+    tabBtnSpacing: {marginRight: 8},
     tabBtn: {
       flex: 1,
       borderWidth: 1,
@@ -703,7 +703,7 @@ const makeStyles = (t: Theme) =>
     hint: {color: t.colors.textSecondary, marginTop: 10},
     error: {color: t.colors.danger, marginTop: 10, fontWeight: '700'},
     success: {color: t.colors.success, marginTop: 10, fontWeight: '700'},
-    row: {flexDirection: 'row', gap: 10, marginTop: 12},
+    row: {flexDirection: 'row', marginTop: 12},
     rowBetween: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2},
     flex1: {flex: 1},
     mr8: {marginRight: 8},

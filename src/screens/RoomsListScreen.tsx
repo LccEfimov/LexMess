@@ -142,7 +142,7 @@ export const RoomsListScreen: React.FC<Props> = ({
     return (
       <View style={styles.headerRight}>
         {onOpenMain ? (
-          <Pressable style={styles.headerBtn} onPress={onOpenMain}>
+          <Pressable style={[styles.headerBtn, styles.headerBtnSpacing]} onPress={onOpenMain}>
             <Text style={styles.headerBtnText}>{i18n.t('roomsList.header.rooms')}</Text>
           </Pressable>
         ) : null}
@@ -206,12 +206,17 @@ export const RoomsListScreen: React.FC<Props> = ({
               onLongPress={onTogglePin ? () => onTogglePin(item.id) : undefined}
               delayLongPress={350}>
               <View style={styles.cardTopRow}>
-                <View style={styles.leftCol}>
+                <View style={[styles.leftCol, styles.cardTopItem]}>
                   <View style={styles.titleRow}>
-                    <Text style={[styles.badge, item.isPrivate ? styles.badgePrivate : styles.badgePublic]}>
+                    <Text
+                      style={[
+                        styles.badge,
+                        styles.titleRowItem,
+                        item.isPrivate ? styles.badgePrivate : styles.badgePublic,
+                      ]}>
                       {badgeText}
                     </Text>
-                    {pinned ? <Text style={styles.pin}>📌</Text> : null}
+                    {pinned ? <Text style={[styles.pin, styles.titleRowItem]}>📌</Text> : null}
                     <Text style={styles.title} numberOfLines={1}>
                       {item.title || item.id}
                     </Text>
@@ -228,7 +233,7 @@ export const RoomsListScreen: React.FC<Props> = ({
                   )}
                 </View>
 
-                <View style={styles.rightCol}>
+                <View style={[styles.rightCol, styles.cardTopItem]}>
                   {time ? <Text style={styles.time}>{time}</Text> : null}
                   {unread > 0 ? (
                     <View style={styles.unreadBadge}>
@@ -335,7 +340,8 @@ export const RoomsListScreen: React.FC<Props> = ({
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
     root: {flex: 1, backgroundColor: t.colors.bg},
-    headerRight: {flexDirection: 'row', alignItems: 'center', gap: 10},
+    headerRight: {flexDirection: 'row', alignItems: 'center'},
+    headerBtnSpacing: {marginRight: 10},
     headerBtn: {
       paddingHorizontal: 12,
       paddingVertical: 8,
@@ -383,10 +389,12 @@ const makeStyles = (t: Theme) =>
       ...t.shadows.card,
     },
     cardPressed: {opacity: 0.92},
-    cardTopRow: {flexDirection: 'row', alignItems: 'flex-start', gap: 10},
+    cardTopRow: {flexDirection: 'row', alignItems: 'flex-start'},
+    cardTopItem: {marginRight: 10},
     leftCol: {flex: 1, minWidth: 0},
     rightCol: {alignItems: 'flex-end', justifyContent: 'space-between', minWidth: 60},
-    titleRow: {flexDirection: 'row', alignItems: 'center', gap: 8},
+    titleRow: {flexDirection: 'row', alignItems: 'center'},
+    titleRowItem: {marginRight: 8},
     badge: {
       ...t.typography.tiny,
       paddingHorizontal: 8,
