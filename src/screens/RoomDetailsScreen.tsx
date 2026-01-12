@@ -185,42 +185,42 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
         <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
           <View style={styles.card}>
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>ID</Text>
+              <Text style={[styles.label, styles.rowLabel]}>ID</Text>
               <Text style={styles.value} numberOfLines={1}>
                 {roomId}
               </Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>Участники</Text>
+              <Text style={[styles.label, styles.rowLabel]}>Участники</Text>
               <Text style={styles.value}>{room?.members?.length ?? 0}</Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>Приватность</Text>
+              <Text style={[styles.label, styles.rowLabel]}>Приватность</Text>
               <Text style={styles.value}>{room?.isPrivate ? 'Приватная' : 'Публичная'}</Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>Постоянная</Text>
+              <Text style={[styles.label, styles.rowLabel]}>Постоянная</Text>
               <Text style={styles.value}>
                 {room?.isPersistent === undefined ? '—' : room.isPersistent ? 'Да' : 'Нет'}
               </Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>Лимит</Text>
+              <Text style={[styles.label, styles.rowLabel]}>Лимит</Text>
               <Text style={styles.value}>{room?.maxParticipants ? String(room.maxParticipants) : '—'}</Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>Инвайт-код</Text>
+              <Text style={[styles.label, styles.rowLabel]}>Инвайт-код</Text>
               <Text style={styles.value}>{room?.inviteCode ? String(room.inviteCode) : '—'}</Text>
             </View>
           </View>
 
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.primaryBtn} onPress={openMembers}>
+            <TouchableOpacity style={[styles.primaryBtn, styles.actionItem]} onPress={openMembers}>
               <Text style={styles.primaryBtnText}>Участники</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.ghostBtn} onPress={openInvite}>
@@ -299,11 +299,13 @@ const makeStyles = (t: Theme) =>
       ...t.shadows.card,
       marginBottom: 12,
     },
-    rowBetween: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10},
+    rowBetween: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10},
     label: {...t.typography.body, color: t.colors.textMuted},
+    rowLabel: {marginRight: 10},
     value: {...t.typography.body, color: t.colors.text, flex: 1, textAlign: 'right'},
 
-    actionsRow: {flexDirection: 'row', gap: 10, marginBottom: 12},
+    actionsRow: {flexDirection: 'row', marginBottom: 12},
+    actionItem: {marginRight: 10},
     primaryBtn: {
       flex: 1,
       borderRadius: 14,

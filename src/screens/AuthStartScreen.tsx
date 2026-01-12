@@ -28,6 +28,7 @@ export const AuthStartScreen: React.FC<Props> = ({navigation, initialLogin}) => 
         <Button
           title={i18n.t('authStart.login')}
           onPress={() => navigation.navigate('Login', {prefillLogin: initialLogin || ''})}
+          style={styles.cardAction}
         />
         <Button
           title={i18n.t('authStart.register')}
@@ -67,7 +68,9 @@ const makeStyles = (t: Theme) =>
     lineHeight: 20,
   },
   card: {
-    gap: 12,
+  },
+  cardAction: {
+    marginBottom: 12,
   },
   hint: {
     marginTop: 18,

@@ -80,15 +80,15 @@ export const RoomInviteScreen: React.FC<Props> = ({navigation, route}) => {
       <AppHeader title="Комната создана" onBack={() => navigation.goBack()} right={null} />
 
       <Card style={styles.card}>
-        <Text style={styles.label}>Комната</Text>
-        <Text style={styles.value}>
+        <Text style={[styles.label, styles.cardItem]}>Комната</Text>
+        <Text style={[styles.value, styles.cardItem]}>
           {title || roomId || 'Новая комната'}
         </Text>
 
-        <Text style={[styles.label, styles.labelSpacing]}>ID комнаты</Text>
-        <Text style={styles.value}>{roomId}</Text>
+        <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>ID комнаты</Text>
+        <Text style={[styles.value, styles.cardItem]}>{roomId}</Text>
 
-        <Text style={[styles.label, styles.labelSpacing]}>Инвайт-код</Text>
+        <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>Инвайт-код</Text>
         {liveInviteCode ? (
           <Text style={styles.inviteValue}>{liveInviteCode}</Text>
         ) : (
@@ -129,7 +129,9 @@ const makeStyles = (t: Theme) =>
   },
   card: {
     marginTop: t.spacing.md,
-    gap: t.spacing.sm,
+  },
+  cardItem: {
+    marginBottom: t.spacing.sm,
   },
   label: {
     fontSize: 12,
