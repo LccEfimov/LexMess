@@ -1,13 +1,18 @@
 import React from 'react';
-import {StyleProp, TextInput, TextInputProps, View, ViewStyle} from 'react-native';
+import {StyleProp, TextInput, TextInputProps, TextStyle, View, ViewStyle} from 'react-native';
 import {useTheme} from '../theme/ThemeContext';
 import {uiRadii, uiSpacing} from './constants';
 import {Label} from './Label';
 
-export const Input: React.FC<TextInputProps & {label?: string}> = ({label, style, ...props}) => {
+export const Input: React.FC<
+  TextInputProps & {
+    label?: string;
+    containerStyle?: StyleProp<ViewStyle>;
+  }
+> = ({label, style, containerStyle, ...props}) => {
   const t = useTheme();
   return (
-    <View style={{marginBottom: t.spacing.md}}>
+    <View style={[{marginBottom: t.spacing.md}, containerStyle]}>
       {label ? <Label>{label}</Label> : null}
       <TextInput
         {...props}
@@ -22,7 +27,7 @@ export const Input: React.FC<TextInputProps & {label?: string}> = ({label, style
             paddingVertical: uiSpacing.inputPaddingVertical,
             color: t.colors.text,
           },
-          style as StyleProp<ViewStyle>,
+          style as StyleProp<TextStyle>,
         ]}
       />
     </View>

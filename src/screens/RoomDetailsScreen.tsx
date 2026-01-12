@@ -3,9 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -18,6 +15,8 @@ import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {i18n} from '../i18n';
+import {Button} from '../ui/Button';
+import {Input} from '../ui/Input';
 
 type Props = {
   navigation: any;
@@ -194,9 +193,13 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
         onBack={() => navigation.goBack()}
         right={
           room?.inviteCode ? (
-            <TouchableOpacity style={styles.headerBtn} onPress={shareInvite}>
-              <Text style={styles.headerBtnText}>{i18n.t('roomDetails.actions.share')}</Text>
-            </TouchableOpacity>
+            <Button
+              title={i18n.t('roomDetails.actions.share')}
+              onPress={shareInvite}
+              variant="ghost"
+              small
+              style={styles.headerBtn}
+            />
           ) : null
         }
       />
@@ -254,38 +257,39 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
           </View>
 
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={[styles.primaryBtn, styles.actionItem]} onPress={openMembers}>
-              <Text style={styles.primaryBtnText}>{i18n.t('roomDetails.actions.members')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.ghostBtn} onPress={openInvite}>
-              <Text style={styles.ghostBtnText}>{i18n.t('roomDetails.actions.invite')}</Text>
-            </TouchableOpacity>
+            <Button
+              title={i18n.t('roomDetails.actions.members')}
+              onPress={openMembers}
+              style={[styles.actionItem, styles.actionButton]}
+            />
+            <Button
+              title={i18n.t('roomDetails.actions.invite')}
+              variant="ghost"
+              onPress={openInvite}
+              style={styles.actionButton}
+            />
           </View>
 
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>{i18n.t('roomDetails.invite.title')}</Text>
             <Text style={styles.sectionHint}>{i18n.t('roomDetails.invite.hint')}</Text>
 
-            <TextInput
-              style={styles.input}
+            <Input
               value={inviteUserId}
               onChangeText={setInviteUserId}
               placeholder={i18n.t('roomDetails.invite.placeholder')}
-              placeholderTextColor={t.colors.placeholder}
               autoCapitalize="none"
               autoCorrect={false}
+              style={styles.input}
+              containerStyle={styles.inputContainer}
             />
 
-            <TouchableOpacity
-              style={[styles.primaryBtn, (!inviteUserId.trim() || loading) ? styles.btnDisabled : null]}
+            <Button
+              title={i18n.t('roomDetails.actions.sendInvite')}
+              onPress={invite}
               disabled={!inviteUserId.trim() || loading}
-              onPress={invite}>
-              {loading ? (
-                <ActivityIndicator color={t.colors.onPrimary} />
-              ) : (
-                <Text style={styles.primaryBtnText}>{i18n.t('roomDetails.actions.sendInvite')}</Text>
-              )}
-            </TouchableOpacity>
+              style={styles.primaryAction}
+            />
 
             {!canManage ? (
               <Text style={styles.sectionNote}>
@@ -294,15 +298,20 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
             ) : null}
           </View>
 
-          <TouchableOpacity style={styles.dangerBtn} onPress={leave}>
-            <Text style={styles.dangerBtnText}>{i18n.t('roomDetails.actions.leave')}</Text>
-          </TouchableOpacity>
+          <Button
+            title={i18n.t('roomDetails.actions.leave')}
+            variant="danger"
+            onPress={leave}
+            style={styles.dangerAction}
+          />
 
-          <TouchableOpacity style={styles.ghostBtnWide} onPress={load} disabled={loading}>
-            <Text style={styles.ghostBtnText}>
-              {loading ? i18n.t('roomDetails.actions.refreshing') : i18n.t('roomDetails.actions.refresh')}
-            </Text>
-          </TouchableOpacity>
+          <Button
+            title={loading ? i18n.t('roomDetails.actions.refreshing') : i18n.t('roomDetails.actions.refresh')}
+            variant="ghost"
+            onPress={load}
+            disabled={loading}
+            style={styles.secondaryAction}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -312,91 +321,52 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
     root: {flex: 1, backgroundColor: t.colors.bg},
-    pad: {padding: 14, paddingBottom: 26},
+    pad: {padding: t.spacing.md, paddingBottom: t.spacing.xl},
     keyboard: {flex: 1},
     headerBtn: {
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
+      paddingHorizontal: t.spacing.sm,
+      borderRadius: t.radii.md,
     },
-    headerBtnText: {...t.typography.body, color: t.colors.text},
 
     card: {
-      borderRadius: 16,
+      borderRadius: t.radii.lg,
       borderWidth: 1,
       borderColor: t.colors.border,
       backgroundColor: t.colors.card,
-      padding: 14,
+      padding: t.spacing.md,
       ...t.shadows.card,
-      marginBottom: 12,
+      marginBottom: t.spacing.sm,
     },
-    rowBetween: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10},
+    rowBetween: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: t.spacing.sm,
+    },
     label: {...t.typography.body, color: t.colors.textMuted},
-    rowLabel: {marginRight: 10},
+    rowLabel: {marginRight: t.spacing.sm},
     value: {...t.typography.body, color: t.colors.text, flex: 1, textAlign: 'right'},
 
-    actionsRow: {flexDirection: 'row', marginBottom: 12},
-    actionItem: {marginRight: 10},
-    primaryBtn: {
-      flex: 1,
-      borderRadius: 14,
-      backgroundColor: t.colors.primary,
-      paddingVertical: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    primaryBtnText: {...t.typography.body, color: t.colors.onPrimary, fontWeight: '700'},
-    ghostBtn: {
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    ghostBtnWide: {
-      marginTop: 10,
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    ghostBtnText: {...t.typography.body, color: t.colors.text},
+    actionsRow: {flexDirection: 'row', marginBottom: t.spacing.sm},
+    actionItem: {marginRight: t.spacing.sm},
+    actionButton: {flex: 1},
 
     sectionTitle: {...t.typography.title, color: t.colors.text},
-    sectionHint: {...t.typography.tiny, color: t.colors.textMuted, marginTop: 6, marginBottom: 10},
+    sectionHint: {
+      ...t.typography.tiny,
+      color: t.colors.textMuted,
+      marginTop: t.spacing.xs,
+      marginBottom: t.spacing.sm,
+    },
     input: {
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      color: t.colors.text,
       ...t.typography.bodyRegular,
-      marginBottom: 12,
     },
-    sectionNote: {...t.typography.tiny, color: t.colors.textMuted, marginTop: 8},
+    inputContainer: {
+      marginBottom: t.spacing.sm,
+    },
+    sectionNote: {...t.typography.tiny, color: t.colors.textMuted, marginTop: t.spacing.sm},
 
-    dangerBtn: {
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: t.colors.dangerBorderStrong,
-      backgroundColor: t.colors.dangerBg,
-      paddingVertical: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginTop: 2,
-    },
-    dangerBtnText: {...t.typography.body, color: t.colors.danger, fontWeight: '700'},
-    btnDisabled: {opacity: 0.6},
+    primaryAction: {marginTop: t.spacing.xs},
+    dangerAction: {marginTop: t.spacing.xs},
+    secondaryAction: {marginTop: t.spacing.sm},
   });

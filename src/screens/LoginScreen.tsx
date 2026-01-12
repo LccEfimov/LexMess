@@ -5,7 +5,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   Pressable,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -14,6 +13,7 @@ import {
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {saveLocalAccount} from '../storage/localAccountStorage';
 import {i18n} from '../i18n';
+import {Input} from '../ui/Input';
 
 interface Props {
   navigation: any;
@@ -93,27 +93,26 @@ export const LoginScreen: React.FC<Props> = ({navigation, route, onAuthed}) => {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>{i18n.t('auth.login.loginLabel')}</Text>
-        <TextInput
+        <Input
+          label={i18n.t('auth.login.loginLabel')}
           value={login}
           onChangeText={setLogin}
           placeholder={i18n.t('auth.login.loginPlaceholder')}
-          placeholderTextColor={t.colors.placeholder}
           autoCapitalize="none"
           autoCorrect={false}
           style={styles.input}
         />
 
-        <Text style={[styles.label, {marginTop: 12}]}>{i18n.t('auth.login.passwordLabel')}</Text>
-        <TextInput
+        <Input
+          label={i18n.t('auth.login.passwordLabel')}
           value={password}
           onChangeText={setPassword}
           placeholder={i18n.t('auth.login.passwordPlaceholder')}
-          placeholderTextColor={t.colors.placeholder}
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
           style={styles.input}
+          containerStyle={styles.inputSpacing}
         />
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -150,52 +149,44 @@ const makeStyles = (t: Theme) =>
   container: {
     flex: 1,
     backgroundColor: t.colors.bg,
-    paddingHorizontal: 22,
-    paddingTop: 48,
+    paddingHorizontal: t.spacing.xl,
+    paddingTop: t.spacing.xl * 2,
   },
   header: {
-    marginBottom: 20,
+    marginBottom: t.spacing.lg,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '800',
+    ...t.typography.title,
     color: t.colors.text,
   },
   subtitle: {
-    marginTop: 8,
-    fontSize: 13,
+    marginTop: t.spacing.sm,
+    ...t.typography.caption,
     color: t.colors.textMuted,
   },
   card: {
     borderWidth: 1,
     borderColor: t.colors.border,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: t.radii.lg,
+    padding: t.spacing.lg,
     backgroundColor: t.colors.card,
   },
-  label: {
-    fontSize: 12,
-    color: t.colors.textMuted,
-    marginBottom: 6,
-  },
   input: {
-    height: 46,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: t.colors.inputBorder,
-    paddingHorizontal: 12,
-    color: t.colors.text,
-    backgroundColor: t.colors.inputBg,
+    minHeight: t.spacing.xl * 2,
+    ...t.typography.bodyRegular,
+  },
+  inputSpacing: {
+    marginTop: t.spacing.sm,
   },
   error: {
-    marginTop: 10,
+    marginTop: t.spacing.sm,
     color: t.colors.danger,
-    fontSize: 12,
+    ...t.typography.caption,
   },
   btn: {
-    marginTop: 16,
-    height: 48,
-    borderRadius: 12,
+    marginTop: t.spacing.md,
+    minHeight: t.spacing.xl * 2,
+    borderRadius: t.radii.md,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: t.colors.primary,
@@ -205,17 +196,18 @@ const makeStyles = (t: Theme) =>
   },
   btnText: {
     color: t.colors.onPrimary,
+    ...t.typography.body,
     fontWeight: '800',
-    fontSize: 16,
   },
   linkBtn: {
-    marginTop: 12,
+    marginTop: t.spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: t.spacing.sm,
   },
   linkText: {
     color: t.colors.text,
+    ...t.typography.body,
     fontWeight: '700',
     opacity: 0.85,
   },

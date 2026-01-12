@@ -5,7 +5,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   Pressable,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -16,6 +15,7 @@ import {useLexmessApi} from '../hooks/useLexmessApi';
 import {savePendingRecovery} from '../storage/pendingRecoveryStorage';
 import {saveLocalAccount} from '../storage/localAccountStorage';
 import {i18n} from '../i18n';
+import {Input} from '../ui/Input';
 
 interface Props {
   navigation: any;
@@ -111,43 +111,38 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
 
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
-          <Text style={styles.label}>{i18n.t('auth.recoveryReset.loginLabel')}</Text>
-          <TextInput
+          <Input
+            label={i18n.t('auth.recoveryReset.loginLabel')}
             value={login}
             onChangeText={setLogin}
             placeholder={i18n.t('auth.recoveryReset.loginPlaceholder')}
-            placeholderTextColor={t.colors.placeholder}
             autoCapitalize="none"
             autoCorrect={false}
             style={styles.input}
           />
 
-          <Text style={[styles.label, styles.labelSpacing]}>
-            {i18n.t('auth.recoveryReset.recoveryKeyLabel')}
-          </Text>
-          <TextInput
+          <Input
+            label={i18n.t('auth.recoveryReset.recoveryKeyLabel')}
             value={recoveryKey}
             onChangeText={setRecoveryKey}
             placeholder={i18n.t('auth.recoveryReset.recoveryKeyPlaceholder')}
-            placeholderTextColor={t.colors.placeholder}
             autoCapitalize="none"
             autoCorrect={false}
             multiline
             style={[styles.input, styles.inputMulti]}
+            containerStyle={styles.inputSpacing}
           />
 
-          <Text style={[styles.label, styles.labelSpacing]}>
-            {i18n.t('auth.recoveryReset.newPasswordLabel')}
-          </Text>
-          <TextInput
+          <Input
+            label={i18n.t('auth.recoveryReset.newPasswordLabel')}
             value={newPassword}
             onChangeText={setNewPassword}
             placeholder={i18n.t('auth.recoveryReset.newPasswordPlaceholder')}
-            placeholderTextColor={t.colors.placeholder}
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
             style={styles.input}
+            containerStyle={styles.inputSpacing}
           />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -189,18 +184,16 @@ const makeStyles = (t: Theme) =>
     paddingTop: t.spacing.xl * 2,
   },
   header: {
-    marginBottom: 20,
+    marginBottom: t.spacing.lg,
   },
   title: {
     ...t.typography.title,
-    fontSize: 26,
-    fontWeight: '900',
+    fontWeight: '800',
     color: t.colors.text,
   },
   subtitle: {
     marginTop: t.spacing.sm,
-    ...t.typography.caption,
-    lineHeight: 18,
+    ...t.typography.bodyRegular,
     color: t.colors.textMuted,
   },
   card: {
@@ -210,27 +203,16 @@ const makeStyles = (t: Theme) =>
     padding: t.spacing.md,
     backgroundColor: t.colors.card,
   },
-  label: {
-    ...t.typography.caption,
-    color: t.colors.textMuted,
-    marginBottom: t.spacing.xs,
-  },
-  labelSpacing: {
-    marginTop: t.spacing.md,
-  },
   input: {
-    minHeight: 46,
-    borderRadius: t.radii.md,
-    borderWidth: 1,
-    borderColor: t.colors.inputBorder,
-    paddingHorizontal: t.spacing.md,
-    paddingVertical: t.spacing.sm,
-    color: t.colors.text,
-    backgroundColor: t.colors.inputBg,
+    minHeight: t.spacing.xl * 2,
+    ...t.typography.bodyRegular,
   },
   inputMulti: {
-    minHeight: 92,
+    minHeight: t.spacing.xl * 4,
     textAlignVertical: 'top',
+  },
+  inputSpacing: {
+    marginTop: t.spacing.sm,
   },
   error: {
     marginTop: t.spacing.sm,
@@ -244,7 +226,7 @@ const makeStyles = (t: Theme) =>
   },
   btn: {
     marginTop: t.spacing.md,
-    height: 48,
+    minHeight: t.spacing.xl * 2,
     borderRadius: t.radii.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -255,8 +237,8 @@ const makeStyles = (t: Theme) =>
   },
   btnText: {
     color: t.colors.onPrimary,
+    ...t.typography.body,
     fontWeight: '800',
-    fontSize: 16,
   },
   linkBtn: {
     marginTop: t.spacing.md,
@@ -284,7 +266,6 @@ const makeStyles = (t: Theme) =>
   noteText: {
     marginTop: t.spacing.xs,
     ...t.typography.caption,
-    lineHeight: 18,
     color: t.colors.textMuted,
   },
   scrollContent: {

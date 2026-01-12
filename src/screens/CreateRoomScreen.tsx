@@ -2,7 +2,6 @@ import React, {useMemo, useState} from 'react';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   Switch,
   Alert,
@@ -18,6 +17,7 @@ import type {Theme} from '../theme/themes';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
+import {Input} from '../ui/Input';
 
 type Props = {
   navigation: any;
@@ -127,12 +127,12 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
           keyboardShouldPersistTaps="handled">
           <Card style={styles.card}>
             <Text style={[styles.label, styles.cardItem]}>Название</Text>
-            <TextInput
-              style={[styles.input, styles.cardItem]}
+            <Input
+              style={styles.input}
+              containerStyle={styles.cardItem}
               value={title}
               onChangeText={setTitle}
               placeholder="Например: Общение"
-              placeholderTextColor={t.colors.placeholder}
               autoCapitalize="sentences"
               maxLength={64}
             />
@@ -140,12 +140,12 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
             <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>
               Инвайт-код (необязательно)
             </Text>
-            <TextInput
-              style={[styles.input, styles.cardItem]}
+            <Input
+              style={styles.input}
+              containerStyle={styles.cardItem}
               value={inviteCode}
               onChangeText={setInviteCode}
               placeholder="Например: EIN-1234"
-              placeholderTextColor={t.colors.placeholder}
               autoCapitalize="characters"
               maxLength={32}
             />
@@ -153,12 +153,12 @@ export const CreateRoomScreen: React.FC<Props> = ({navigation, route}) => {
             <Text style={[styles.label, styles.labelSpacing, styles.cardItem]}>
               Максимум участников
             </Text>
-            <TextInput
-              style={[styles.input, styles.cardItem]}
+            <Input
+              style={styles.input}
+              containerStyle={styles.cardItem}
               value={maxParticipants}
               onChangeText={(v) => setMaxParticipants(v.replace(/[^0-9]/g, ''))}
               placeholder="25"
-              placeholderTextColor={t.colors.placeholder}
               keyboardType="number-pad"
               maxLength={3}
             />
@@ -215,13 +215,7 @@ const makeStyles = (t: Theme) =>
     labelSpacing: {marginTop: t.spacing.md},
     input: {
       marginTop: t.spacing.sm,
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
-      paddingHorizontal: t.spacing.md,
-      paddingVertical: t.spacing.sm,
-      color: t.colors.text,
+      borderRadius: t.radii.md,
       ...t.typography.bodyRegular,
     },
     switchRow: {
@@ -230,7 +224,7 @@ const makeStyles = (t: Theme) =>
       alignItems: 'center',
       paddingVertical: t.spacing.sm,
       paddingHorizontal: t.spacing.md,
-      borderRadius: 16,
+      borderRadius: t.radii.lg,
       borderWidth: 1,
       borderColor: t.colors.border,
       backgroundColor: t.colors.bgElevated,
