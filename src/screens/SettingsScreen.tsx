@@ -445,7 +445,7 @@ const makeStyles = (t: Theme) =>
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.6)',
+      backgroundColor: t.colors.overlayDark,
       padding: 16,
     },
     modalCard: {

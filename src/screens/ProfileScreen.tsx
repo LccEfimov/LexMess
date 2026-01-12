@@ -126,15 +126,15 @@ const makeStyles = (t: Theme) =>
     alignItems: 'center',
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: t.colors.ghostBorder,
   },
   btnDanger: {
     paddingVertical: 12,
     borderRadius: 14,
-    backgroundColor: 'rgba(255, 59, 48, 0.20)',
+    backgroundColor: t.colors.dangerBg,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 59, 48, 0.35)',
+    borderColor: t.colors.dangerBorderStrong,
   },
   btnText: {color: t.colors.text, fontSize: 13, fontWeight: '800'},
 });

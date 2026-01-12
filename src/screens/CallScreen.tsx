@@ -216,7 +216,7 @@ const makeStyles = (t: Theme) =>
       height: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(255,255,255,0.06)',
+      backgroundColor: t.colors.ghostBg,
     },
     placeholderText: {color: t.colors.textMuted},
     localPreviewWrap: {
@@ -274,8 +274,8 @@ const makeStyles = (t: Theme) =>
     btnText: {fontSize: 18, marginBottom: 6},
     btnLabel: {color: t.colors.textMuted, fontSize: 12, fontWeight: '600'},
     hangup: {
-      backgroundColor: 'rgba(255,77,109,0.18)',
-      borderColor: 'rgba(255,77,109,0.35)',
+      backgroundColor: t.colors.dangerBg,
+      borderColor: t.colors.dangerBorderStrong,
     },
     hangupLabel: {color: t.colors.danger, fontSize: 12, fontWeight: '800'},
   });

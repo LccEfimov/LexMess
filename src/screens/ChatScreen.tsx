@@ -1063,7 +1063,7 @@ const makeStyles = (t: Theme) =>
     paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 12,
-    backgroundColor: 'rgba(59, 130, 246, 0.18)',
+    backgroundColor: t.colors.infoBg,
     marginRight: 10,
   },
   retryIcon: {
@@ -1075,7 +1075,7 @@ const makeStyles = (t: Theme) =>
     minWidth: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: 'rgba(59, 130, 246, 0.35)',
+    backgroundColor: t.colors.infoBorder,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 5,
@@ -1092,7 +1092,7 @@ const makeStyles = (t: Theme) =>
   },
   menuBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor: t.colors.overlayDark,
     justifyContent: 'flex-start',
     alignItems: 'flex-end',
   },
@@ -1245,7 +1245,7 @@ const makeStyles = (t: Theme) =>
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: t.colors.overlayDark,
     justifyContent: 'flex-end',
   },
   attachPanel: {
