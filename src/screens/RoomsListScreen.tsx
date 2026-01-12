@@ -17,6 +17,7 @@ import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import type {RoomItem} from './RoomsScreen';
 import {i18n} from '../i18n';
+import {formatTs} from '../utils/dateTime';
 
 type Props = {
   title: string;
@@ -35,36 +36,6 @@ type Props = {
   onLeaveRoom?: (roomId: string) => Promise<void>;
   busyByRoom?: Record<string, boolean>;
 };
-
-function isToday(ts: number): boolean {
-  const d = new Date(ts);
-  const n = new Date();
-  return (
-    d.getFullYear() === n.getFullYear() &&
-    d.getMonth() === n.getMonth() &&
-    d.getDate() === n.getDate()
-  );
-}
-
-function formatTime(ts: number): string {
-  const d = new Date(ts);
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mm = String(d.getMinutes()).padStart(2, '0');
-  return `${hh}:${mm}`;
-}
-
-function formatShortDate(ts: number): string {
-  const d = new Date(ts);
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  return `${dd}.${mm}`;
-}
-
-function formatTs(ts?: number | null): string {
-  const v = Number(ts || 0);
-  if (!v) return '';
-  return isToday(v) ? formatTime(v) : formatShortDate(v);
-}
 
 export const RoomsListScreen: React.FC<Props> = ({
   title,
