@@ -143,11 +143,17 @@ const filtered = useMemo(() => {
     return (
       <View style={styles.headerRight}>
         {onOpenMain ? (
-          <Pressable style={styles.headerBtn} onPress={onOpenMain}>
+          <Pressable
+            style={styles.headerBtn}
+            onPress={onOpenMain}
+            accessibilityLabel="Открыть список комнат">
             <Text style={styles.headerBtnText}>Комнаты</Text>
           </Pressable>
         ) : null}
-        <Pressable style={styles.headerBtn} onPress={onOpenSettings}>
+        <Pressable
+          style={styles.headerBtn}
+          onPress={onOpenSettings}
+          accessibilityLabel="Открыть настройки">
           <Text style={styles.headerBtnText}>Настройки</Text>
         </Pressable>
       </View>
@@ -167,7 +173,11 @@ const filtered = useMemo(() => {
           placeholderTextColor={t.colors.placeholder}
         />
         {search ? (
-          <Pressable style={styles.searchClear} onPress={clearSearch} accessibilityRole="button">
+          <Pressable
+            style={styles.searchClear}
+            onPress={clearSearch}
+            accessibilityRole="button"
+            accessibilityLabel="Очистить поиск">
             <Text style={styles.searchClearText}>×</Text>
           </Pressable>
         ) : null}
@@ -201,7 +211,8 @@ const filtered = useMemo(() => {
               style={({pressed}) => [styles.card, pressed ? styles.cardPressed : null]}
               onPress={() => onOpenRoom(item.id, item.title)}
               onLongPress={onTogglePin ? () => onTogglePin(item.id) : undefined}
-              delayLongPress={350}>
+              delayLongPress={350}
+              accessibilityLabel={`Открыть ${item.title || item.id}`}>
               <View style={styles.cardTopRow}>
                 <View style={styles.leftCol}>
                   <View style={styles.titleRow}>
@@ -243,6 +254,13 @@ const filtered = useMemo(() => {
       (busyByRoom && busyByRoom[item.id]) ? styles.actionBtnDisabled : null,
     ]}
     disabled={!!(busyByRoom && busyByRoom[item.id])}
+    accessibilityLabel={
+      item.type === 'public'
+        ? `Вступить в комнату ${item.title || item.id}`
+        : item.role === 'owner'
+        ? `Открыть комнату ${item.title || item.id}`
+        : `Выйти из комнаты ${item.title || item.id}`
+    }
     onPress={() => {
       if (item.type === 'public') {
         const doJoin = async () => {

@@ -70,6 +70,7 @@ export const Button: React.FC<{
   onPress: () => void;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
   /** legacy */
   small?: boolean;
   /** legacy */
@@ -78,7 +79,7 @@ export const Button: React.FC<{
   danger?: boolean;
   /** new */
   variant?: ButtonVariant;
-}> = ({title, onPress, disabled, style, small, secondary, danger, variant}) => {
+}> = ({title, onPress, disabled, style, accessibilityLabel, small, secondary, danger, variant}) => {
   const t = useTheme();
 
   const v: ButtonVariant = useMemo(() => {
@@ -91,7 +92,11 @@ export const Button: React.FC<{
   const styles = useMemo(() => makeButtonStyles(t, v, !!disabled, !!small), [t, v, disabled, small]);
 
   return (
-    <TouchableOpacity disabled={disabled} onPress={onPress} style={[styles.btn, style]}>
+    <TouchableOpacity
+      disabled={disabled}
+      onPress={onPress}
+      style={[styles.btn, style]}
+      accessibilityLabel={accessibilityLabel}>
       <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>
   );

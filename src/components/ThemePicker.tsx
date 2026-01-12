@@ -23,6 +23,8 @@ export const ThemePicker: React.FC<Props> = ({value, onChange, compact}) => {
           <Pressable
             key={opt.id}
             onPress={() => onChange(opt.id)}
+            accessibilityRole="button"
+            accessibilityState={{selected}}
             style={({pressed}) => [
               styles.item,
               selected ? styles.itemSelected : styles.itemNormal,

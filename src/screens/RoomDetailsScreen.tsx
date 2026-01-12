@@ -174,7 +174,10 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
         onBack={() => navigation.goBack()}
         right={
           room?.inviteCode ? (
-            <TouchableOpacity style={styles.headerBtn} onPress={shareInvite}>
+            <TouchableOpacity
+              style={styles.headerBtn}
+              onPress={shareInvite}
+              accessibilityLabel="Поделиться инвайтом комнаты">
               <Text style={styles.headerBtnText}>Поделиться</Text>
             </TouchableOpacity>
           ) : null
@@ -220,10 +223,16 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
           </View>
 
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.primaryBtn} onPress={openMembers}>
+            <TouchableOpacity
+              style={styles.primaryBtn}
+              onPress={openMembers}
+              accessibilityLabel="Открыть список участников">
               <Text style={styles.primaryBtnText}>Участники</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.ghostBtn} onPress={openInvite}>
+            <TouchableOpacity
+              style={styles.ghostBtn}
+              onPress={openInvite}
+              accessibilityLabel="Открыть экран инвайта">
               <Text style={styles.ghostBtnText}>Инвайт</Text>
             </TouchableOpacity>
           </View>
@@ -247,7 +256,8 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
             <TouchableOpacity
               style={[styles.primaryBtn, (!inviteUserId.trim() || loading) ? styles.btnDisabled : null]}
               disabled={!inviteUserId.trim() || loading}
-              onPress={invite}>
+              onPress={invite}
+              accessibilityLabel="Отправить инвайт пользователю">
               {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>Отправить</Text>}
             </TouchableOpacity>
 
@@ -258,11 +268,15 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
             ) : null}
           </View>
 
-          <TouchableOpacity style={styles.dangerBtn} onPress={leave}>
+          <TouchableOpacity style={styles.dangerBtn} onPress={leave} accessibilityLabel="Покинуть комнату">
             <Text style={styles.dangerBtnText}>Покинуть комнату</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.ghostBtnWide} onPress={load} disabled={loading}>
+          <TouchableOpacity
+            style={styles.ghostBtnWide}
+            onPress={load}
+            disabled={loading}
+            accessibilityLabel="Обновить данные комнаты">
             <Text style={styles.ghostBtnText}>{loading ? 'Обновление...' : 'Обновить данные'}</Text>
           </TouchableOpacity>
         </ScrollView>

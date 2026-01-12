@@ -685,7 +685,11 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
         right={
           <View style={styles.headerRight}>
             {typeof pendingCount === 'number' && pendingCount > 0 && onRetryPending ? (
-              <TouchableOpacity style={styles.retryBtn} onPress={onRetryPending}>
+              <TouchableOpacity
+                style={styles.retryBtn}
+                onPress={onRetryPending}
+                accessibilityRole="button"
+                accessibilityLabel="Повторить отправку сообщений">
                 <Text style={styles.retryIcon}>↻</Text>
                 <View style={styles.retryBadge}>
                   <Text style={styles.retryBadgeText}>{pendingCount}</Text>
@@ -697,7 +701,9 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
                 if (onOpenParticipants) {
                   onOpenParticipants();
                 }
-              }}>
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Открыть участников комнаты">
               <Text style={styles.headerIcon}>👥</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -705,10 +711,15 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
                 if (onOpenRoomDetails) {
                   onOpenRoomDetails();
                 }
-              }}>
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Открыть информацию о комнате">
               <Text style={styles.headerIcon}>ⓘ</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={openMenu}>
+            <TouchableOpacity
+              onPress={openMenu}
+              accessibilityRole="button"
+              accessibilityLabel="Открыть меню">
               <Text style={styles.menuIcon}>☰</Text>
             </TouchableOpacity>
           </View>

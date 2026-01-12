@@ -295,6 +295,7 @@ export const SettingsScreen: React.FC<Props> = props => {
         <Button
           title="RU"
           onPress={() => setLanguage('ru')}
+          accessibilityLabel="Выбрать русский язык"
           small
           secondary={String(language) !== 'ru'}
         />
@@ -302,6 +303,7 @@ export const SettingsScreen: React.FC<Props> = props => {
         <Button
           title="EN"
           onPress={() => setLanguage('en')}
+          accessibilityLabel="Выбрать английский язык"
           small
           secondary={String(language) !== 'en'}
         />
@@ -313,18 +315,40 @@ export const SettingsScreen: React.FC<Props> = props => {
       <Spacer h={8} />
       <Row>
         {!security.hasPin ? (
-          <Button title="Установить PIN" onPress={() => openPin('set')} small />
+          <Button
+            title="Установить PIN"
+            onPress={() => openPin('set')}
+            accessibilityLabel="Установить PIN"
+            small
+          />
         ) : (
           <>
-            <Button title="Изменить PIN" onPress={() => openPin('change')} small />
+            <Button
+              title="Изменить PIN"
+              onPress={() => openPin('change')}
+              accessibilityLabel="Изменить PIN"
+              small
+            />
             <Spacer w={10} />
-            <Button title="Отключить" onPress={disablePin} small secondary />
+            <Button
+              title="Отключить"
+              onPress={disablePin}
+              accessibilityLabel="Отключить PIN"
+              small
+              secondary
+            />
           </>
         )}
       </Row>
 
       <Spacer h={8} />
-      <Button title="Показать ключ восстановления" onPress={showRecovery} small secondary />
+      <Button
+        title="Показать ключ восстановления"
+        onPress={showRecovery}
+        accessibilityLabel="Показать ключ восстановления"
+        small
+        secondary
+      />
 
       <Spacer h={16} />
       <Divider />
@@ -332,19 +356,30 @@ export const SettingsScreen: React.FC<Props> = props => {
 
       <SectionTitle>Навигация</SectionTitle>
       <Row>
-        <Button title="Главная" onPress={props.onOpenMain} small secondary />
+        <Button title="Главная" onPress={props.onOpenMain} accessibilityLabel="Открыть главную" small secondary />
         <Spacer w={10} />
-        <Button title="Кошелёк" onPress={props.onOpenWallet} small secondary />
+        <Button title="Кошелёк" onPress={props.onOpenWallet} accessibilityLabel="Открыть кошелёк" small secondary />
         <Spacer w={10} />
-        <Button title="Диагностика" onPress={props.onOpenDiagnostics} small secondary />
+        <Button
+          title="Диагностика"
+          onPress={props.onOpenDiagnostics}
+          accessibilityLabel="Открыть диагностику"
+          small
+          secondary
+        />
       </Row>
 
       <Spacer h={18} />
-      <Button title={busy ? '...' : 'Сохранить'} onPress={apply} disabled={busy} />
+      <Button
+        title={busy ? '...' : 'Сохранить'}
+        onPress={apply}
+        accessibilityLabel="Сохранить настройки"
+        disabled={busy}
+      />
       <Spacer h={10} />
-      <Button title="Назад" onPress={props.onBack} secondary />
+      <Button title="Назад" onPress={props.onBack} accessibilityLabel="Вернуться назад" secondary />
       <Spacer h={10} />
-      <Button title="Выйти" onPress={props.onLogout} danger secondary />
+      <Button title="Выйти" onPress={props.onLogout} accessibilityLabel="Выйти из аккаунта" danger secondary />
 
       {/* PIN modal */}
       <Modal visible={pinVisible} transparent animationType="fade" onRequestClose={closePin}>
@@ -367,9 +402,14 @@ export const SettingsScreen: React.FC<Props> = props => {
 
             <Spacer h={14} />
             <Row>
-              <Button title="Отмена" onPress={closePin} small secondary />
+              <Button title="Отмена" onPress={closePin} accessibilityLabel="Отменить ввод PIN" small secondary />
               <Spacer w={10} />
-              <Button title={pinStep === 1 ? 'Далее' : 'Готово'} onPress={pinNext} small />
+              <Button
+                title={pinStep === 1 ? 'Далее' : 'Готово'}
+                onPress={pinNext}
+                accessibilityLabel={pinStep === 1 ? 'Перейти к подтверждению PIN' : 'Подтвердить PIN'}
+                small
+              />
             </Row>
           </Pressable>
         </Pressable>
@@ -388,9 +428,19 @@ export const SettingsScreen: React.FC<Props> = props => {
             <Input value={pwNew2} onChangeText={setPwNew2} placeholder="Повтор нового пароля" secureTextEntry />
             <Spacer h={12} />
             <Row>
-              <Button title="Отмена" onPress={() => setPwOpen(false)} secondary />
+              <Button
+                title="Отмена"
+                onPress={() => setPwOpen(false)}
+                accessibilityLabel="Отменить смену пароля"
+                secondary
+              />
               <Spacer w={10} />
-              <Button title={busy ? '...' : 'Сменить'} onPress={doChangePassword} disabled={busy} />
+              <Button
+                title={busy ? '...' : 'Сменить'}
+                onPress={doChangePassword}
+                accessibilityLabel="Сменить пароль"
+                disabled={busy}
+              />
             </Row>
           </Pressable>
         </Pressable>
@@ -405,9 +455,19 @@ export const SettingsScreen: React.FC<Props> = props => {
             <Input value={rotCurrent} onChangeText={setRotCurrent} placeholder="Текущий пароль" secureTextEntry />
             <Spacer h={12} />
             <Row>
-              <Button title="Отмена" onPress={() => setRotOpen(false)} secondary />
+              <Button
+                title="Отмена"
+                onPress={() => setRotOpen(false)}
+                accessibilityLabel="Отменить генерацию ключа восстановления"
+                secondary
+              />
               <Spacer w={10} />
-              <Button title={busy ? '...' : 'Сгенерировать'} onPress={doRotateRecovery} disabled={busy} />
+              <Button
+                title={busy ? '...' : 'Сгенерировать'}
+                onPress={doRotateRecovery}
+                accessibilityLabel="Сгенерировать новый ключ восстановления"
+                disabled={busy}
+              />
             </Row>
           </Pressable>
         </Pressable>
