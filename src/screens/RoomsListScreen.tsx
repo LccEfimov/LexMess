@@ -375,7 +375,7 @@ const makeStyles = (t: Theme) =>
       overflow: 'hidden',
     },
     badgePublic: {backgroundColor: t.colors.ghostBg, borderColor: t.colors.ghostBorder, color: t.colors.textMuted},
-    badgePrivate: {backgroundColor: 'rgba(255,59,48,0.10)', borderColor: 'rgba(255,59,48,0.25)', color: t.colors.danger},
+    badgePrivate: {backgroundColor: t.colors.dangerBg, borderColor: t.colors.dangerBorder, color: t.colors.danger},
     pin: {fontSize: 12, color: t.colors.textMuted},
     title: {...t.typography.title, color: t.colors.text, flex: 1},
     subtitle: {...t.typography.bodyRegular, color: t.colors.textMuted, marginTop: 6},

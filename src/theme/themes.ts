@@ -35,6 +35,9 @@ export type ThemeColors = {
   accentText: string;
 
   danger: string;
+  dangerBg: string;
+  dangerBorder: string;
+  dangerBorderStrong: string;
   success: string;
 
   inputBg: string;
@@ -130,6 +133,9 @@ const LEXMESS_DARK: ThemeColors = makeColors({
   onPrimary: '#ffffff',
 
   danger: '#ff4d6d',
+  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBorder: 'rgba(255,59,48,0.25)',
+  dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#33d17a',
 
   inputBg: 'rgba(255,255,255,0.06)',
@@ -162,6 +168,9 @@ const LEXMESS_LIGHT: ThemeColors = makeColors({
   onPrimary: '#ffffff',
 
   danger: '#d71a44',
+  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBorder: 'rgba(255,59,48,0.25)',
+  dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#178a4b',
 
   inputBg: '#ffffff',
@@ -195,6 +204,9 @@ const TELEGRAM_DARK: ThemeColors = makeColors({
   onPrimary: '#062030',
 
   danger: '#ff4d6d',
+  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBorder: 'rgba(255,59,48,0.25)',
+  dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#33d17a',
 
   inputBg: 'rgba(255,255,255,0.06)',
@@ -227,6 +239,9 @@ const TELEGRAM_LIGHT: ThemeColors = makeColors({
   onPrimary: '#ffffff',
 
   danger: '#d71a44',
+  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBorder: 'rgba(255,59,48,0.25)',
+  dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#178a4b',
 
   inputBg: '#ffffff',
@@ -260,6 +275,9 @@ const WHATSAPP_DARK: ThemeColors = makeColors({
   onPrimary: '#05251f',
 
   danger: '#ff4d6d',
+  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBorder: 'rgba(255,59,48,0.25)',
+  dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#33d17a',
 
   inputBg: 'rgba(255,255,255,0.06)',
@@ -292,6 +310,9 @@ const WHATSAPP_LIGHT: ThemeColors = makeColors({
   onPrimary: '#ffffff',
 
   danger: '#d71a44',
+  dangerBg: 'rgba(255,59,48,0.10)',
+  dangerBorder: 'rgba(255,59,48,0.25)',
+  dangerBorderStrong: 'rgba(255,59,48,0.35)',
   success: '#178a4b',
 
   inputBg: '#ffffff',
