@@ -11,6 +11,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {markRecoveryShown, saveLocalAccount} from '../storage/localAccountStorage';
 import {
@@ -30,8 +31,9 @@ function normalizeKey(s: string): string {
 }
 
 export const RecoveryKeyScreen: React.FC<Props> = ({route, onDone}) => {
-  const t = useTheme();
-  const styles = useMemo(() => makeStyles(t), [t]);
+  const theme = useTheme();
+  const {t} = useTranslation();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
 
   const api = useLexmessApi();
 
@@ -91,7 +93,7 @@ export const RecoveryKeyScreen: React.FC<Props> = ({route, onDone}) => {
 
   const confirmSaved = async () => {
     if (!login) {
-      setError('Не удалось определить логин');
+      setError(t('recovery.errorLoginMissing'));
       return;
     }
     setBusy(true);
@@ -135,38 +137,34 @@ export const RecoveryKeyScreen: React.FC<Props> = ({route, onDone}) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Ключ восстановления</Text>
-        <Text style={styles.subtitle}>
-          Сохраните его. Он показывается один раз. {'\n'}
-          Лучше переписать на бумагу и хранить отдельно.
-        </Text>
+        <Text style={styles.title}>{t('recovery.keyTitle')}</Text>
+        <Text style={styles.subtitle}>{t('recovery.keySubtitle')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{paddingBottom: 22}}>
         <View style={styles.card}>
           <Text style={styles.infoLine}>
-            Логин: <Text style={styles.mono}>{login || '—'}</Text>
+            {t('recovery.loginLabel')}{' '}
+            <Text style={styles.mono}>{login || t('common.dash')}</Text>
           </Text>
 
           {walletAddress ? (
             <Text style={[styles.infoLine, {marginTop: 8}]}>
-              Адрес кошелька: <Text style={styles.mono}>{walletAddress}</Text>
+              {t('recovery.walletLabel')}{' '}
+              <Text style={styles.mono}>{walletAddress}</Text>
             </Text>
           ) : null}
 
           <View style={styles.keyFrame}>
-            <Text style={styles.keyHint}>Нажмите и удерживайте, чтобы выделить и скопировать</Text>
+            <Text style={styles.keyHint}>{t('recovery.keyHint')}</Text>
             <Text selectable style={styles.keyText}>
-              {recoveryKey || '—'}
+              {recoveryKey || t('common.dash')}
             </Text>
           </View>
 
           <View style={styles.warnBox}>
-            <Text style={styles.warnTitle}>Важно</Text>
-            <Text style={styles.warnText}>
-              • Потеряете ключ — потеряете доступ к аккаунту/кошельку.{"\n"}
-              • Не отправляйте ключ в чаты и не храните в галерее скриншотами.
-            </Text>
+            <Text style={styles.warnTitle}>{t('recovery.warnTitle')}</Text>
+            <Text style={styles.warnText}>{t('recovery.warnText')}</Text>
           </View>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -182,7 +180,7 @@ export const RecoveryKeyScreen: React.FC<Props> = ({route, onDone}) => {
             {busy ? (
               <ActivityIndicator />
             ) : (
-              <Text style={styles.btnText}>Я сохранил</Text>
+              <Text style={styles.btnText}>{t('recovery.savedButton')}</Text>
             )}
           </Pressable>
         </View>
@@ -191,7 +189,7 @@ export const RecoveryKeyScreen: React.FC<Props> = ({route, onDone}) => {
   );
 };
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (theme: Theme) =>
   StyleSheet.create({
   container: {
     flex: 1,

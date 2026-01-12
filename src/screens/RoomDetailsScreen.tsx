@@ -13,6 +13,7 @@ import {
   Share,
 } from 'react-native';
 
+import {useTranslation} from 'react-i18next';
 import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
@@ -58,8 +59,9 @@ function normalizeRoom(roomId: string, data: any): RoomInfo {
 }
 
 export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
-  const t = useTheme();
-  const styles = useMemo(() => makeStyles(t), [t]);
+  const theme = useTheme();
+  const {t} = useTranslation();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
   const api = useLexmessApi();
 
   const roomId = String(route?.params?.roomId || '');
@@ -77,11 +79,11 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
       const data = await api.getRoom(roomId);
       setRoom(normalizeRoom(roomId, data));
     } catch (e: any) {
-      Alert.alert('Ошибка', String(e?.message || e || 'Не удалось загрузить комнату'));
+      Alert.alert(t('common.error'), String(e?.message || e || t('roomDetails.loadError')));
     } finally {
       setLoading(false);
     }
-  }, [api, roomId]);
+  }, [api, roomId, t]);
 
   useEffect(() => {
     load().catch(() => {});
@@ -97,15 +99,19 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
   const shareInvite = useCallback(async () => {
     try {
       const msg = [
-        room?.title ? `Комната: ${room.title}` : roomTitleParam ? `Комната: ${roomTitleParam}` : undefined,
-        roomId ? `ID комнаты: ${roomId}` : undefined,
-        room?.inviteCode ? `Инвайт-код: ${room.inviteCode}` : undefined,
+        room?.title
+          ? t('roomDetails.shareRoomTitle', {title: room.title})
+          : roomTitleParam
+          ? t('roomDetails.shareRoomTitle', {title: roomTitleParam})
+          : undefined,
+        roomId ? t('roomDetails.shareRoomId', {roomId}) : undefined,
+        room?.inviteCode ? t('roomDetails.shareInviteCode', {code: room.inviteCode}) : undefined,
       ]
         .filter(Boolean)
         .join('\n');
       await Share.share({message: msg});
     } catch {}
-  }, [room, roomId, roomTitleParam]);
+  }, [room, roomId, roomTitleParam, t]);
 
   const invite = useCallback(async () => {
     const peerUserId = inviteUserId.trim();
@@ -114,27 +120,27 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
     try {
       setLoading(true);
       await api.inviteToRoom({roomId, peerUserId});
-      Alert.alert('Готово', 'Инвайт отправлен.');
+      Alert.alert(t('common.done'), t('roomDetails.inviteSuccessMessage'));
       setInviteUserId('');
     } catch (e: any) {
-      Alert.alert('Ошибка', String(e?.message || e || 'Не удалось отправить инвайт'));
+      Alert.alert(t('common.error'), String(e?.message || e || t('roomDetails.inviteError')));
     } finally {
       setLoading(false);
     }
-  }, [api, roomId, inviteUserId]);
+  }, [api, roomId, inviteUserId, t]);
 
   const leave = useCallback(() => {
-    Alert.alert('Покинуть комнату', 'Вы уверены?', [
-      {text: 'Отмена', style: 'cancel'},
+    Alert.alert(t('roomDetails.leaveTitle'), t('roomDetails.leaveMessage'), [
+      {text: t('common.cancel'), style: 'cancel'},
       {
-        text: 'Покинуть',
+        text: t('roomDetails.leaveButton'),
         style: 'destructive',
         onPress: async () => {
           try {
             setLoading(true);
             await api.leaveRoom({roomId});
           } catch (e: any) {
-            Alert.alert('Ошибка', String(e?.message || e || 'Не удалось выйти'));
+            Alert.alert(t('common.error'), String(e?.message || e || t('roomDetails.leaveError')));
             setLoading(false);
             return;
           }
@@ -149,7 +155,7 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
         },
       },
     ]);
-  }, [api, navigation, roomId]);
+  }, [api, navigation, roomId, t]);
 
   const openMembers = useCallback(() => {
     navigation.navigate('RoomMembers', {
@@ -170,12 +176,12 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
   return (
     <View style={styles.root}>
       <AppHeader
-        title={room?.title ? `Комната • ${room.title}` : 'Комната'}
+        title={room?.title ? t('roomDetails.titleWithName', {title: room.title}) : t('roomDetails.title')}
         onBack={() => navigation.goBack()}
         right={
           room?.inviteCode ? (
             <TouchableOpacity style={styles.headerBtn} onPress={shareInvite}>
-              <Text style={styles.headerBtnText}>Поделиться</Text>
+              <Text style={styles.headerBtnText}>{t('roomDetails.shareButton')}</Text>
             </TouchableOpacity>
           ) : null
         }
@@ -185,61 +191,71 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
         <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
           <View style={styles.card}>
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>ID</Text>
+              <Text style={styles.label}>{t('roomDetails.labelId')}</Text>
               <Text style={styles.value} numberOfLines={1}>
                 {roomId}
               </Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>Участники</Text>
+              <Text style={styles.label}>{t('roomDetails.labelMembers')}</Text>
               <Text style={styles.value}>{room?.members?.length ?? 0}</Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>Приватность</Text>
-              <Text style={styles.value}>{room?.isPrivate ? 'Приватная' : 'Публичная'}</Text>
-            </View>
-
-            <View style={styles.rowBetween}>
-              <Text style={styles.label}>Постоянная</Text>
+              <Text style={styles.label}>{t('roomDetails.labelPrivacy')}</Text>
               <Text style={styles.value}>
-                {room?.isPersistent === undefined ? '—' : room.isPersistent ? 'Да' : 'Нет'}
+                {room?.isPrivate ? t('roomDetails.privacyPrivate') : t('roomDetails.privacyPublic')}
               </Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>Лимит</Text>
-              <Text style={styles.value}>{room?.maxParticipants ? String(room.maxParticipants) : '—'}</Text>
+              <Text style={styles.label}>{t('roomDetails.labelPersistent')}</Text>
+              <Text style={styles.value}>
+                {room?.isPersistent === undefined
+                  ? t('common.dash')
+                  : room.isPersistent
+                  ? t('common.yes')
+                  : t('common.no')}
+              </Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={styles.label}>Инвайт-код</Text>
-              <Text style={styles.value}>{room?.inviteCode ? String(room.inviteCode) : '—'}</Text>
+              <Text style={styles.label}>{t('roomDetails.labelLimit')}</Text>
+              <Text style={styles.value}>
+                {room?.maxParticipants ? String(room.maxParticipants) : t('common.dash')}
+              </Text>
+            </View>
+
+            <View style={styles.rowBetween}>
+              <Text style={styles.label}>{t('roomDetails.labelInviteCode')}</Text>
+              <Text style={styles.value}>
+                {room?.inviteCode ? String(room.inviteCode) : t('common.dash')}
+              </Text>
             </View>
           </View>
 
           <View style={styles.actionsRow}>
             <TouchableOpacity style={styles.primaryBtn} onPress={openMembers}>
-              <Text style={styles.primaryBtnText}>Участники</Text>
+              <Text style={styles.primaryBtnText}>{t('roomDetails.buttonMembers')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.ghostBtn} onPress={openInvite}>
-              <Text style={styles.ghostBtnText}>Инвайт</Text>
+              <Text style={styles.ghostBtnText}>{t('roomDetails.buttonInvite')}</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Пригласить пользователя</Text>
+            <Text style={styles.sectionTitle}>{t('roomDetails.sectionInviteTitle')}</Text>
             <Text style={styles.sectionHint}>
-              Укажите User ID получателя. Сервер отправит инвайт (API: /v1/room/invite).
+              {t('roomDetails.sectionInviteHint')}
             </Text>
 
             <TextInput
               style={styles.input}
               value={inviteUserId}
               onChangeText={setInviteUserId}
-              placeholder="User ID"
-              placeholderTextColor={t.colors.placeholder}
+              placeholder={t('roomDetails.placeholderUserId')}
+              placeholderTextColor={theme.colors.placeholder}
               autoCapitalize="none"
               autoCorrect={false}
             />
@@ -248,22 +264,28 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
               style={[styles.primaryBtn, (!inviteUserId.trim() || loading) ? styles.btnDisabled : null]}
               disabled={!inviteUserId.trim() || loading}
               onPress={invite}>
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>Отправить</Text>}
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.primaryBtnText}>{t('roomDetails.sendButton')}</Text>
+              )}
             </TouchableOpacity>
 
             {!canManage ? (
               <Text style={styles.sectionNote}>
-                Примечание: управление ролями/кики доступно на экране участников (если у вас есть права).
+                {t('roomDetails.sectionNote')}
               </Text>
             ) : null}
           </View>
 
           <TouchableOpacity style={styles.dangerBtn} onPress={leave}>
-            <Text style={styles.dangerBtnText}>Покинуть комнату</Text>
+            <Text style={styles.dangerBtnText}>{t('roomDetails.leaveButton')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.ghostBtnWide} onPress={load} disabled={loading}>
-            <Text style={styles.ghostBtnText}>{loading ? 'Обновление...' : 'Обновить данные'}</Text>
+            <Text style={styles.ghostBtnText}>
+              {loading ? t('roomDetails.refreshLoading') : t('roomDetails.refresh')}
+            </Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -271,48 +293,48 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
   );
 };
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (theme: Theme) =>
   StyleSheet.create({
-    root: {flex: 1, backgroundColor: t.colors.bg},
+    root: {flex: 1, backgroundColor: theme.colors.bg},
     pad: {padding: 14, paddingBottom: 26},
     headerBtn: {
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.bgElevated,
     },
-    headerBtnText: {...t.typography.body, color: t.colors.text},
+    headerBtnText: {...theme.typography.body, color: theme.colors.text},
 
     card: {
       borderRadius: 16,
       borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.card,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.card,
       padding: 14,
-      ...t.shadows.card,
+      ...theme.shadows.card,
       marginBottom: 12,
     },
     rowBetween: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10},
-    label: {...t.typography.body, color: t.colors.textMuted},
-    value: {...t.typography.body, color: t.colors.text, flex: 1, textAlign: 'right'},
+    label: {...theme.typography.body, color: theme.colors.textMuted},
+    value: {...theme.typography.body, color: theme.colors.text, flex: 1, textAlign: 'right'},
 
     actionsRow: {flexDirection: 'row', gap: 10, marginBottom: 12},
     primaryBtn: {
       flex: 1,
       borderRadius: 14,
-      backgroundColor: t.colors.primary,
+      backgroundColor: theme.colors.primary,
       paddingVertical: 12,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    primaryBtnText: {...t.typography.body, color: '#fff', fontWeight: '700'},
+    primaryBtnText: {...theme.typography.body, color: '#fff', fontWeight: '700'},
     ghostBtn: {
       borderRadius: 14,
       borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.bgElevated,
       paddingHorizontal: 16,
       paddingVertical: 12,
       alignItems: 'center',
@@ -322,29 +344,29 @@ const makeStyles = (t: Theme) =>
       marginTop: 10,
       borderRadius: 14,
       borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.bgElevated,
       paddingHorizontal: 16,
       paddingVertical: 12,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    ghostBtnText: {...t.typography.body, color: t.colors.text},
+    ghostBtnText: {...theme.typography.body, color: theme.colors.text},
 
-    sectionTitle: {...t.typography.title, color: t.colors.text},
-    sectionHint: {...t.typography.tiny, color: t.colors.textMuted, marginTop: 6, marginBottom: 10},
+    sectionTitle: {...theme.typography.title, color: theme.colors.text},
+    sectionHint: {...theme.typography.tiny, color: theme.colors.textMuted, marginTop: 6, marginBottom: 10},
     input: {
       borderRadius: 14,
       borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.bgElevated,
       paddingHorizontal: 12,
       paddingVertical: 10,
-      color: t.colors.text,
-      ...t.typography.bodyRegular,
+      color: theme.colors.text,
+      ...theme.typography.bodyRegular,
       marginBottom: 12,
     },
-    sectionNote: {...t.typography.tiny, color: t.colors.textMuted, marginTop: 8},
+    sectionNote: {...theme.typography.tiny, color: theme.colors.textMuted, marginTop: 8},
 
     dangerBtn: {
       borderRadius: 14,
@@ -356,6 +378,6 @@ const makeStyles = (t: Theme) =>
       justifyContent: 'center',
       marginTop: 2,
     },
-    dangerBtnText: {...t.typography.body, color: t.colors.danger, fontWeight: '700'},
+    dangerBtnText: {...theme.typography.body, color: theme.colors.danger, fontWeight: '700'},
     btnDisabled: {opacity: 0.6},
   });

@@ -25,7 +25,7 @@ import {
   Pressable,useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 
-const makeAttachButtonStyles = (t: Theme) =>
+const makeAttachButtonStyles = (theme: Theme) =>
   StyleSheet.create({
     attachItem: {
       flexDirection: 'row',
@@ -33,9 +33,9 @@ const makeAttachButtonStyles = (t: Theme) =>
       paddingVertical: 10,
       paddingHorizontal: 14,
       borderRadius: 12,
-      backgroundColor: t.card,
+      backgroundColor: theme.card,
       borderWidth: 1,
-      borderColor: t.border,
+      borderColor: theme.border,
     },
     attachCircle: {
       width: 28,
@@ -43,13 +43,14 @@ const makeAttachButtonStyles = (t: Theme) =>
       borderRadius: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.primarySoft,
+      backgroundColor: theme.primarySoft,
       marginRight: 10,
     },
-    attachCircleText: {color: t.primary, fontSize: 16, fontWeight: '700'},
-    attachItemLabel: {color: t.text, fontSize: 14, fontWeight: '600'},
+    attachCircleText: {color: theme.primary, fontSize: 16, fontWeight: '700'},
+    attachItemLabel: {color: theme.text, fontSize: 14, fontWeight: '600'},
   });
 import DocumentPicker from 'react-native-document-picker';
+import {useTranslation} from 'react-i18next';
 import {
   Pressable,launchImageLibrary} from 'react-native-image-picker';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
@@ -126,8 +127,9 @@ export const ChatScreen: React.FC<Props> = ({
   onOpenRoomDetails,
 
 }) => {
-  const t = useTheme();
-  const styles = useMemo(() => makeStyles(t), [t]);
+  const theme = useTheme();
+  const {t} = useTranslation();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
 
   const insets = useSafeAreaInsets();
   const keyboardOffset = 56 + insets.top;
@@ -403,7 +405,7 @@ export const ChatScreen: React.FC<Props> = ({
 
       if (canRetry && onRetryPending) {
         buttons.push({
-          text: 'Повторить отправку',
+          text: t('chat.actionRetrySend'),
           onPress: () => {
             try {
               onRetryPending();
@@ -416,7 +418,7 @@ export const ChatScreen: React.FC<Props> = ({
 
       if (item.contentType === 'text' && item.body) {
         buttons.push({
-          text: 'Копировать текст',
+          text: t('chat.actionCopyText'),
           onPress: () => {
             copyToClipboard(String(item.body || '')).catch(() => {});
           },
@@ -425,7 +427,7 @@ export const ChatScreen: React.FC<Props> = ({
 
       if (fileUri) {
         buttons.push({
-          text: 'Открыть файл',
+          text: t('chat.actionOpenFile'),
           onPress: () => {
             try {
               Linking.openURL(fileUri);
@@ -437,18 +439,21 @@ export const ChatScreen: React.FC<Props> = ({
       }
 
       buttons.push({
-        text: 'Поделиться',
+        text: t('chat.actionShare'),
         onPress: () => {
-          const payload = item.contentType === 'text' ? String(item.body || '') : String(item.body || 'Сообщение');
+          const payload =
+            item.contentType === 'text'
+              ? String(item.body || '')
+              : String(item.body || t('chat.shareFallback'));
           Share.share({message: payload}).catch(() => {});
         },
       });
 
-      buttons.push({text: 'Отмена', style: 'cancel'});
+      buttons.push({text: t('common.cancel'), style: 'cancel'});
 
-      Alert.alert('Действия', undefined, buttons);
+      Alert.alert(t('chat.actionsTitle'), undefined, buttons);
     },
-    [copyToClipboard, onRetryPending],
+    [copyToClipboard, onRetryPending, t],
   );
 
 const handleToggleVoice = async (msg: ChatMessage) => {
@@ -618,7 +623,7 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
               </Text>
             </TouchableOpacity>
             <Text style={styles.audioLabel}>
-              Голосовое сообщение
+              {t('chat.voiceMessage')}
               {playingVoiceId === item.id
                 ? `  ${formatMillis(voicePosition)} / ${formatMillis(voiceDuration)}`
                 : ''}
@@ -626,7 +631,7 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
           </View>
         ) : isFile && fileUri ? (
           <View style={styles.fileRow}>
-            <Text style={styles.fileName}>{item.body || 'Файл'}</Text>
+            <Text style={styles.fileName}>{item.body || t('chat.fileFallback')}</Text>
             <TouchableOpacity
               style={styles.fileOpenBtn}
               onPress={() => {
@@ -636,7 +641,7 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
                   console.warn('ChatScreen: open file failed', e);
                 }
               }}>
-              <Text style={styles.fileOpenText}>Открыть</Text>
+              <Text style={styles.fileOpenText}>{t('chat.fileOpen')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -647,7 +652,7 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
           {!!timeText && <Text style={styles.metaTime}>{timeText}</Text>}
           {item.outgoing && status === 'failed' && onRetryPending ? (
             <TouchableOpacity style={styles.retryInline} onPress={onRetryPending}>
-              <Text style={styles.retryInlineText}>Повторить</Text>
+              <Text style={styles.retryInlineText}>{t('chat.retryInline')}</Text>
             </TouchableOpacity>
           ) : null}
           {item.outgoing && !!statusSymbol && (
@@ -668,10 +673,10 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
 
 
   const recipientsLabel = toAll
-    ? 'Всем'
+    ? t('chat.recipientsAll')
     : selectedRecipientIds.length > 0
-    ? `Выборочно (${selectedRecipientIds.length})`
-    : 'Выборочно';
+    ? t('chat.recipientsSelectedCount', {count: selectedRecipientIds.length})
+    : t('chat.recipientsSelected');
 
   return (
     <KeyboardAvoidingView
@@ -723,9 +728,9 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
         onRequestClose={closeMenu}>
         <View style={styles.menuBackdrop}>
           <View style={styles.menuCard}>
-            <Text style={styles.menuTitle}>Навигация</Text>
+            <Text style={styles.menuTitle}>{t('chat.menuTitle')}</Text>
             <TouchableOpacity style={styles.menuItem} onPress={handleGoMain}>
-              <Text style={styles.menuItemText}>Главный экран</Text>
+              <Text style={styles.menuItemText}>{t('chat.menuMain')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.menuItem}
@@ -735,13 +740,13 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
                   onOpenRoomDetails();
                 }
               }}>
-              <Text style={styles.menuItemText}>О комнате</Text>
+              <Text style={styles.menuItemText}>{t('chat.menuRoomInfo')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={handleGoSettings}>
-              <Text style={styles.menuItemText}>Настройки</Text>
+              <Text style={styles.menuItemText}>{t('chat.menuSettings')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={closeMenu}>
-              <Text style={styles.menuItemText}>Закрыть меню</Text>
+              <Text style={styles.menuItemText}>{t('chat.menuClose')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -755,7 +760,7 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
         onRequestClose={handleRecipientsDone}>
         <View style={styles.modalBackdrop}>
           <View style={styles.recipientsPanel}>
-            <Text style={styles.attachTitle}>Выбор получателей</Text>
+            <Text style={styles.attachTitle}>{t('chat.recipientsTitle')}</Text>
             <ScrollView style={styles.recipientsList}>
               {participants.map(p => {
                 const active = selectedRecipientIds.includes(p.id);
@@ -779,7 +784,7 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
             <TouchableOpacity
               style={styles.closeAttachButton}
               onPress={handleRecipientsDone}>
-              <Text style={styles.closeAttachText}>Готово</Text>
+              <Text style={styles.closeAttachText}>{t('chat.recipientsDone')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -796,8 +801,8 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
         renderItem={renderMessage}
         ListEmptyComponent={
           <View style={styles.emptyWrap}>
-            <Text style={styles.emptyTitle}>Пока нет сообщений</Text>
-            <Text style={styles.emptyHint}>Отправьте первое сообщение, чтобы начать диалог.</Text>
+            <Text style={styles.emptyTitle}>{t('chat.emptyTitle')}</Text>
+            <Text style={styles.emptyHint}>{t('chat.emptyHint')}</Text>
           </View>
         }
         inverted
@@ -811,40 +816,40 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
         onRequestClose={closeAttachments}>
         <View style={styles.modalBackdrop}>
           <View style={styles.attachPanel}>
-            <Text style={styles.attachTitle}>Вложения и звонки</Text>
+            <Text style={styles.attachTitle}>{t('chat.attachmentsTitle')}</Text>
             <View style={styles.attachGrid}>
-              <AttachButton label="Файл" onPress={handleAttachFile} />
-              <AttachButton label="Фото" onPress={handleAttachPhoto} />
-              <AttachButton label="Видео" onPress={handleAttachVideo} />
+              <AttachButton label={t('chat.attachFile')} onPress={handleAttachFile} />
+              <AttachButton label={t('chat.attachPhoto')} onPress={handleAttachPhoto} />
+              <AttachButton label={t('chat.attachVideo')} onPress={handleAttachVideo} />
               <AttachButton
-                label={isRecordingVoice ? "Стоп голос всем" : "Голос всем"}
+                label={isRecordingVoice ? t('chat.attachVoiceAllStop') : t('chat.attachVoiceAll')}
                 onPress={handleVoiceAll}
               />
               <AttachButton
-                label="Голос выборочно"
+                label={t('chat.attachVoiceSelective')}
                 onPress={handleVoiceSelective}
               />
               <AttachButton
-                label="Видео всем"
+                label={t('chat.attachVideoAll')}
                 onPress={() => handleStartCall(true, true)}
               />
               <AttachButton
-                label="Видео выборочно"
+                label={t('chat.attachVideoSelective')}
                 onPress={() => handleStartCall(true, false)}
               />
               <AttachButton
-                label="Аудио всем"
+                label={t('chat.attachAudioAll')}
                 onPress={() => handleStartCall(false, true)}
               />
               <AttachButton
-                label="Аудио выборочно"
+                label={t('chat.attachAudioSelective')}
                 onPress={() => handleStartCall(false, false)}
               />
             </View>
             <TouchableOpacity
               style={styles.closeAttachButton}
               onPress={closeAttachments}>
-              <Text style={styles.closeAttachText}>Закрыть</Text>
+              <Text style={styles.closeAttachText}>{t('chat.attachClose')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -860,8 +865,8 @@ const renderMessage = ({item}: {item: ChatMessage}) => {
           style={styles.input}
           value={text}
           onChangeText={setText}
-          placeholder="Сообщение..."
-          placeholderTextColor={t.colors.placeholder}
+          placeholder={t('chat.inputPlaceholder')}
+          placeholderTextColor={theme.colors.placeholder}
         />
 
         <TouchableOpacity style={styles.attachButton} onPress={openAttachments}>
@@ -884,8 +889,8 @@ interface AttachButtonProps {
 }
 
 const AttachButton: React.FC<AttachButtonProps> = ({label, onPress, disabled}) => {
-  const t = useTheme();
-  const s = useMemo(() => makeAttachButtonStyles(t), [t]);
+  const theme = useTheme();
+  const s = useMemo(() => makeAttachButtonStyles(theme), [theme]);
   return (
     <TouchableOpacity
       style={[s.attachItem, disabled ? {opacity: 0.5} : null]}
@@ -900,11 +905,11 @@ const AttachButton: React.FC<AttachButtonProps> = ({label, onPress, disabled}) =
   );
 };
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (theme: Theme) =>
   StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: t.colors.bg,
+    backgroundColor: theme.colors.bg,
   },
     retryInline: {
       marginLeft: 10,
@@ -912,12 +917,12 @@ const makeStyles = (t: Theme) =>
       paddingVertical: 5,
       borderRadius: 999,
       borderWidth: 1,
-      borderColor: t.border,
-      backgroundColor: t.bgElevated,
+      borderColor: theme.border,
+      backgroundColor: theme.bgElevated,
     },
     retryInlineText: {
-      ...t.typography.tiny,
-      color: t.text,
+      ...theme.typography.tiny,
+      color: theme.text,
       fontWeight: '700',
     },
 
@@ -927,18 +932,18 @@ const makeStyles = (t: Theme) =>
     alignItems: 'center',
     paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: t.colors.border,
+    borderBottomColor: theme.colors.border,
   },
   backIcon: {
     fontSize: 20,
-    color: t.colors.text,
+    color: theme.colors.text,
     marginRight: 8,
   },
   headerTitle: {
     flex: 1,
     fontSize: 18,
     fontWeight: '600',
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   retryBtn: {
     flexDirection: 'row',
@@ -951,7 +956,7 @@ const makeStyles = (t: Theme) =>
   },
   retryIcon: {
     fontSize: 16,
-    color: t.colors.primary,
+    color: theme.colors.primary,
   },
   retryBadge: {
     marginLeft: 6,
@@ -965,13 +970,13 @@ const makeStyles = (t: Theme) =>
   },
   retryBadgeText: {
     fontSize: 11,
-    color: t.colors.text,
+    color: theme.colors.text,
     fontWeight: '700',
   },
 
   menuIcon: {
     fontSize: 20,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   menuBackdrop: {
     flex: 1,
@@ -982,17 +987,17 @@ const makeStyles = (t: Theme) =>
   menuCard: {
     marginTop: 40,
     marginRight: 12,
-    backgroundColor: t.colors.bg,
+    backgroundColor: theme.colors.bg,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: t.colors.border,
+    borderColor: theme.colors.border,
     paddingVertical: 8,
     paddingHorizontal: 12,
     minWidth: 180,
   },
   menuTitle: {
     fontSize: 13,
-    color: t.colors.textMuted,
+    color: theme.colors.textMuted,
     marginBottom: 6,
   },
   menuItem: {
@@ -1000,7 +1005,7 @@ const makeStyles = (t: Theme) =>
   },
   menuItemText: {
     fontSize: 14,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   list: {
     flex: 1,
@@ -1015,19 +1020,19 @@ const makeStyles = (t: Theme) =>
   },
   bubbleOutgoing: {
     alignSelf: 'flex-end',
-    backgroundColor: t.colors.primary,
+    backgroundColor: theme.colors.primary,
   },
   bubbleIncoming: {
     alignSelf: 'flex-start',
-    backgroundColor: t.colors.card,
+    backgroundColor: theme.colors.card,
   },
   sender: {
     fontSize: 11,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   body: {
     fontSize: 14,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   metaRow: {
     marginTop: 4,
@@ -1037,18 +1042,18 @@ const makeStyles = (t: Theme) =>
   },
   metaTime: {
     fontSize: 11,
-    color: t.colors.textMuted,
+    color: theme.colors.textMuted,
     marginRight: 6,
   },
   deliveryStatusRead: {
-    color: t.colors.primary,
+    color: theme.colors.primary,
   },
   deliveryStatusRetry: {
     opacity: 0.85,
   },
   deliveryStatus: {
     fontSize: 11,
-    color: t.colors.textMuted,
+    color: theme.colors.textMuted,
     marginTop: 2,
     textAlign: 'right',
   },
@@ -1057,7 +1062,7 @@ const makeStyles = (t: Theme) =>
     width: 120,
     height: 120,
     borderRadius: 8,
-    backgroundColor: t.colors.bgElevated,
+    backgroundColor: theme.colors.bgElevated,
   },
   fileRow: {
     marginTop: 4,
@@ -1067,7 +1072,7 @@ const makeStyles = (t: Theme) =>
   },
   fileName: {
     fontSize: 14,
-    color: t.colors.text,
+    color: theme.colors.text,
     marginRight: 10,
   },
   fileOpenBtn: {
@@ -1075,12 +1080,12 @@ const makeStyles = (t: Theme) =>
     paddingVertical: 6,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: t.colors.primary,
-    backgroundColor: t.colors.card,
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.card,
   },
   fileOpenText: {
     fontSize: 12,
-    color: t.colors.primary,
+    color: theme.colors.primary,
     fontWeight: '600',
   },
   bottomBar: {
@@ -1089,26 +1094,26 @@ const makeStyles = (t: Theme) =>
     flexDirection: 'row',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: t.colors.border,
+    borderTopColor: theme.colors.border,
   },
   modeButton: {
     paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 10,
-    backgroundColor: t.colors.card,
+    backgroundColor: theme.colors.card,
     marginRight: 6,
   },
   modeText: {
     fontSize: 11,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   input: {
     flex: 1,
     borderRadius: 999,
-    backgroundColor: t.colors.card,
+    backgroundColor: theme.colors.card,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    color: t.colors.text,
+    color: theme.colors.text,
     marginRight: 6,
   },
   attachButton: {
@@ -1117,14 +1122,14 @@ const makeStyles = (t: Theme) =>
   },
   attachIcon: {
     fontSize: 20,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   sendButton: {
     padding: 6,
   },
   sendIcon: {
     fontSize: 20,
-    color: t.colors.primary,
+    color: theme.colors.primary,
   },
   modalBackdrop: {
     flex: 1,
@@ -1132,18 +1137,18 @@ const makeStyles = (t: Theme) =>
     justifyContent: 'flex-end',
   },
   attachPanel: {
-    backgroundColor: t.colors.bg,
+    backgroundColor: theme.colors.bg,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 24,
     borderTopWidth: 1,
-    borderColor: t.colors.border,
+    borderColor: theme.colors.border,
   },
   attachTitle: {
     fontSize: 16,
-    color: t.colors.text,
+    color: theme.colors.text,
     fontWeight: '600',
     marginBottom: 12,
   },
@@ -1162,18 +1167,18 @@ const makeStyles = (t: Theme) =>
     height: 48,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: t.colors.primary,
+    borderColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
   },
   attachCircleText: {
     fontSize: 18,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   attachItemLabel: {
     fontSize: 11,
-    color: t.colors.text,
+    color: theme.colors.text,
     textAlign: 'center',
   },
   closeAttachButton: {
@@ -1183,21 +1188,21 @@ const makeStyles = (t: Theme) =>
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: t.colors.textMuted,
+    borderColor: theme.colors.textMuted,
   },
   closeAttachText: {
     fontSize: 13,
-    color: t.colors.textMuted,
+    color: theme.colors.textMuted,
   },
   recipientsPanel: {
-    backgroundColor: t.colors.bg,
+    backgroundColor: theme.colors.bg,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 24,
     borderTopWidth: 1,
-    borderColor: t.colors.border,
+    borderColor: theme.colors.border,
   },
   recipientsList: {
     maxHeight: 260,
@@ -1213,21 +1218,21 @@ const makeStyles = (t: Theme) =>
     height: 20,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: t.colors.primary,
+    borderColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
   },
   recipientCheckActive: {
-    backgroundColor: t.colors.primary,
+    backgroundColor: theme.colors.primary,
   },
   recipientCheckMark: {
     fontSize: 14,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   recipientName: {
     fontSize: 14,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   audioRow: {
     flexDirection: 'row',
@@ -1239,7 +1244,7 @@ const makeStyles = (t: Theme) =>
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: t.colors.text,
+    borderColor: theme.colors.text,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
@@ -1247,10 +1252,10 @@ const makeStyles = (t: Theme) =>
   audioButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: t.colors.text,
+    color: theme.colors.text,
   },
   audioLabel: {
     fontSize: 13,
-    color: t.colors.text,
+    color: theme.colors.text,
   },
 });

@@ -12,6 +12,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {savePendingRecovery} from '../storage/pendingRecoveryStorage';
 import {saveLocalAccount} from '../storage/localAccountStorage';
@@ -22,8 +23,9 @@ interface Props {
 }
 
 export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
-  const t = useTheme();
-  const styles = useMemo(() => makeStyles(t), [t]);
+  const theme = useTheme();
+  const {t} = useTranslation();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
 
   const api = useLexmessApi();
 
@@ -45,7 +47,7 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
     const np = (newPassword || '').trim();
 
     if (!l || !rk || !np) {
-      setError('Заполните логин, ключ и новый пароль');
+      setError(t('recovery.resetErrorMissing'));
       return;
     }
 
@@ -86,13 +88,13 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
       }
 
       // Теоретически возможно rotateRecovery=false. Тогда просто вернём на логин.
-      setOkMsg('Пароль обновлён. Войдите в аккаунт.');
+      setOkMsg(t('recovery.resetSuccess'));
       navigation.replace('Login', {prefillLogin: l});
     } catch (e: any) {
       if (e && e.status === 429) {
-        setError('Слишком много попыток. Подождите и попробуйте позже.');
+        setError(t('recovery.resetErrorTooMany'));
       } else {
-        setError((e && e.message) || 'Не удалось восстановить');
+        setError((e && e.message) || t('recovery.resetErrorGeneric'));
       }
     } finally {
       setBusy(false);
@@ -104,30 +106,28 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <Text style={styles.title}>Восстановление</Text>
-        <Text style={styles.subtitle}>
-          Введите логин, ключ восстановления и задайте новый пароль.
-        </Text>
+        <Text style={styles.title}>{t('recovery.resetTitle')}</Text>
+        <Text style={styles.subtitle}>{t('recovery.resetSubtitle')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{paddingBottom: 22}} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
-          <Text style={styles.label}>Логин</Text>
+          <Text style={styles.label}>{t('recovery.loginField')}</Text>
           <TextInput
             value={login}
             onChangeText={setLogin}
-            placeholder="например: piton_01"
+            placeholder={t('recovery.loginPlaceholder')}
             placeholderTextColor="rgba(232,236,255,0.35)"
             autoCapitalize="none"
             autoCorrect={false}
             style={styles.input}
           />
 
-          <Text style={[styles.label, {marginTop: 12}]}>Ключ восстановления</Text>
+          <Text style={[styles.label, {marginTop: 12}]}>{t('recovery.keyField')}</Text>
           <TextInput
             value={recoveryKey}
             onChangeText={setRecoveryKey}
-            placeholder="вставьте ключ"
+            placeholder={t('recovery.keyPlaceholder')}
             placeholderTextColor="rgba(232,236,255,0.35)"
             autoCapitalize="none"
             autoCorrect={false}
@@ -135,11 +135,11 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
             style={[styles.input, styles.inputMulti]}
           />
 
-          <Text style={[styles.label, {marginTop: 12}]}>Новый пароль</Text>
+          <Text style={[styles.label, {marginTop: 12}]}>{t('recovery.passwordField')}</Text>
           <TextInput
             value={newPassword}
             onChangeText={setNewPassword}
-            placeholder="новый пароль"
+            placeholder={t('recovery.passwordPlaceholder')}
             placeholderTextColor="rgba(232,236,255,0.35)"
             secureTextEntry
             autoCapitalize="none"
@@ -154,28 +154,26 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
             disabled={busy}
             style={({pressed}) => [styles.btn, (pressed || busy) && styles.btnPressed]}
             onPress={doReset}>
-            {busy ? <ActivityIndicator /> : <Text style={styles.btnText}>Восстановить</Text>}
+            {busy ? <ActivityIndicator /> : <Text style={styles.btnText}>{t('recovery.resetButton')}</Text>}
           </Pressable>
 
           <Pressable
             style={({pressed}) => [styles.linkBtn, pressed && styles.btnPressed]}
             onPress={() => navigation.goBack()}>
-            <Text style={styles.linkText}>Назад</Text>
+            <Text style={styles.linkText}>{t('common.back')}</Text>
           </Pressable>
         </View>
 
         <View style={styles.noteBox}>
-          <Text style={styles.noteTitle}>Важно</Text>
-          <Text style={styles.noteText}>
-            После восстановления система выдаст новый ключ и покажет его один раз.
-          </Text>
+          <Text style={styles.noteTitle}>{t('recovery.noteTitle')}</Text>
+          <Text style={styles.noteText}>{t('recovery.noteText')}</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (theme: Theme) =>
   StyleSheet.create({
   container: {
     flex: 1,

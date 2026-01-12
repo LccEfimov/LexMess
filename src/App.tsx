@@ -51,6 +51,8 @@ import {loadPendingRecovery, clearPendingRecovery, type PendingRecovery} from '.
 import {getPermissionsGateShown, setPermissionsGateShown} from './storage/permissionsGateStorage';
 import {loadThemePreference, saveThemePreference} from './storage/themePreferenceStorage';
 import {checkRequiredRuntimePermissions} from './permissions/androidPermissions';
+import i18n from './i18n';
+import {I18nextProvider} from 'react-i18next';
 import {
   ensureSchema,
   loadAppSettings,
@@ -125,6 +127,10 @@ const {getProfile, listRooms, getMe, registerPushToken, joinRoom, leaveRoom, ens
 
   const themeObj = useMemo(() => getTheme(theme), [theme]);
   const navTheme = useMemo(() => makeNavigationTheme(themeObj), [themeObj]);
+
+  useEffect(() => {
+    i18n.changeLanguage(language).catch(() => {});
+  }, [language]);
 
   const myUserId = useMemo(
     () => (nickname && nickname.trim()) || 'me',
@@ -1282,11 +1288,12 @@ const handleLeaveRoom = useCallback(
 
   return (
     <ErrorBoundary>
-      <SafeAreaProvider>
-      <ThemeProvider themeName={theme} setThemeName={setTheme}>
-        <SecurityProvider>
-          <NavigationContainer ref={navigationRef} theme={navTheme}>
-            <RootStack.Navigator screenOptions={{headerShown: false}}>
+      <I18nextProvider i18n={i18n}>
+        <SafeAreaProvider>
+        <ThemeProvider themeName={theme} setThemeName={setTheme}>
+          <SecurityProvider>
+            <NavigationContainer ref={navigationRef} theme={navTheme}>
+              <RootStack.Navigator screenOptions={{headerShown: false}}>
         {!preloaded ? (
           <RootStack.Screen name="Preloader">
             {() => (
@@ -1518,10 +1525,11 @@ const handleLeaveRoom = useCallback(
           </>
         )}
             </RootStack.Navigator>
-          </NavigationContainer>
-        </SecurityProvider>
-      </ThemeProvider>
-      </SafeAreaProvider>
+            </NavigationContainer>
+          </SecurityProvider>
+        </ThemeProvider>
+        </SafeAreaProvider>
+      </I18nextProvider>
     </ErrorBoundary>
   );
 };

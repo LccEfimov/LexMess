@@ -11,6 +11,7 @@ import {
   Alert,
 } from 'react-native';
 
+import {useTranslation} from 'react-i18next';
 import {EmptyState} from '../components/EmptyState';
 import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
@@ -76,8 +77,9 @@ export const RoomsListScreen: React.FC<Props> = ({
   pinnedByRoom,
   onTogglePin,
 }) => {
-  const t = useTheme();
-  const styles = useMemo(() => makeStyles(t), [t]);
+  const theme = useTheme();
+  const {t} = useTranslation();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
 
   const [search, setSearch] = useState('');
   const normalized = useMemo(() => search.trim().toLowerCase(), [search]);
@@ -144,15 +146,15 @@ const filtered = useMemo(() => {
       <View style={styles.headerRight}>
         {onOpenMain ? (
           <Pressable style={styles.headerBtn} onPress={onOpenMain}>
-            <Text style={styles.headerBtnText}>Комнаты</Text>
+            <Text style={styles.headerBtnText}>{t('roomsList.headerRooms')}</Text>
           </Pressable>
         ) : null}
         <Pressable style={styles.headerBtn} onPress={onOpenSettings}>
-          <Text style={styles.headerBtnText}>Настройки</Text>
+          <Text style={styles.headerBtnText}>{t('roomsList.headerSettings')}</Text>
         </Pressable>
       </View>
     );
-  }, [onOpenMain, onOpenSettings, styles]);
+  }, [onOpenMain, onOpenSettings, styles, t]);
 
   return (
     <View style={styles.root}>
@@ -163,8 +165,12 @@ const filtered = useMemo(() => {
           style={styles.searchInput}
           value={search}
           onChangeText={setSearch}
-          placeholder={title.toLowerCase().includes('чат') ? 'Поиск по чатам' : 'Поиск по комнатам'}
-          placeholderTextColor={t.colors.placeholder}
+          placeholder={
+            title.toLowerCase().includes('чат')
+              ? t('roomsList.searchChats')
+              : t('roomsList.searchRooms')
+          }
+          placeholderTextColor={theme.colors.placeholder}
         />
         {search ? (
           <Pressable style={styles.searchClear} onPress={clearSearch} accessibilityRole="button">
@@ -189,12 +195,12 @@ const filtered = useMemo(() => {
 
           const badgeText =
             item.type === 'my'
-              ? 'МОЯ'
+              ? t('roomsList.badgeMy')
               : item.type === 'open'
-              ? 'ОТКР'
+              ? t('roomsList.badgeOpen')
               : item.isPrivate
-              ? 'ПРИВ'
-              : 'ПУБЛ';
+              ? t('roomsList.badgePrivate')
+              : t('roomsList.badgePublic');
 
           return (
             <Pressable
@@ -220,7 +226,7 @@ const filtered = useMemo(() => {
                     </Text>
                   ) : (
                     <Text style={styles.subtitleEmpty} numberOfLines={1}>
-                      Нет сообщений
+                      {t('roomsList.emptyLastMessage')}
                     </Text>
                   )}
                 </View>
@@ -253,7 +259,7 @@ const filtered = useMemo(() => {
             onOpenRoom(item.id, item.title);
           } catch (e) {
             console.warn('joinRoom failed', e);
-            Alert.alert('Ошибка', 'Не удалось войти в комнату.');
+            Alert.alert(t('common.error'), t('roomsList.joinError'));
           }
         };
         doJoin();
@@ -266,12 +272,12 @@ const filtered = useMemo(() => {
           return;
         }
         Alert.alert(
-          'Выйти из комнаты?',
-          'Вы потеряете быстрый доступ к комнате. Можно будет войти снова по приглашению.',
+          t('roomsList.leaveConfirmTitle'),
+          t('roomsList.leaveConfirmMessage'),
           [
-            {text: 'Отмена', style: 'cancel'},
+            {text: t('common.cancel'), style: 'cancel'},
             {
-              text: 'Выйти',
+              text: t('roomsList.actionLeave'),
               style: 'destructive',
               onPress: () => {
                 const doLeave = async () => {
@@ -281,7 +287,7 @@ const filtered = useMemo(() => {
                     }
                   } catch (e) {
                     console.warn('leaveRoom failed', e);
-                    Alert.alert('Ошибка', 'Не удалось выйти из комнаты.');
+                    Alert.alert(t('common.error'), t('roomsList.leaveError'));
                   }
                 };
                 doLeave();
@@ -292,7 +298,11 @@ const filtered = useMemo(() => {
       }
     }}>
     <Text style={styles.actionBtnText}>
-      {item.type === 'public' ? 'Вступить' : item.role === 'owner' ? 'Открыть' : 'Выйти'}
+      {item.type === 'public'
+        ? t('roomsList.actionJoin')
+        : item.role === 'owner'
+        ? t('roomsList.actionOpen')
+        : t('roomsList.actionLeave')}
     </Text>
   </TouchableOpacity>
 ) : (
@@ -301,17 +311,17 @@ const filtered = useMemo(() => {
               </View>
 
               <Text style={styles.hintLine} numberOfLines={1}>
-                {onTogglePin ? 'Долгое нажатие: закрепить/открепить' : ''}
+                {onTogglePin ? t('roomsList.hintPin') : ''}
               </Text>
             </Pressable>
           );
         }}
         ListEmptyComponent={() => (
           <EmptyState
-            title={title === 'Чаты' ? 'Пока нет чатов' : 'Пока нет комнат'}
+            title={title === 'Чаты' ? t('roomsList.emptyChatsTitle') : t('roomsList.emptyRoomsTitle')}
             subtitle={title === 'Чаты'
-              ? 'Откройте комнату или начните диалог — здесь появится история.'
-              : 'Создайте комнату или войдите по коду — она появится в списке.'}
+              ? t('roomsList.emptyChatsSubtitle')
+              : t('roomsList.emptyRoomsSubtitle')}
           />
         )}
         />
@@ -319,32 +329,32 @@ const filtered = useMemo(() => {
   );
 };
 
-const makeStyles = (t: Theme) =>
+const makeStyles = (theme: Theme) =>
   StyleSheet.create({
-    root: {flex: 1, backgroundColor: t.colors.bg},
+    root: {flex: 1, backgroundColor: theme.colors.bg},
     headerRight: {flexDirection: 'row', alignItems: 'center', gap: 10},
     headerBtn: {
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.bgElevated,
     },
-    headerBtnText: {...t.typography.body, color: t.colors.text},
+    headerBtnText: {...theme.typography.body, color: theme.colors.text},
     searchWrap: {
       marginHorizontal: 14,
       marginTop: 12,
       marginBottom: 4,
       borderWidth: 1,
-      borderColor: t.colors.border,
+      borderColor: theme.colors.border,
       borderRadius: 14,
-      backgroundColor: t.colors.bgElevated,
+      backgroundColor: theme.colors.bgElevated,
       paddingHorizontal: 12,
       paddingVertical: 10,
       position: 'relative',
     },
-    searchInput: {...t.typography.bodyRegular, color: t.colors.text, paddingRight: 28},
+    searchInput: {...theme.typography.bodyRegular, color: theme.colors.text, paddingRight: 28},
     searchClear: {
       position: 'absolute',
       right: 10,
@@ -354,20 +364,20 @@ const makeStyles = (t: Theme) =>
       borderRadius: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: t.colors.ghostBg,
+      backgroundColor: theme.colors.ghostBg,
       borderWidth: 1,
-      borderColor: t.colors.ghostBorder,
+      borderColor: theme.colors.ghostBorder,
     },
-    searchClearText: {fontSize: 20, color: t.colors.textMuted, marginTop: -2},
+    searchClearText: {fontSize: 20, color: theme.colors.textMuted, marginTop: -2},
     listPad: {padding: 14, paddingTop: 10, paddingBottom: 28},
     card: {
-      backgroundColor: t.colors.card,
+      backgroundColor: theme.colors.card,
       borderRadius: 16,
       borderWidth: 1,
-      borderColor: t.colors.border,
+      borderColor: theme.colors.border,
       padding: 14,
       marginBottom: 12,
-      ...t.shadows.card,
+      ...theme.shadows.card,
     },
     cardPressed: {opacity: 0.92},
     cardTopRow: {flexDirection: 'row', alignItems: 'flex-start', gap: 10},
@@ -375,31 +385,31 @@ const makeStyles = (t: Theme) =>
     rightCol: {alignItems: 'flex-end', justifyContent: 'space-between', minWidth: 60},
     titleRow: {flexDirection: 'row', alignItems: 'center', gap: 8},
     badge: {
-      ...t.typography.tiny,
+      ...theme.typography.tiny,
       paddingHorizontal: 8,
       paddingVertical: 4,
       borderRadius: 999,
       borderWidth: 1,
       overflow: 'hidden',
     },
-    badgePublic: {backgroundColor: t.colors.ghostBg, borderColor: t.colors.ghostBorder, color: t.colors.textMuted},
-    badgePrivate: {backgroundColor: 'rgba(255,59,48,0.10)', borderColor: 'rgba(255,59,48,0.25)', color: t.colors.danger},
-    pin: {fontSize: 12, color: t.colors.textMuted},
-    title: {...t.typography.title, color: t.colors.text, flex: 1},
-    subtitle: {...t.typography.bodyRegular, color: t.colors.textMuted, marginTop: 6},
-    subtitleEmpty: {...t.typography.bodyRegular, color: t.colors.textFaint, marginTop: 6},
-    time: {...t.typography.tiny, color: t.colors.textMuted},
+    badgePublic: {backgroundColor: theme.colors.ghostBg, borderColor: theme.colors.ghostBorder, color: theme.colors.textMuted},
+    badgePrivate: {backgroundColor: 'rgba(255,59,48,0.10)', borderColor: 'rgba(255,59,48,0.25)', color: theme.colors.danger},
+    pin: {fontSize: 12, color: theme.colors.textMuted},
+    title: {...theme.typography.title, color: theme.colors.text, flex: 1},
+    subtitle: {...theme.typography.bodyRegular, color: theme.colors.textMuted, marginTop: 6},
+    subtitleEmpty: {...theme.typography.bodyRegular, color: theme.colors.textFaint, marginTop: 6},
+    time: {...theme.typography.tiny, color: theme.colors.textMuted},
     unreadBadge: {
       marginTop: 8,
       minWidth: 28,
       height: 22,
       paddingHorizontal: 8,
       borderRadius: 11,
-      backgroundColor: t.colors.primary,
+      backgroundColor: theme.colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    unreadText: {...t.typography.tiny, color: '#fff'},
+    unreadText: {...theme.typography.tiny, color: '#fff'},
     unreadSpacer: {height: 22, marginTop: 8},
     actionBtn: {
       marginTop: 10,
@@ -407,23 +417,23 @@ const makeStyles = (t: Theme) =>
       paddingVertical: 8,
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.bgElevated,
       alignItems: 'center',
       justifyContent: 'center',
     },
     actionBtnDisabled: {opacity: 0.5},
-    actionBtnText: {...t.typography.tiny, color: t.colors.text},
+    actionBtnText: {...theme.typography.tiny, color: theme.colors.text},
     actionBtnSpacer: {height: 36, marginTop: 10},
-    hintLine: {...t.typography.tiny, color: t.colors.textFaint, marginTop: 10},
+    hintLine: {...theme.typography.tiny, color: theme.colors.textFaint, marginTop: 10},
     empty: {
       padding: 18,
       borderRadius: 16,
       borderWidth: 1,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.bgElevated,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.bgElevated,
       alignItems: 'center',
     },
-    emptyTitle: {...t.typography.title, color: t.colors.text, marginBottom: 6},
-    emptyText: {...t.typography.bodyRegular, color: t.colors.textMuted, textAlign: 'center'},
+    emptyTitle: {...theme.typography.title, color: theme.colors.text, marginBottom: 6},
+    emptyText: {...theme.typography.bodyRegular, color: theme.colors.textMuted, textAlign: 'center'},
   });
