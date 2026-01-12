@@ -15,6 +15,7 @@ import {
 import {useLexmessApi} from '../hooks/useLexmessApi';
 import {savePendingRecovery} from '../storage/pendingRecoveryStorage';
 import {saveLocalAccount} from '../storage/localAccountStorage';
+import {i18n} from '../i18n';
 
 interface Props {
   navigation: any;
@@ -45,7 +46,7 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
     const np = (newPassword || '').trim();
 
     if (!l || !rk || !np) {
-      setError('Заполните логин, ключ и новый пароль');
+      setError(i18n.t('auth.recoveryReset.errors.missing'));
       return;
     }
 
@@ -86,13 +87,13 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
       }
 
       // Теоретически возможно rotateRecovery=false. Тогда просто вернём на логин.
-      setOkMsg('Пароль обновлён. Войдите в аккаунт.');
+      setOkMsg(i18n.t('auth.recoveryReset.success'));
       navigation.replace('Login', {prefillLogin: l});
     } catch (e: any) {
       if (e && e.status === 429) {
-        setError('Слишком много попыток. Подождите и попробуйте позже.');
+        setError(i18n.t('auth.recoveryReset.errors.tooManyAttempts'));
       } else {
-        setError((e && e.message) || 'Не удалось восстановить');
+        setError((e && e.message) || i18n.t('auth.recoveryReset.errors.resetFailed'));
       }
     } finally {
       setBusy(false);
@@ -104,30 +105,30 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <Text style={styles.title}>Восстановление</Text>
-        <Text style={styles.subtitle}>
-          Введите логин, ключ восстановления и задайте новый пароль.
-        </Text>
+        <Text style={styles.title}>{i18n.t('auth.recoveryReset.title')}</Text>
+        <Text style={styles.subtitle}>{i18n.t('auth.recoveryReset.subtitle')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
-          <Text style={styles.label}>Логин</Text>
+          <Text style={styles.label}>{i18n.t('auth.recoveryReset.loginLabel')}</Text>
           <TextInput
             value={login}
             onChangeText={setLogin}
-            placeholder="например: piton_01"
+            placeholder={i18n.t('auth.recoveryReset.loginPlaceholder')}
             placeholderTextColor={t.colors.placeholder}
             autoCapitalize="none"
             autoCorrect={false}
             style={styles.input}
           />
 
-          <Text style={[styles.label, styles.labelSpacing]}>Ключ восстановления</Text>
+          <Text style={[styles.label, styles.labelSpacing]}>
+            {i18n.t('auth.recoveryReset.recoveryKeyLabel')}
+          </Text>
           <TextInput
             value={recoveryKey}
             onChangeText={setRecoveryKey}
-            placeholder="вставьте ключ"
+            placeholder={i18n.t('auth.recoveryReset.recoveryKeyPlaceholder')}
             placeholderTextColor={t.colors.placeholder}
             autoCapitalize="none"
             autoCorrect={false}
@@ -135,11 +136,13 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
             style={[styles.input, styles.inputMulti]}
           />
 
-          <Text style={[styles.label, styles.labelSpacing]}>Новый пароль</Text>
+          <Text style={[styles.label, styles.labelSpacing]}>
+            {i18n.t('auth.recoveryReset.newPasswordLabel')}
+          </Text>
           <TextInput
             value={newPassword}
             onChangeText={setNewPassword}
-            placeholder="новый пароль"
+            placeholder={i18n.t('auth.recoveryReset.newPasswordPlaceholder')}
             placeholderTextColor={t.colors.placeholder}
             secureTextEntry
             autoCapitalize="none"
@@ -157,22 +160,20 @@ export const RecoveryResetScreen: React.FC<Props> = ({navigation, route}) => {
             {busy ? (
               <ActivityIndicator color={t.colors.onPrimary} />
             ) : (
-              <Text style={styles.btnText}>Восстановить</Text>
+              <Text style={styles.btnText}>{i18n.t('auth.recoveryReset.submit')}</Text>
             )}
           </Pressable>
 
           <Pressable
             style={({pressed}) => [styles.linkBtn, pressed && styles.btnPressed]}
             onPress={() => navigation.goBack()}>
-            <Text style={styles.linkText}>Назад</Text>
+            <Text style={styles.linkText}>{i18n.t('auth.recoveryReset.back')}</Text>
           </Pressable>
         </View>
 
         <View style={styles.noteBox}>
-          <Text style={styles.noteTitle}>Важно</Text>
-          <Text style={styles.noteText}>
-            После восстановления система выдаст новый ключ и покажет его один раз.
-          </Text>
+          <Text style={styles.noteTitle}>{i18n.t('auth.recoveryReset.noteTitle')}</Text>
+          <Text style={styles.noteText}>{i18n.t('auth.recoveryReset.noteText')}</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

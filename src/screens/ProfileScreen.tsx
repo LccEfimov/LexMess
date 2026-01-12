@@ -4,6 +4,7 @@ import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {loadLocalAccount} from '../storage/localAccountStorage';
+import {i18n} from '../i18n';
 
 type Props = {
   nickname: string;
@@ -44,7 +45,7 @@ export const ProfileScreen: React.FC<Props> = ({
     if (dn) return dn;
     const nn = (nickname || '').trim();
     if (nn) return nn;
-    return 'Профиль';
+    return i18n.t('profile.title');
   }, [displayName, nickname]);
 
   const onLogoutPress = useCallback(() => {
@@ -53,37 +54,39 @@ export const ProfileScreen: React.FC<Props> = ({
 
   return (
     <View style={styles.root}>
-      <AppHeader title="Профиль" subtitle={titleName} onBack={null} right={null} />
+      <AppHeader title={i18n.t('profile.title')} subtitle={titleName} onBack={null} right={null} />
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Учетная запись</Text>
-          <Text style={styles.label}>Логин</Text>
-          <Text style={styles.value}>{(nickname || '').trim() || '—'}</Text>
+          <Text style={styles.cardTitle}>{i18n.t('profile.account.title')}</Text>
+          <Text style={styles.label}>{i18n.t('profile.account.login')}</Text>
+          <Text style={styles.value}>{(nickname || '').trim() || i18n.t('common.dash')}</Text>
 
-          <Text style={styles.label}>Отображаемое имя</Text>
-          <Text style={styles.value}>{(displayName || '').trim() || '—'}</Text>
+          <Text style={styles.label}>{i18n.t('profile.account.displayName')}</Text>
+          <Text style={styles.value}>
+            {(displayName || '').trim() || i18n.t('common.dash')}
+          </Text>
 
-          <Text style={styles.label}>О себе</Text>
-          <Text style={styles.value}>{(about || '').trim() || '—'}</Text>
+          <Text style={styles.label}>{i18n.t('profile.account.about')}</Text>
+          <Text style={styles.value}>{(about || '').trim() || i18n.t('common.dash')}</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Кошелёк</Text>
-          <Text style={styles.label}>Адрес EIN</Text>
-          <Text selectable style={styles.valueMono}>{walletAddress || '—'}</Text>
-          <Text style={styles.hint}>Адрес выдаётся при регистрации. Он нужен для начисления наград за сообщения.</Text>
+          <Text style={styles.cardTitle}>{i18n.t('profile.wallet.title')}</Text>
+          <Text style={styles.label}>{i18n.t('profile.wallet.addressLabel')}</Text>
+          <Text selectable style={styles.valueMono}>{walletAddress || i18n.t('common.dash')}</Text>
+          <Text style={styles.hint}>{i18n.t('profile.wallet.hint')}</Text>
         </View>
 
         <View style={styles.actions}>
           <TouchableOpacity style={styles.btn} onPress={onOpenSettings}>
-            <Text style={styles.btnText}>Настройки</Text>
+            <Text style={styles.btnText}>{i18n.t('profile.actions.settings')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.btnSecondary} onPress={onOpenDiagnostics}>
-            <Text style={styles.btnText}>Диагностика</Text>
+            <Text style={styles.btnText}>{i18n.t('profile.actions.diagnostics')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.btnDanger} onPress={onLogoutPress}>
-            <Text style={styles.btnText}>Выйти</Text>
+            <Text style={styles.btnText}>{i18n.t('profile.actions.logout')}</Text>
           </TouchableOpacity>
         </View>
 

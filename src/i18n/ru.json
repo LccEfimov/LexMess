@@ -2,7 +2,8 @@
   "app": {
     "error": {
       "title": "Произошла ошибка интерфейса",
-      "body": "Перезапустите приложение. Если ошибка повторяется — проверьте API и логи."
+      "body": "Перезапустите приложение. Если ошибка повторяется — проверьте API и логи.",
+      "action": "Продолжить"
     },
     "messages": {
       "event": "[Событие]",
@@ -31,6 +32,14 @@
       "selective": "Выборочно"
     }
   },
+  "common": {
+    "dash": "—",
+    "yes": "Да",
+    "no": "Нет",
+    "true": "true",
+    "false": "false",
+    "ellipsis": "…"
+  },
   "tabs": {
     "chats": "Чаты",
     "rooms": "Комнаты",
@@ -42,6 +51,45 @@
     "login": "Войти",
     "register": "Регистрация",
     "hint": "Подсказка: логин — латиница/цифры/._"
+  },
+  "auth": {
+    "login": {
+      "title": "Вход",
+      "subtitle": "Введите логин и пароль",
+      "loginLabel": "Логин",
+      "loginPlaceholder": "например: piton_01",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "пароль",
+      "submit": "Войти",
+      "forgotPassword": "Забыли пароль?",
+      "back": "Назад",
+      "errors": {
+        "missing": "Введите логин и пароль",
+        "tooManyAttempts": "Слишком много попыток. Подождите и попробуйте снова.",
+        "tooManyAttemptsWithMinutes": "Слишком много попыток. Повторите через {minutes} мин.",
+        "loginFailed": "Ошибка входа"
+      }
+    },
+    "recoveryReset": {
+      "title": "Восстановление",
+      "subtitle": "Введите логин, ключ восстановления и задайте новый пароль.",
+      "loginLabel": "Логин",
+      "loginPlaceholder": "например: piton_01",
+      "recoveryKeyLabel": "Ключ восстановления",
+      "recoveryKeyPlaceholder": "вставьте ключ",
+      "newPasswordLabel": "Новый пароль",
+      "newPasswordPlaceholder": "новый пароль",
+      "submit": "Восстановить",
+      "back": "Назад",
+      "noteTitle": "Важно",
+      "noteText": "После восстановления система выдаст новый ключ и покажет его один раз.",
+      "success": "Пароль обновлён. Войдите в аккаунт.",
+      "errors": {
+        "missing": "Заполните логин, ключ и новый пароль",
+        "tooManyAttempts": "Слишком много попыток. Подождите и попробуйте позже.",
+        "resetFailed": "Не удалось восстановить"
+      }
+    }
   },
   "register": {
     "title": "Регистрация",
@@ -61,6 +109,28 @@
       "passwordLength": "Пароль должен быть не короче 6 символов",
       "passwordMismatch": "Пароли не совпадают",
       "registerFailed": "Ошибка регистрации"
+    }
+  },
+  "onboarding": {
+    "title": "LexMess",
+    "subtitle": "Приватный мессенджер нового поколения",
+    "language": {
+      "label": "Язык интерфейса",
+      "ru": "Русский",
+      "en": "English"
+    },
+    "nickname": {
+      "label": "Никнейм",
+      "placeholder": "Как тебя подписать в чатах?"
+    },
+    "theme": {
+      "label": "Тема приложения",
+      "light": "Светлая",
+      "dark": "Тёмная"
+    },
+    "actions": {
+      "goToChats": "Перейти к чатам",
+      "moreSettings": "Ещё настройки"
     }
   },
   "roomsList": {
@@ -144,6 +214,17 @@
     "systemMessage": "Вы вошли в комнату по коду приглашения",
     "error": "Не удалось войти по коду"
   },
+  "permissions": {
+    "title": "Разрешения",
+    "subtitle": "Чтобы работали медиа, звонки, уведомления и скрытые PNG, приложению нужны системные разрешения.",
+    "actions": {
+      "requesting": "Запрашиваю…",
+      "allowAll": "Разрешить всё",
+      "refresh": "Обновить",
+      "openSettings": "Открыть настройки",
+      "skip": "Пропустить пока"
+    }
+  },
   "chat": {
     "voiceMessage": "Голосовое сообщение",
     "file": "Файл",
@@ -181,6 +262,10 @@
       "audioSelective": "Аудио выборочно",
       "close": "Закрыть"
     },
+    "loadOlder": {
+      "loading": "Загрузка…",
+      "show": "Показать предыдущие"
+    },
     "inputPlaceholder": "Сообщение...",
     "actions": {
       "title": "Действия",
@@ -198,6 +283,150 @@
       "sendTextFailed": "Не удалось отправить сообщение. Попробуйте ещё раз.",
       "fileTooLarge": "Файл слишком большой. Максимальный размер 20 МБ.",
       "sendMediaFailed": "Не удалось отправить файл. Попробуйте ещё раз."
+    }
+  },
+  "roomDetails": {
+    "header": "Комната",
+    "headerWithTitle": "Комната • {title}",
+    "labels": {
+      "id": "ID",
+      "members": "Участники",
+      "privacy": "Приватность",
+      "persistent": "Постоянная",
+      "limit": "Лимит",
+      "inviteCode": "Инвайт-код"
+    },
+    "privacy": {
+      "private": "Приватная",
+      "public": "Публичная"
+    },
+    "actions": {
+      "share": "Поделиться",
+      "members": "Участники",
+      "invite": "Инвайт",
+      "sendInvite": "Отправить",
+      "leave": "Покинуть комнату",
+      "refresh": "Обновить данные",
+      "refreshing": "Обновление..."
+    },
+    "invite": {
+      "title": "Пригласить пользователя",
+      "hint": "Укажите User ID получателя. Сервер отправит инвайт (API: /v1/room/invite).",
+      "placeholder": "User ID",
+      "note": "Примечание: управление ролями/кики доступно на экране участников (если у вас есть права)."
+    },
+    "share": {
+      "room": "Комната: {title}",
+      "roomId": "ID комнаты: {roomId}",
+      "inviteCode": "Инвайт-код: {inviteCode}"
+    },
+    "alerts": {
+      "errorTitle": "Ошибка",
+      "inviteSentTitle": "Готово",
+      "inviteSentBody": "Инвайт отправлен.",
+      "leaveTitle": "Покинуть комнату",
+      "leaveBody": "Вы уверены?",
+      "leaveCancel": "Отмена",
+      "leaveConfirm": "Покинуть"
+    },
+    "errors": {
+      "loadFailed": "Не удалось загрузить комнату",
+      "inviteFailed": "Не удалось отправить инвайт",
+      "leaveFailed": "Не удалось выйти"
+    }
+  },
+  "roomInvite": {
+    "title": "Комната создана",
+    "labels": {
+      "room": "Комната",
+      "roomId": "ID комнаты",
+      "inviteCode": "Инвайт-код"
+    },
+    "fallbackRoomTitle": "Новая комната",
+    "noInviteCode": "Для этой комнаты код не установлен",
+    "actions": {
+      "refreshCode": "Обновить код",
+      "shareCode": "Поделиться кодом",
+      "goToChat": "Перейти в чат"
+    },
+    "share": {
+      "room": "Комната: {title}",
+      "roomId": "ID комнаты: {roomId}",
+      "inviteCode": "Инвайт-код: {inviteCode}"
+    }
+  },
+  "profile": {
+    "title": "Профиль",
+    "account": {
+      "title": "Учетная запись",
+      "login": "Логин",
+      "displayName": "Отображаемое имя",
+      "about": "О себе"
+    },
+    "wallet": {
+      "title": "Кошелёк",
+      "addressLabel": "Адрес EIN",
+      "hint": "Адрес выдаётся при регистрации. Он нужен для начисления наград за сообщения."
+    },
+    "actions": {
+      "settings": "Настройки",
+      "diagnostics": "Диагностика",
+      "logout": "Выйти"
+    }
+  },
+  "diagnostics": {
+    "title": "Диагностика",
+    "sections": {
+      "build": "Сборка",
+      "network": "Сеть",
+      "account": "Аккаунт (локально)",
+      "permissions": "Разрешения",
+      "push": "Push"
+    },
+    "build": {
+      "version": "Версия: {version}",
+      "date": "Дата: {date}"
+    },
+    "network": {
+      "api": "API: {url}",
+      "ws": "WS: {url}"
+    },
+    "account": {
+      "login": "Login: {value}",
+      "name": "Имя: {value}",
+      "address": "Адрес: {value}"
+    },
+    "permissions": {
+      "ok": "OK: {value}",
+      "missingCount": "Не хватает: {count}",
+      "item": "• {permission}"
+    },
+    "push": {
+      "token": "Token: {token}"
+    },
+    "actions": {
+      "copy": "Скопировать диагностику"
+    },
+    "alerts": {
+      "errorTitle": "Ошибка",
+      "shareFailed": "Не удалось открыть системное меню \"Поделиться\"."
+    },
+    "debug": {
+      "build": "LexMess build: {version} ({date})",
+      "apiBase": "API_BASE_URL: {url}",
+      "ws": "WS_URL: {url}",
+      "localAccount": "Local account:",
+      "login": "  login: {value}",
+      "displayName": "  display_name: {value}",
+      "walletAddress": "  wallet_address: {value}",
+      "recoveryShown": "  recovery_shown: {value}",
+      "permissions": "Android permissions:",
+      "permissionsOk": "  ok: {value}",
+      "permissionsMissing": "  missing: {count}",
+      "permissionsItem": "   - {permission}",
+      "permissionsMore": "   ...",
+      "push": "Push:",
+      "pushToken": "  token: {token}"
     }
   },
   "wallet": {

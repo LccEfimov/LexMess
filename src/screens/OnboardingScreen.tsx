@@ -5,6 +5,7 @@ import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {Button} from '../ui/Button';
 import {Card} from '../ui/Card';
+import {i18n} from '../i18n';
 
 type ThemeName = 'light' | 'dark';
 
@@ -31,59 +32,67 @@ export const OnboardingScreen: React.FC<Props> = ({onDone}) => {
   return (
     <View style={styles.root}>
       <Card style={styles.card}>
-        <Text style={styles.title}>LexMess</Text>
-        <Text style={styles.subtitle}>Приватный мессенджер нового поколения</Text>
+        <Text style={styles.title}>{i18n.t('onboarding.title')}</Text>
+        <Text style={styles.subtitle}>{i18n.t('onboarding.subtitle')}</Text>
 
         {/* Шаг 1 — выбор языка */}
-        <Text style={styles.label}>Язык интерфейса</Text>
+        <Text style={styles.label}>{i18n.t('onboarding.language.label')}</Text>
         <View style={styles.row}>
           <TouchableOpacity
             style={[styles.chip, language === 'ru' && styles.chipActive]}
             onPress={() => setLanguage('ru')}>
-            <Text style={[styles.chipText, language === 'ru' && styles.chipTextActive]}>Русский</Text>
+            <Text style={[styles.chipText, language === 'ru' && styles.chipTextActive]}>
+              {i18n.t('onboarding.language.ru')}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.chip, language === 'en' && styles.chipActive]}
             onPress={() => setLanguage('en')}>
-            <Text style={[styles.chipText, language === 'en' && styles.chipTextActive]}>English</Text>
+            <Text style={[styles.chipText, language === 'en' && styles.chipTextActive]}>
+              {i18n.t('onboarding.language.en')}
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Шаг 2 — никнейм */}
-        <Text style={styles.label}>Никнейм</Text>
+        <Text style={styles.label}>{i18n.t('onboarding.nickname.label')}</Text>
         <TextInput
           style={styles.input}
           value={nickname}
           onChangeText={setNickname}
-          placeholder="Как тебя подписать в чатах?"
+          placeholder={i18n.t('onboarding.nickname.placeholder')}
           placeholderTextColor={t.colors.placeholder}
         />
 
         {/* Шаг 3 — тема */}
-        <Text style={styles.label}>Тема приложения</Text>
+        <Text style={styles.label}>{i18n.t('onboarding.theme.label')}</Text>
         <View style={styles.row}>
           <TouchableOpacity
             style={[styles.chip, theme === 'light' && styles.chipActive]}
             onPress={() => setTheme('light')}>
-            <Text style={[styles.chipText, theme === 'light' && styles.chipTextActive]}>Светлая</Text>
+            <Text style={[styles.chipText, theme === 'light' && styles.chipTextActive]}>
+              {i18n.t('onboarding.theme.light')}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.chip, theme === 'dark' && styles.chipActive]}
             onPress={() => setTheme('dark')}>
-            <Text style={[styles.chipText, theme === 'dark' && styles.chipTextActive]}>Тёмная</Text>
+            <Text style={[styles.chipText, theme === 'dark' && styles.chipTextActive]}>
+              {i18n.t('onboarding.theme.dark')}
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Кнопки — как в ТЗ: "Перейти к чатам" и "Ещё настройки" */}
         <View style={styles.buttonsRow}>
           <Button
-            title="Перейти к чатам"
+            title={i18n.t('onboarding.actions.goToChats')}
             onPress={() => handleGo(false)}
             disabled={!canContinue}
             style={styles.primaryAction}
           />
           <Button
-            title="Ещё настройки"
+            title={i18n.t('onboarding.actions.moreSettings')}
             variant="ghost"
             onPress={() => handleGo(true)}
             disabled={!canContinue}

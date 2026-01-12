@@ -1,9 +1,11 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {i18n} from '../i18n';
 
 type State = {hasError: boolean; error?: any};
+type Props = React.PropsWithChildren<{title?: string; message?: string; actionLabel?: string}>;
 
-export class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, State> {
+export class ErrorBoundary extends React.Component<Props, State> {
   state: State = {hasError: false};
 
   static getDerivedStateFromError(error: any) {
@@ -17,12 +19,15 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, 
 
   render() {
     if (this.state.hasError) {
+      const title = this.props.title ?? i18n.t('app.error.title');
+      const message = this.props.message ?? i18n.t('app.error.body');
+      const actionLabel = this.props.actionLabel ?? i18n.t('app.error.action');
       return (
         <View style={styles.wrap}>
-          <Text style={styles.title}>Произошла ошибка</Text>
-          <Text style={styles.desc}>Попробуйте перезапустить приложение.</Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.desc}>{message}</Text>
           <TouchableOpacity style={styles.btn} onPress={() => this.setState({hasError: false, error: undefined})}>
-            <Text style={styles.btnText}>Продолжить</Text>
+            <Text style={styles.btnText}>{actionLabel}</Text>
           </TouchableOpacity>
         </View>
       );

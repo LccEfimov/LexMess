@@ -18,6 +18,7 @@ import {
   getRequiredRuntimePermissions,
   type RuntimePermissionCheck,
 } from '../permissions/androidPermissions';
+import {i18n} from '../i18n';
 
 interface Props {
   onDone: () => void;
@@ -71,11 +72,8 @@ export const PermissionsScreen: React.FC<Props> = ({onDone}) => {
   return (
     <View style={styles.root}>
       <View style={styles.card}>
-        <Text style={styles.title}>Разрешения</Text>
-        <Text style={styles.subtitle}>
-          Чтобы работали медиа, звонки, уведомления и скрытые PNG, приложению нужны
-          системные разрешения.
-        </Text>
+        <Text style={styles.title}>{i18n.t('permissions.title')}</Text>
+        <Text style={styles.subtitle}>{i18n.t('permissions.subtitle')}</Text>
 
         <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
           {required.map(p => {
@@ -95,20 +93,24 @@ export const PermissionsScreen: React.FC<Props> = ({onDone}) => {
             onPress={ask}
             disabled={busy || !isAndroid}>
             <Text style={styles.btnText}>
-              {busy ? 'Запрашиваю…' : 'Разрешить всё'}
+              {busy ? i18n.t('permissions.actions.requesting') : i18n.t('permissions.actions.allowAll')}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.btn, styles.btnGhost]} onPress={refresh}>
-            <Text style={[styles.btnText, styles.btnGhostText]}>Обновить</Text>
+            <Text style={[styles.btnText, styles.btnGhostText]}>
+              {i18n.t('permissions.actions.refresh')}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.btn, styles.btnGhost]} onPress={openSettings}>
-            <Text style={[styles.btnText, styles.btnGhostText]}>Открыть настройки</Text>
+            <Text style={[styles.btnText, styles.btnGhostText]}>
+              {i18n.t('permissions.actions.openSettings')}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.btnSkip} onPress={onDone}>
-            <Text style={styles.btnSkipText}>Пропустить пока</Text>
+            <Text style={styles.btnSkipText}>{i18n.t('permissions.actions.skip')}</Text>
           </TouchableOpacity>
         </View>
       </View>

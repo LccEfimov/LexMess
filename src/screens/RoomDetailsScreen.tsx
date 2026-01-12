@@ -17,6 +17,7 @@ import {AppHeader} from '../components/AppHeader';
 import {useTheme} from '../theme/ThemeContext';
 import type {Theme} from '../theme/themes';
 import {useLexmessApi} from '../hooks/useLexmessApi';
+import {i18n} from '../i18n';
 
 type Props = {
   navigation: any;
@@ -77,7 +78,10 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
       const data = await api.getRoom(roomId);
       setRoom(normalizeRoom(roomId, data));
     } catch (e: any) {
-      Alert.alert('Ошибка', String(e?.message || e || 'Не удалось загрузить комнату'));
+      Alert.alert(
+        i18n.t('roomDetails.alerts.errorTitle'),
+        String(e?.message || e || i18n.t('roomDetails.errors.loadFailed')),
+      );
     } finally {
       setLoading(false);
     }
@@ -97,9 +101,15 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
   const shareInvite = useCallback(async () => {
     try {
       const msg = [
-        room?.title ? `Комната: ${room.title}` : roomTitleParam ? `Комната: ${roomTitleParam}` : undefined,
-        roomId ? `ID комнаты: ${roomId}` : undefined,
-        room?.inviteCode ? `Инвайт-код: ${room.inviteCode}` : undefined,
+        room?.title
+          ? i18n.t('roomDetails.share.room', {title: room.title})
+          : roomTitleParam
+            ? i18n.t('roomDetails.share.room', {title: roomTitleParam})
+            : undefined,
+        roomId ? i18n.t('roomDetails.share.roomId', {roomId}) : undefined,
+        room?.inviteCode
+          ? i18n.t('roomDetails.share.inviteCode', {inviteCode: room.inviteCode})
+          : undefined,
       ]
         .filter(Boolean)
         .join('\n');
@@ -114,27 +124,33 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
     try {
       setLoading(true);
       await api.inviteToRoom({roomId, peerUserId});
-      Alert.alert('Готово', 'Инвайт отправлен.');
+      Alert.alert(i18n.t('roomDetails.alerts.inviteSentTitle'), i18n.t('roomDetails.alerts.inviteSentBody'));
       setInviteUserId('');
     } catch (e: any) {
-      Alert.alert('Ошибка', String(e?.message || e || 'Не удалось отправить инвайт'));
+      Alert.alert(
+        i18n.t('roomDetails.alerts.errorTitle'),
+        String(e?.message || e || i18n.t('roomDetails.errors.inviteFailed')),
+      );
     } finally {
       setLoading(false);
     }
   }, [api, roomId, inviteUserId]);
 
   const leave = useCallback(() => {
-    Alert.alert('Покинуть комнату', 'Вы уверены?', [
-      {text: 'Отмена', style: 'cancel'},
+    Alert.alert(i18n.t('roomDetails.alerts.leaveTitle'), i18n.t('roomDetails.alerts.leaveBody'), [
+      {text: i18n.t('roomDetails.alerts.leaveCancel'), style: 'cancel'},
       {
-        text: 'Покинуть',
+        text: i18n.t('roomDetails.alerts.leaveConfirm'),
         style: 'destructive',
         onPress: async () => {
           try {
             setLoading(true);
             await api.leaveRoom({roomId});
           } catch (e: any) {
-            Alert.alert('Ошибка', String(e?.message || e || 'Не удалось выйти'));
+            Alert.alert(
+              i18n.t('roomDetails.alerts.errorTitle'),
+              String(e?.message || e || i18n.t('roomDetails.errors.leaveFailed')),
+            );
             setLoading(false);
             return;
           }
@@ -170,12 +186,16 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
   return (
     <View style={styles.root}>
       <AppHeader
-        title={room?.title ? `Комната • ${room.title}` : 'Комната'}
+        title={
+          room?.title || roomTitleParam
+            ? i18n.t('roomDetails.headerWithTitle', {title: room?.title || roomTitleParam})
+            : i18n.t('roomDetails.header')
+        }
         onBack={() => navigation.goBack()}
         right={
           room?.inviteCode ? (
             <TouchableOpacity style={styles.headerBtn} onPress={shareInvite}>
-              <Text style={styles.headerBtnText}>Поделиться</Text>
+              <Text style={styles.headerBtnText}>{i18n.t('roomDetails.actions.share')}</Text>
             </TouchableOpacity>
           ) : null
         }
@@ -185,60 +205,72 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
         <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
           <View style={styles.card}>
             <View style={styles.rowBetween}>
-              <Text style={[styles.label, styles.rowLabel]}>ID</Text>
+              <Text style={[styles.label, styles.rowLabel]}>{i18n.t('roomDetails.labels.id')}</Text>
               <Text style={styles.value} numberOfLines={1}>
                 {roomId}
               </Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={[styles.label, styles.rowLabel]}>Участники</Text>
+              <Text style={[styles.label, styles.rowLabel]}>{i18n.t('roomDetails.labels.members')}</Text>
               <Text style={styles.value}>{room?.members?.length ?? 0}</Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={[styles.label, styles.rowLabel]}>Приватность</Text>
-              <Text style={styles.value}>{room?.isPrivate ? 'Приватная' : 'Публичная'}</Text>
-            </View>
-
-            <View style={styles.rowBetween}>
-              <Text style={[styles.label, styles.rowLabel]}>Постоянная</Text>
+              <Text style={[styles.label, styles.rowLabel]}>{i18n.t('roomDetails.labels.privacy')}</Text>
               <Text style={styles.value}>
-                {room?.isPersistent === undefined ? '—' : room.isPersistent ? 'Да' : 'Нет'}
+                {room?.isPrivate ? i18n.t('roomDetails.privacy.private') : i18n.t('roomDetails.privacy.public')}
               </Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={[styles.label, styles.rowLabel]}>Лимит</Text>
-              <Text style={styles.value}>{room?.maxParticipants ? String(room.maxParticipants) : '—'}</Text>
+              <Text style={[styles.label, styles.rowLabel]}>
+                {i18n.t('roomDetails.labels.persistent')}
+              </Text>
+              <Text style={styles.value}>
+                {room?.isPersistent === undefined
+                  ? i18n.t('common.dash')
+                  : room.isPersistent
+                    ? i18n.t('common.yes')
+                    : i18n.t('common.no')}
+              </Text>
             </View>
 
             <View style={styles.rowBetween}>
-              <Text style={[styles.label, styles.rowLabel]}>Инвайт-код</Text>
-              <Text style={styles.value}>{room?.inviteCode ? String(room.inviteCode) : '—'}</Text>
+              <Text style={[styles.label, styles.rowLabel]}>{i18n.t('roomDetails.labels.limit')}</Text>
+              <Text style={styles.value}>
+                {room?.maxParticipants ? String(room.maxParticipants) : i18n.t('common.dash')}
+              </Text>
+            </View>
+
+            <View style={styles.rowBetween}>
+              <Text style={[styles.label, styles.rowLabel]}>
+                {i18n.t('roomDetails.labels.inviteCode')}
+              </Text>
+              <Text style={styles.value}>
+                {room?.inviteCode ? String(room.inviteCode) : i18n.t('common.dash')}
+              </Text>
             </View>
           </View>
 
           <View style={styles.actionsRow}>
             <TouchableOpacity style={[styles.primaryBtn, styles.actionItem]} onPress={openMembers}>
-              <Text style={styles.primaryBtnText}>Участники</Text>
+              <Text style={styles.primaryBtnText}>{i18n.t('roomDetails.actions.members')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.ghostBtn} onPress={openInvite}>
-              <Text style={styles.ghostBtnText}>Инвайт</Text>
+              <Text style={styles.ghostBtnText}>{i18n.t('roomDetails.actions.invite')}</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Пригласить пользователя</Text>
-            <Text style={styles.sectionHint}>
-              Укажите User ID получателя. Сервер отправит инвайт (API: /v1/room/invite).
-            </Text>
+            <Text style={styles.sectionTitle}>{i18n.t('roomDetails.invite.title')}</Text>
+            <Text style={styles.sectionHint}>{i18n.t('roomDetails.invite.hint')}</Text>
 
             <TextInput
               style={styles.input}
               value={inviteUserId}
               onChangeText={setInviteUserId}
-              placeholder="User ID"
+              placeholder={i18n.t('roomDetails.invite.placeholder')}
               placeholderTextColor={t.colors.placeholder}
               autoCapitalize="none"
               autoCorrect={false}
@@ -251,23 +283,25 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
               {loading ? (
                 <ActivityIndicator color={t.colors.onPrimary} />
               ) : (
-                <Text style={styles.primaryBtnText}>Отправить</Text>
+                <Text style={styles.primaryBtnText}>{i18n.t('roomDetails.actions.sendInvite')}</Text>
               )}
             </TouchableOpacity>
 
             {!canManage ? (
               <Text style={styles.sectionNote}>
-                Примечание: управление ролями/кики доступно на экране участников (если у вас есть права).
+                {i18n.t('roomDetails.invite.note')}
               </Text>
             ) : null}
           </View>
 
           <TouchableOpacity style={styles.dangerBtn} onPress={leave}>
-            <Text style={styles.dangerBtnText}>Покинуть комнату</Text>
+            <Text style={styles.dangerBtnText}>{i18n.t('roomDetails.actions.leave')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.ghostBtnWide} onPress={load} disabled={loading}>
-            <Text style={styles.ghostBtnText}>{loading ? 'Обновление...' : 'Обновить данные'}</Text>
+            <Text style={styles.ghostBtnText}>
+              {loading ? i18n.t('roomDetails.actions.refreshing') : i18n.t('roomDetails.actions.refresh')}
+            </Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

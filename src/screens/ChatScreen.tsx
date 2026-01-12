@@ -881,7 +881,7 @@ export const ChatScreen: React.FC<Props> = ({
                 disabled={!!loadingOlder}
               >
                 <Text style={styles.loadOlderText}>
-                  {loadingOlder ? 'Загрузка…' : 'Показать предыдущие'}
+                  {loadingOlder ? i18n.t('chat.loadOlder.loading') : i18n.t('chat.loadOlder.show')}
                 </Text>
               </TouchableOpacity>
             </View>
