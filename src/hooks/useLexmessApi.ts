@@ -622,6 +622,8 @@ const authChangePassword = useCallback(
 const authLogoutAll = useCallback(async () => {
   const res = await requestJson('/v1/auth/logout_all', {method: 'POST'});
   if (res && res.access_token) {
+    // Side effect: update stored access token for subsequent requests.
+    await saveAccessToken(res.access_token);
     return {accessToken: res.access_token};
   }
   return {accessToken: null};
@@ -638,6 +640,8 @@ const authRecoveryRotate = useCallback(
     });
 
     if (res && res.access_token && res.recovery_key) {
+      // Side effect: update stored access token for subsequent requests.
+      await saveAccessToken(res.access_token);
       return {accessToken: res.access_token, recoveryKey: res.recovery_key};
     }
     return {accessToken: null, recoveryKey: null};
