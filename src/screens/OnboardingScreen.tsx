@@ -1,6 +1,8 @@
 
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {View, Text, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
+import {useTheme} from '../theme/ThemeContext';
+import type {Theme} from '../theme/themes';
 
 type ThemeName = 'light' | 'dark';
 
@@ -9,6 +11,8 @@ interface Props {
 }
 
 export const OnboardingScreen: React.FC<Props> = ({onDone}) => {
+  const t = useTheme();
+  const styles = useMemo(() => makeStyles(t), [t]);
   const [language, setLanguage] = useState<string>('ru');
   const [nickname, setNickname] = useState('');
   const [theme, setTheme] = useState<ThemeName>('dark');
@@ -34,12 +38,12 @@ export const OnboardingScreen: React.FC<Props> = ({onDone}) => {
           <TouchableOpacity
             style={[styles.chip, language === 'ru' && styles.chipActive]}
             onPress={() => setLanguage('ru')}>
-            <Text style={styles.chipText}>Русский</Text>
+            <Text style={[styles.chipText, language === 'ru' && styles.chipTextActive]}>Русский</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.chip, language === 'en' && styles.chipActive]}
             onPress={() => setLanguage('en')}>
-            <Text style={styles.chipText}>English</Text>
+            <Text style={[styles.chipText, language === 'en' && styles.chipTextActive]}>English</Text>
           </TouchableOpacity>
         </View>
 
@@ -50,7 +54,7 @@ export const OnboardingScreen: React.FC<Props> = ({onDone}) => {
           value={nickname}
           onChangeText={setNickname}
           placeholder="Как тебя подписать в чатах?"
-          placeholderTextColor="#5a6280"
+          placeholderTextColor={t.colors.placeholder}
         />
 
         {/* Шаг 3 — тема */}
@@ -59,12 +63,12 @@ export const OnboardingScreen: React.FC<Props> = ({onDone}) => {
           <TouchableOpacity
             style={[styles.chip, theme === 'light' && styles.chipActive]}
             onPress={() => setTheme('light')}>
-            <Text style={styles.chipText}>Светлая</Text>
+            <Text style={[styles.chipText, theme === 'light' && styles.chipTextActive]}>Светлая</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.chip, theme === 'dark' && styles.chipActive]}
             onPress={() => setTheme('dark')}>
-            <Text style={styles.chipText}>Тёмная</Text>
+            <Text style={[styles.chipText, theme === 'dark' && styles.chipTextActive]}>Тёмная</Text>
           </TouchableOpacity>
         </View>
 
@@ -89,114 +93,117 @@ export const OnboardingScreen: React.FC<Props> = ({onDone}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#02040b',
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  card: {
-    width: '100%',
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    backgroundColor: '#050812',
-    borderWidth: 1,
-    borderColor: '#1a2140',
-    shadowColor: '#000000',
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    shadowOffset: {width: 0, height: 8},
-    elevation: 8,
-  },
-  title: {
-    fontSize: 32,
-    color: '#ffffff',
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#9fa3c0',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 13,
-    color: '#9fa3c0',
-    marginBottom: 6,
-  },
-  input: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#20263f',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: '#ffffff',
-    marginBottom: 16,
-    backgroundColor: '#070d18',
-  },
-  row: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    justifyContent: 'space-between',
-  },
-  chip: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#20263f',
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  chipActive: {
-    backgroundColor: '#304ffe',
-    borderColor: '#304ffe',
-  },
-  chipText: {
-    color: '#ffffff',
-    fontSize: 14,
-  },
-  buttonsRow: {
-    marginTop: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-  primaryButton: {
-    flex: 1.2,
-    borderRadius: 999,
-    backgroundColor: '#ff6d00',
-    paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  secondaryButton: {
-    flex: 1,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#ff6d00',
-    paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },
-  primaryButtonText: {
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  secondaryButtonText: {
-    color: '#ffb74d',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  buttonDisabled: {
-    opacity: 0.4,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: t.colors.bg,
+      paddingHorizontal: t.spacing.xl,
+      paddingVertical: t.spacing.xl,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    card: {
+      width: '100%',
+      borderRadius: t.radii.xl,
+      paddingHorizontal: t.spacing.lg,
+      paddingVertical: t.spacing.xl,
+      backgroundColor: t.colors.card,
+      borderWidth: 1,
+      borderColor: t.colors.border,
+      ...t.shadows.card,
+    },
+    title: {
+      ...t.typography.title,
+      fontSize: 32,
+      color: t.colors.text,
+      fontWeight: '700',
+      textAlign: 'center',
+      marginBottom: 4,
+    },
+    subtitle: {
+      ...t.typography.bodyRegular,
+      color: t.colors.textMuted,
+      textAlign: 'center',
+      marginBottom: t.spacing.xl,
+    },
+    label: {
+      ...t.typography.bodyRegular,
+      color: t.colors.textMuted,
+      marginBottom: t.spacing.xs,
+    },
+    input: {
+      borderRadius: t.radii.md,
+      borderWidth: 1,
+      borderColor: t.colors.inputBorder,
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm,
+      color: t.colors.text,
+      marginBottom: t.spacing.lg,
+      backgroundColor: t.colors.inputBg,
+      ...t.typography.bodyRegular,
+    },
+    row: {
+      flexDirection: 'row',
+      marginBottom: t.spacing.xl,
+      justifyContent: 'space-between',
+    },
+    chip: {
+      flex: 1,
+      paddingVertical: t.spacing.sm,
+      borderRadius: t.radii.pill,
+      borderWidth: 1,
+      borderColor: t.colors.border,
+      alignItems: 'center',
+      marginRight: t.spacing.xs,
+    },
+    chipActive: {
+      backgroundColor: t.colors.primary,
+      borderColor: t.colors.primary,
+    },
+    chipText: {
+      ...t.typography.bodyRegular,
+      color: t.colors.text,
+    },
+    chipTextActive: {
+      color: t.colors.onPrimary,
+      fontWeight: '600',
+    },
+    buttonsRow: {
+      marginTop: t.spacing.sm,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: t.spacing.xs,
+    },
+    primaryButton: {
+      flex: 1.2,
+      borderRadius: t.radii.pill,
+      backgroundColor: t.colors.primary,
+      paddingVertical: t.spacing.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    secondaryButton: {
+      flex: 1,
+      borderRadius: t.radii.pill,
+      borderWidth: 1,
+      borderColor: t.colors.primary,
+      paddingVertical: t.spacing.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'transparent',
+    },
+    primaryButtonText: {
+      ...t.typography.body,
+      color: t.colors.onPrimary,
+      fontWeight: '600',
+    },
+    secondaryButtonText: {
+      ...t.typography.bodyRegular,
+      color: t.colors.primary,
+      fontWeight: '500',
+    },
+    buttonDisabled: {
+      opacity: 0.4,
+    },
+  });

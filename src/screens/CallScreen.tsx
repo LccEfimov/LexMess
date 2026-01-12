@@ -209,7 +209,7 @@ const makeStyles = (t: Theme) =>
     },
     timer: {color: t.colors.text, fontSize: 14, fontWeight: '600'},
     mediaArea: {flex: 1, overflow: 'hidden', borderRadius: t.radii.xl},
-    videoWrap: {flex: 1, backgroundColor: '#000', borderRadius: t.radii.xl, overflow: 'hidden'},
+    videoWrap: {flex: 1, backgroundColor: t.colors.bg, borderRadius: t.radii.xl, overflow: 'hidden'},
     remoteVideo: {width: '100%', height: '100%'},
     placeholder: {
       width: '100%',
@@ -229,7 +229,7 @@ const makeStyles = (t: Theme) =>
       overflow: 'hidden',
       borderWidth: 1,
       borderColor: t.colors.border,
-      backgroundColor: '#000',
+      backgroundColor: t.colors.bg,
     },
     localPreview: {width: '100%', height: '100%'},
     audioWrap: {flex: 1, alignItems: 'center', justifyContent: 'center'},

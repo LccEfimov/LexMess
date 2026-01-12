@@ -414,7 +414,7 @@ const makeStyles = (t: Theme) =>
     },
     tabCountActive: {borderColor: t.colors.primary, backgroundColor: t.colors.primary},
     tabCountText: {...t.typography.tiny, color: t.colors.textMuted},
-    tabCountTextActive: {color: '#fff'},
+    tabCountTextActive: {color: t.colors.onPrimary},
 
     searchWrap: {
       marginHorizontal: 14,
@@ -452,7 +452,7 @@ const makeStyles = (t: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
-    actionBtnText: {...t.typography.body, color: '#fff'},
+    actionBtnText: {...t.typography.body, color: t.colors.onPrimary},
     actionBtnGhost: {
       paddingVertical: 10,
       paddingHorizontal: 12,
@@ -510,7 +510,7 @@ const makeStyles = (t: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
-    unreadText: {...t.typography.tiny, color: '#fff'},
+    unreadText: {...t.typography.tiny, color: t.colors.onPrimary},
     unreadSpacer: {height: 22},
 
     smallBtn: {
@@ -522,7 +522,7 @@ const makeStyles = (t: Theme) =>
       justifyContent: 'center',
       minWidth: 78,
     },
-    smallBtnText: {...t.typography.body, color: '#fff'},
+    smallBtnText: {...t.typography.body, color: t.colors.onPrimary},
     smallBtnGhost: {
       paddingHorizontal: 12,
       paddingVertical: 8,

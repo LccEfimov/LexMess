@@ -181,7 +181,7 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
         }
       />
 
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{flex: 1}}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.keyboard}>
         <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
           <View style={styles.card}>
             <View style={styles.rowBetween}>
@@ -248,7 +248,11 @@ export const RoomDetailsScreen: React.FC<Props> = ({navigation, route}) => {
               style={[styles.primaryBtn, (!inviteUserId.trim() || loading) ? styles.btnDisabled : null]}
               disabled={!inviteUserId.trim() || loading}
               onPress={invite}>
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>Отправить</Text>}
+              {loading ? (
+                <ActivityIndicator color={t.colors.onPrimary} />
+              ) : (
+                <Text style={styles.primaryBtnText}>Отправить</Text>
+              )}
             </TouchableOpacity>
 
             {!canManage ? (
@@ -275,6 +279,7 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
     root: {flex: 1, backgroundColor: t.colors.bg},
     pad: {padding: 14, paddingBottom: 26},
+    keyboard: {flex: 1},
     headerBtn: {
       paddingHorizontal: 12,
       paddingVertical: 8,
@@ -307,7 +312,7 @@ const makeStyles = (t: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
-    primaryBtnText: {...t.typography.body, color: '#fff', fontWeight: '700'},
+    primaryBtnText: {...t.typography.body, color: t.colors.onPrimary, fontWeight: '700'},
     ghostBtn: {
       borderRadius: 14,
       borderWidth: 1,

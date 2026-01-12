@@ -83,10 +83,10 @@ export const RoomInviteScreen: React.FC<Props> = ({navigation, route}) => {
           {title || roomId || 'Новая комната'}
         </Text>
 
-        <Text style={[styles.label, {marginTop: 12}]}>ID комнаты</Text>
+        <Text style={[styles.label, styles.labelSpacing]}>ID комнаты</Text>
         <Text style={styles.value}>{roomId}</Text>
 
-        <Text style={[styles.label, {marginTop: 12}]}>Инвайт-код</Text>
+        <Text style={[styles.label, styles.labelSpacing]}>Инвайт-код</Text>
         {liveInviteCode ? (
           <Text style={styles.inviteValue}>{liveInviteCode}</Text>
         ) : (
@@ -138,16 +138,19 @@ const makeStyles = (t: Theme) =>
     color: t.colors.text,
   },
   card: {
-    marginTop: 12,
-    borderRadius: 16,
+    marginTop: t.spacing.md,
+    borderRadius: t.radii.md,
     backgroundColor: t.colors.card,
-    padding: 16,
+    padding: t.spacing.md,
     borderWidth: 1,
     borderColor: t.colors.border,
   },
   label: {
     fontSize: 12,
     color: t.colors.textMuted,
+  },
+  labelSpacing: {
+    marginTop: t.spacing.md,
   },
   value: {
     fontSize: 15,
@@ -156,34 +159,34 @@ const makeStyles = (t: Theme) =>
   },
   inviteValue: {
     fontSize: 18,
-    color: '#3bff9c',
-    marginTop: 4,
+    color: t.colors.success,
+    marginTop: t.spacing.xs,
     fontWeight: '700',
     letterSpacing: 1,
   },
   valueMuted: {
     fontSize: 13,
     color: t.colors.placeholder,
-    marginTop: 4,
+    marginTop: t.spacing.xs,
   },
   primaryButton: {
-    marginTop: 24,
-    borderRadius: 12,
+    marginTop: t.spacing.xl,
+    borderRadius: t.radii.md,
     backgroundColor: t.colors.primary,
-    paddingVertical: 10,
+    paddingVertical: t.spacing.sm,
     alignItems: 'center',
   },
   primaryButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: t.colors.text,
+    color: t.colors.onPrimary,
   },
   secondaryButton: {
-    marginTop: 16,
-    borderRadius: 12,
+    marginTop: t.spacing.lg,
+    borderRadius: t.radii.md,
     borderWidth: 1,
     borderColor: t.colors.primary,
-    paddingVertical: 8,
+    paddingVertical: t.spacing.sm,
     alignItems: 'center',
   },
   secondaryButtonText: {

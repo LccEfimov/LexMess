@@ -142,14 +142,14 @@ export const RecoveryKeyScreen: React.FC<Props> = ({route, onDone}) => {
         </Text>
       </View>
 
-      <ScrollView contentContainerStyle={{paddingBottom: 22}}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           <Text style={styles.infoLine}>
             Логин: <Text style={styles.mono}>{login || '—'}</Text>
           </Text>
 
           {walletAddress ? (
-            <Text style={[styles.infoLine, {marginTop: 8}]}>
+            <Text style={[styles.infoLine, styles.infoLineSpacing]}>
               Адрес кошелька: <Text style={styles.mono}>{walletAddress}</Text>
             </Text>
           ) : null}
@@ -176,14 +176,10 @@ export const RecoveryKeyScreen: React.FC<Props> = ({route, onDone}) => {
             style={({pressed}) => [
               styles.btn,
               (pressed || busy) && styles.btnPressed,
-              (!login || busy) && {opacity: 0.9},
+              (!login || busy) && styles.btnDisabled,
             ]}
             onPress={confirmSaved}>
-            {busy ? (
-              <ActivityIndicator />
-            ) : (
-              <Text style={styles.btnText}>Я сохранил</Text>
-            )}
+            {busy ? <ActivityIndicator color={t.colors.onPrimary} /> : <Text style={styles.btnText}>Я сохранил</Text>}
           </Pressable>
         </View>
       </ScrollView>
@@ -195,57 +191,61 @@ const makeStyles = (t: Theme) =>
   StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#050817',
-    paddingHorizontal: 22,
-    paddingTop: 48,
+    backgroundColor: t.colors.bg,
+    paddingHorizontal: t.spacing.xl,
+    paddingTop: t.spacing.xl * 2,
   },
   header: {
-    marginBottom: 18,
+    marginBottom: t.spacing.lg,
   },
   title: {
+    ...t.typography.title,
     fontSize: 26,
     fontWeight: '900',
-    color: '#E8ECFF',
+    color: t.colors.text,
   },
   subtitle: {
-    marginTop: 10,
-    fontSize: 12,
+    marginTop: t.spacing.sm,
+    ...t.typography.caption,
     lineHeight: 18,
-    color: 'rgba(232,236,255,0.68)',
+    color: t.colors.textMuted,
   },
   card: {
     borderWidth: 1,
-    borderColor: 'rgba(120,150,255,0.22)',
-    borderRadius: 18,
-    padding: 16,
-    backgroundColor: 'rgba(10,14,35,0.65)',
+    borderColor: t.colors.border,
+    borderRadius: t.radii.lg,
+    padding: t.spacing.md,
+    backgroundColor: t.colors.card,
   },
   infoLine: {
-    fontSize: 12,
-    color: 'rgba(232,236,255,0.78)',
+    ...t.typography.caption,
+    color: t.colors.textMuted,
     lineHeight: 18,
+  },
+  infoLineSpacing: {
+    marginTop: t.spacing.sm,
   },
   mono: {
     fontFamily: Platform.select({ios: 'Menlo', android: 'monospace'}),
-    color: '#E8ECFF',
+    color: t.colors.text,
     fontWeight: '800',
   },
   keyFrame: {
-    marginTop: 14,
-    borderRadius: 16,
+    marginTop: t.spacing.md,
+    borderRadius: t.radii.md,
     borderWidth: 1,
-    borderColor: 'rgba(140,175,255,0.55)',
-    backgroundColor: 'rgba(5,8,23,0.55)',
-    padding: 14,
+    borderColor: t.colors.border,
+    backgroundColor: t.colors.inputBg,
+    padding: t.spacing.md,
   },
   keyHint: {
-    fontSize: 11,
-    color: 'rgba(232,236,255,0.58)',
+    ...t.typography.tiny,
+    color: t.colors.textFaint,
     textAlign: 'center',
   },
   keyText: {
-    marginTop: 10,
-    color: '#E8ECFF',
+    marginTop: t.spacing.sm,
+    color: t.colors.text,
     fontWeight: '900',
     letterSpacing: 1.3,
     textAlign: 'center',
@@ -253,44 +253,50 @@ const makeStyles = (t: Theme) =>
     lineHeight: 22,
   },
   warnBox: {
-    marginTop: 14,
-    borderRadius: 14,
+    marginTop: t.spacing.md,
+    borderRadius: t.radii.md,
     borderWidth: 1,
-    borderColor: 'rgba(255,210,110,0.18)',
-    backgroundColor: 'rgba(255,210,110,0.06)',
-    padding: 12,
+    borderColor: t.colors.border,
+    backgroundColor: t.colors.ghostBg,
+    padding: t.spacing.md,
   },
   warnTitle: {
-    fontSize: 12,
+    ...t.typography.caption,
     fontWeight: '900',
-    color: 'rgba(255,210,110,0.95)',
+    color: t.colors.text,
   },
   warnText: {
-    marginTop: 6,
-    fontSize: 12,
+    marginTop: t.spacing.xs,
+    ...t.typography.caption,
     lineHeight: 18,
-    color: 'rgba(232,236,255,0.78)',
+    color: t.colors.textMuted,
   },
   error: {
-    marginTop: 10,
-    color: '#FF6B8A',
-    fontSize: 12,
+    marginTop: t.spacing.sm,
+    color: t.colors.danger,
+    ...t.typography.caption,
   },
   btn: {
-    marginTop: 16,
+    marginTop: t.spacing.md,
     height: 48,
-    borderRadius: 12,
+    borderRadius: t.radii.md,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#6B7CFF',
+    backgroundColor: t.colors.primary,
   },
   btnPressed: {
     opacity: 0.85,
   },
+  btnDisabled: {
+    opacity: 0.9,
+  },
   btnText: {
-    color: '#0B102A',
+    color: t.colors.onPrimary,
     fontWeight: '900',
     fontSize: 16,
+  },
+  scrollContent: {
+    paddingBottom: t.spacing.xl,
   },
   // linkBtn/linkText intentionally removed: на этом экране нельзя уходить назад
 });

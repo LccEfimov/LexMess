@@ -399,7 +399,7 @@ const makeStyles = (t: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
-    unreadText: {...t.typography.tiny, color: '#fff'},
+    unreadText: {...t.typography.tiny, color: t.colors.onPrimary},
     unreadSpacer: {height: 22, marginTop: 8},
     actionBtn: {
       marginTop: 10,
