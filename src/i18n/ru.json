@@ -72,11 +72,20 @@
     },
     "header": {
       "rooms": "Комнаты",
-      "settings": "Настройки"
+      "settings": "Настройки",
+      "muteOn": "Без звука",
+      "muteOff": "Со звуком",
+      "exit": "Выйти"
     },
     "search": {
       "chats": "Поиск по чатам",
-      "rooms": "Поиск по комнатам"
+      "rooms": "Поиск по комнатам",
+      "placeholder": "Поиск"
+    },
+    "tabs": {
+      "my": "Мои",
+      "open": "Участник",
+      "public": "Публичные"
     },
     "badge": {
       "my": "МОЯ",
@@ -84,11 +93,19 @@
       "private": "ПРИВ",
       "public": "ПУБЛ"
     },
+    "meta": {
+      "members": "участн.",
+      "online": " • онлайн {count}"
+    },
     "noMessages": "Нет сообщений",
     "actions": {
       "join": "Вступить",
       "open": "Открыть",
-      "leave": "Выйти"
+      "leave": "Выйти",
+      "create": "Создать комнату",
+      "joinByCode": "Войти по коду",
+      "showAll": "Показать все",
+      "busy": "..."
     },
     "alerts": {
       "joinErrorTitle": "Ошибка",
@@ -98,14 +115,20 @@
       "leaveConfirmTitle": "Выйти из комнаты?",
       "leaveConfirmBody": "Вы потеряете быстрый доступ к комнате. Можно будет войти снова по приглашению.",
       "leaveConfirmCancel": "Отмена",
-      "leaveConfirmLeave": "Выйти"
+      "leaveConfirmLeave": "Выйти",
+      "exitTitle": "Выход",
+      "exitBody": "Выйти из приложения?",
+      "exitCancel": "Отмена",
+      "exitConfirm": "Выйти"
     },
     "pinHint": "Долгое нажатие: закрепить/открепить",
     "empty": {
       "chatsTitle": "Пока нет чатов",
       "chatsSubtitle": "Откройте комнату или начните диалог — здесь появится история.",
       "roomsTitle": "Пока нет комнат",
-      "roomsSubtitle": "Создайте комнату или войдите по коду — она появится в списке."
+      "roomsSubtitle": "Создайте комнату или войдите по коду — она появится в списке.",
+      "filteredTitle": "Пусто",
+      "filteredSubtitle": "Нет комнат по вашему фильтру."
     }
   },
   "chat": {
