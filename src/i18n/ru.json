@@ -619,6 +619,44 @@
       "failed": "Не удалось сгенерировать ключ"
     }
   },
+  "createRoom": {
+    "title": "Создать комнату",
+    "nameLabel": "Название",
+    "namePlaceholder": "Например: Общение",
+    "inviteCodeLabel": "Инвайт-код (необязательно)",
+    "inviteCodePlaceholder": "Например: EIN-1234",
+    "maxParticipantsLabel": "Максимум участников",
+    "maxParticipantsPlaceholder": "25",
+    "privateTitle": "Приватная комната",
+    "privateHint": "Приватные комнаты не отображаются в публичном списке.",
+    "persistentTitle": "Постоянная",
+    "persistentHint": "Комната сохраняет настройки и участников.",
+    "creating": "Создание...",
+    "create": "Создать",
+    "note": "После создания откроется экран с кодом приглашения.",
+    "defaultTitle": "Комната {date}",
+    "system": {
+      "created": "Комната создана"
+    },
+    "errors": {
+      "title": "Ошибка",
+      "missingOwner": "Нужен ownerId. Выполните вход заново.",
+      "missingRoomId": "Сервер не вернул идентификатор комнаты.",
+      "createFailed": "Не удалось создать комнату"
+    }
+  },
+  "newDirectChat": {
+    "title": "Новый чат",
+    "subtitle": "Личный диалог (1:1)",
+    "userIdLabel": "ID пользователя",
+    "userIdPlaceholder": "UUID или ID из профиля",
+    "create": "Создать чат",
+    "cancel": "Отмена",
+    "errors": {
+      "missingUserId": "Введите ID пользователя",
+      "createFailed": "Не удалось создать чат"
+    }
+  },
   "theme": {
     "system": "Системная",
     "lexmess_dark": "LexMess (тёмная)",
@@ -632,6 +670,7 @@
     "cancel": "Отмена",
     "done": "Готово",
     "next": "Далее",
-    "error": "Ошибка"
+    "error": "Ошибка",
+    "ellipsis": "…"
   }
 }
