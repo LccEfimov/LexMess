@@ -433,6 +433,30 @@ export async function ensureSchema(): Promise<void> {
     await setUserVersion(db, SCHEMA_VERSION);
   }
 }
+
+export async function resetStorage(): Promise<void> {
+  const db = await getDatabase();
+  await ensureSchema();
+  const tablesToClear = [
+    'accounts',
+    'sessions',
+    'rooms',
+    'messages',
+    'room_read_state',
+    'local_account',
+    'e2e_secretbox',
+    'wallet_tx_cache',
+    'security_state',
+    'room_pins',
+  ];
+  for (const table of tablesToClear) {
+    try {
+      await db.executeSql(`DELETE FROM ${table};`);
+    } catch {
+      // ignore
+    }
+  }
+}
 // ===== app_settings =====
 
 export type AppSettings = {
