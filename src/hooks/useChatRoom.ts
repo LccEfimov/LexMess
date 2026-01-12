@@ -213,7 +213,13 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
         return;
       }
 
-      const mapped: ChatMessage[] = rows.map(row => ({
+      const sorted = [...rows].sort((a, b) => {
+        const ta = a.ts || 0;
+        const tb = b.ts || 0;
+        return ta - tb;
+      });
+
+      const mapped: ChatMessage[] = sorted.map(row => ({
         id: String(row.id ?? `${row.ts}_${row.senderId}`),
         sender: row.senderId,
         body: row.body || '',
@@ -227,7 +233,7 @@ export function useChatRoom(roomId, currentUserId, cryptoEngine, stegoEngine) {
       setMessages(prev => {
         const existingIds = new Set(prev.map(m => m.id));
         const deduped = mapped.filter(m => !existingIds.has(m.id));
-        return [...prev, ...deduped];
+        return [...deduped, ...prev];
       });
 
       const nextMinTs = rows.reduce((min, row) => Math.min(min, Number(row.ts || 0)), beforeTs);
