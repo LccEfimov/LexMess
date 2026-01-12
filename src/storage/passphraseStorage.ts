@@ -48,10 +48,10 @@ export async function getDevicePassphrase() {
 
   try {
     await Keychain.setGenericPassword('passphrase', random, {service: SERVICE});
+    return random;
   } catch (e) {
     // eslint-disable-next-line no-console
     console.warn('[passphraseStorage] getDevicePassphrase keychain write failed', e);
+    throw new Error('Failed to persist device passphrase in Keychain');
   }
-
-  return random;
 }
